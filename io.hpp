@@ -6,7 +6,7 @@ _recolic_hpp_begin
 template<typename PrintFinalT>
 void print(PrintFinalT reqArg)
 {
-	::std::cout << reqArg << ::std::endl;
+	::std::cout << reqArg;
 	return;
 }
 template<typename Required, typename... Optional>
