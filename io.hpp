@@ -16,6 +16,13 @@ void print(Required reqArgs, Optional... optiArgs)
 	print(optiArgs ...);
 	return;
 }
+template<typename... Optional>
+void println(Optional... optiArgs)
+{
+	print(optiArgs ...);
+	::std::cout << ::std::endl;
+	return;
+}
 _recolic_hpp_end
 
 #endif
