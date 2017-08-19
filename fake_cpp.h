@@ -25,8 +25,8 @@
     #else
         typedef _Bool bool;
     #endif
-    #define false (bool)0;
-    #define true (bool)1;
+    #define false (bool)0
+    #define true (bool)1
 #else
     #error Sorry, library "fake_cpp.h" is only designed for pure C. Do not use C++ compiler please.
 #endif
