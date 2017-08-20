@@ -11,6 +11,7 @@ using std::basic_ostream;
 namespace rlib {
     enum class color_t {color_unset = 10, black = 0, red, green, brown, blue, magenta, cyan, lightgray};
     enum class font_t {font_unset = 0, bold = 1, underline = 4, dark = 2, background = 7, striked = 9}; //Edit line53 if (int)font_t may >= 10 !!
+    class clear_t {} clear;
 
     class fontInfo
     {
@@ -18,17 +19,16 @@ namespace rlib {
         fontInfo(color_t text_color) : textColor(text_color) {}
         fontInfo(font_t font_type) : fontType(font_type) {}
         fontInfo(color_t text_color, font_t font_type) : textColor(text_color), fontType(font_type) {}
+        fontInfo(const clear_t &) : clear(true) {}
         fontInfo() = default;
         string toString() const
         {
-            return std::move(color_to_string() + font_to_string());
+            return std::move(clear ? std::string("\033[0m") : (color_to_string() + font_to_string()));
         }
+    private:
         color_t textColor = color_t::color_unset;
         font_t fontType = font_t::font_unset;
-        static string clear()
-        {
-            return std::move(std::string("\033[0m"));
-        }
+        bool clear = false;
     private:
         constexpr static int color_to_int(const color_t &_ct)
         {
@@ -63,7 +63,6 @@ namespace rlib {
             return std::move(std::string(toret)); 
         }
     };
-//TODO: write to terminal.cc
     
     struct _rosi_font {_rosi_font(const fontInfo &_ref_fi) : _ref_fi(_ref_fi) {} const fontInfo &_ref_fi;};
     inline _rosi_font setfont(const fontInfo &__fi) {return _rosi_font(__fi);}

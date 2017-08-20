@@ -1,9 +1,10 @@
 #include <iostream>
-#include "terminal.hpp"
-using namespace std;
+#include <rlib/terminal.hpp>
+using namespace rlib;
 int main()
 {
-	cout << "\033[1m6666666\033[31m666666666\033[0m666666" << endl;
-	cout << rlib::color_t::red << rlib::font_t::bold << "hello world" << rlib::fontInfo::clear() << "66666" << endl;
+	std::cout << color_t::red << font_t::bold << "hello world" << font_t::dark << "qaq..." << clear << "66666" << std::endl;
+	std::cout << color_t::green << "Hi~" << font_t::underline << "Miaow" << std::endl;
+	std::cout << "Continue!" << clear << std::endl;
 	return 0;
 }
