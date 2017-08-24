@@ -2,21 +2,40 @@
 #define R_OS_HPP
 
 #ifndef __OS_ID__
-
-
-#define __OS_ID__ UNKNOWN
+#if defined(_Windows) || defined(__WIN32__) || defined(_WIN64)
+#   define __OS_ID__ WINDOWS
+#elif defined(__linux__) || defined(__linux)
+#   define __OS_ID__ LINUX
+#elif defined(__APPLE__)
+#   include "TargetConditionals.h"
+#   if TARGET_IPHONE_SIMULATOR
+#   define __OS_ID__ IOS
+#   elif TARGET_OS_IPHONE
+#   define __OS_ID__ IOS
+#   elif TARGET_OS_MAC
+#   define __OS_ID__ MACOS
+#   else
+#   define __OS_ID__ UNKNOWN_UNIX
+#   endif
+#elif defined(__ANDROID__)
+#   define __OS_ID__ ANDROID
+#elif defined(__unix__) || defined(__unix)
+#   define __OS_ID__ UNKNOWN_UNIX
+#else
+#   define __OS_ID__ UNKNOWN
+#endif
 #endif
 
 #include "compiler_detector"
 // Define __COMPILER_ID__ and __COMPILER_VER__
 
-#ifdef __cplusplus
+#if __cplusplus >= 201103L
 
 class OSInfo
 {
 public:
-    enum class os_t {UNKNOWN, WINDOWS, LINUX, MACOS, BSD};
-    enum class compiler_t {UNKNOWN, GCC, CLANG, MSVC, INTELC, BORLAND, IARC, SOLARIS, }; //Compiler which not supports cxx1x yet is not listed here. 201708.
+    enum class os_t {UNKNOWN, WINDOWS, LINUX, MACOS, BSD, IOS, ANDROID, UNKNOWN_UNIX};
+    enum class compiler_t {UNKNOWN, GCC, CLANG, MSVC, INTELC, BORLAND, IARC, SOLARIS, ZAPCC}; //Compiler which not supports cxx1x yet is not listed here. 201708.
 #if defined(__OS_ID__)
     static constexpr os_t os = os_t::__OS_ID__;
 #endif
