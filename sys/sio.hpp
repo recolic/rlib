@@ -11,7 +11,7 @@ namespace rlib {
     class fdIO
     {
     public:
-        static ssize_t readn(int fd, const void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t readn(int fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -33,7 +33,7 @@ namespace rlib {
             }
             return (n - nleft);         /* return >= 0 */
         }
-        static ssize_t writen(int fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t writen(int fd, const void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -93,7 +93,7 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void readn_ex(int fd, const void *vptr, size_t n) //with exception, never return error.
+        static void readn_ex(int fd, void *vptr, size_t n) //with exception, never return error.
         {
             size_t  nleft;
             ssize_t nread;
@@ -114,7 +114,7 @@ namespace rlib {
                 ptr += nread;
             }
         }
-        static void writen_ex(int fd, void *vptr, size_t n)
+        static void writen_ex(int fd, const void *vptr, size_t n)
         {
             size_t nleft;
             ssize_t nwritten;
@@ -127,7 +127,7 @@ namespace rlib {
                     if (nwritten < 0 && errno == EINTR)
                         nwritten = 0;   /* and call write() again */
                     else
-                        throw std::runtime_error("Readn failed with errno=" + std::to_string(errno));
+                        throw std::runtime_error("Writen failed with errno=" + std::to_string(errno));
                  }
              
                  nleft -= nwritten;
@@ -178,7 +178,7 @@ namespace rlib {
     class sockIO 
     {
     public:
-        static ssize_t recvn(int fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(int fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -200,7 +200,7 @@ namespace rlib {
             }
             return (n - nleft);         /* return >= 0 */
         }
-        static ssize_t sendn(int fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(int fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -260,7 +260,7 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void recvn_ex(int fd, const void *vptr, size_t n, int flags) //with exception, never return error.
+        static void recvn_ex(int fd, void *vptr, size_t n, int flags) //with exception, never return error.
         {
             size_t  nleft;
             ssize_t nread;
@@ -273,7 +273,7 @@ namespace rlib {
                     if (errno == EINTR)
                         nread = 0;      /* and call read() again */
                     else
-                        throw std::runtime_error("Readn failed with errno=" + std::to_string(errno));
+                        throw std::runtime_error("Recvn failed with errno=" + std::to_string(errno));
                 } else if (nread == 0)
                     break;              /* EOF */
             
@@ -281,7 +281,7 @@ namespace rlib {
                 ptr += nread;
             }
         }
-        static void sendn_ex(int fd, void *vptr, size_t n, int flags)
+        static void sendn_ex(int fd, const void *vptr, size_t n, int flags)
         {
             size_t nleft;
             ssize_t nwritten;
@@ -294,7 +294,7 @@ namespace rlib {
                     if (nwritten < 0 && errno == EINTR)
                         nwritten = 0;   /* and call write() again */
                     else
-                        throw std::runtime_error("Readn failed with errno=" + std::to_string(errno));
+                        throw std::runtime_error("Sendn failed with errno=" + std::to_string(errno));
                  }
              
                  nleft -= nwritten;
@@ -311,7 +311,7 @@ namespace rlib {
         
             {
                 ssize_t ret = recv(fd, currvptr, current / 2, flags);
-                if(ret == -1) throw std::runtime_error("read failed. errno=" + std::to_string(errno));
+                if(ret == -1) throw std::runtime_error("recv failed. errno=" + std::to_string(errno));
                 if(ret < current / 2)
                 {
                     *pvptr = vptr;
@@ -323,7 +323,7 @@ namespace rlib {
             while(true)
             {
                 ssize_t ret = recv(fd, currvptr, current / 2, flags);
-                if(ret == -1) throw std::runtime_error("read failed. errno=" + std::to_string(errno));
+                if(ret == -1) throw std::runtime_error("recv failed. errno=" + std::to_string(errno));
                 if(ret < current)
                 {
                     *pvptr = vptr;

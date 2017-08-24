@@ -1,6 +1,7 @@
 #ifndef CPP_H_INCLUDED
 #define CPP_H_INCLUDED
 #include <stdint.h>
+#include <stdbool.h>
 
 #define _enable_cxx_class
 #define _enable_cxx_vector
@@ -14,22 +15,6 @@
 #define INVALID_LONG LONG_MAX
 #define nullptr NULL
 #define new(data_type) malloc(sizeof(data_type))
-#ifndef __cplusplus
-    #ifndef __STDC__
-        #error Fuck??? Why not __STDC__???
-    #endif
-    #if __STDC_VERSION__ < 201100L
-        typedef int bool;
-    #elif __STDC_VERSION__ < 199900L
-        #error Try to compile with -std=c99 or -std=c11, or donate your computer to history museums. 
-    #else
-        typedef _Bool bool;
-    #endif
-    #define false (bool)0
-    #define true (bool)1
-#else
-    #error Sorry, library "fake_cpp.h" is only designed for pure C. Do not use C++ compiler please.
-#endif
 #define throw
 #define class struct
 #define bad_alloc(printf_args...) {printf("At %s(LINE%d):",__FILE__,__LINE__);printf("\nFatal: std::bad_alloc(%s):",strerror(errno));printf(printf_args);printf("\nprogram is terminating...\n");exit(127);}
@@ -261,7 +246,7 @@ class ctree;
 #define _ctree struct ctree
 typedef void (* sorted_insert_t)(_ctree *this, CTREE_DATA_TYPE toInsert, uint32_t fileid);
 typedef void (* ctree_t)(_ctree *this, void *func_arg);
-typedef void (CALLBACK * ctree_walk_callback_t)(CTREE_DATA_TYPE /***/data, CTREE_ADDITIONAL_DATA_TYPE d_cter);//这可不是成员函数定义，这是遍历时的回调！！
+typedef void (CALLBACK * ctree_walk_callback_t)(CTREE_DATA_TYPE /***/data, CTREE_ADDITIONAL_DATA_TYPE d_cter);//Here's a callback func while walking through a tree.
 typedef void (* for_each_t)(_ctree *this, ctree_walk_callback_t ctree_walk_callback);
 typedef void (* release_t)();
 void ctree_exe_pre(_ctree *this,void *func_arg);

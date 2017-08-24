@@ -21,7 +21,5 @@ namespace rlib{
         size_t m_size;
         int maxFileDescriptor;
     };
-
-
 }
 #endif
