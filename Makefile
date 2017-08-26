@@ -1,6 +1,9 @@
 
+#CC?=gcc
+TESTS := $(shell find test -name '*.c')
+
 build:
-	# build test file here.
+	$(foreach fl, $(TESTS), $(CC) -c $(fl) -o /tmp/test.o;)
 
 install:
 	[ ! -d /usr/include/rlib ] || rm -rf /usr/include/rlib
