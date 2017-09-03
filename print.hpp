@@ -24,6 +24,35 @@ namespace rlib {
 		::std::cout << ::std::endl;
 		return;
 	}
+
+	template<typename Iterable, typename Printable>
+	void print_iter(Iterable arg, Printable spliter)
+	{
+        for(const auto & i : arg)
+		    ::std::cout << i << spliter;
+		return;
+	}
+	template<typename Iterable, typename Printable>
+	void println_iter(Iterable arg, Printable spliter)
+	{
+		print_iter(arg, spliter);
+		::std::cout << ::std::endl;
+		return;
+	}
+    template<typename Iterable>
+	void print_iter(Iterable arg)
+	{
+        for(const auto & i : arg)
+		    ::std::cout << i << ' ';
+		return;
+	}
+	template<typename Iterable>
+	void println_iter(Iterable arg)
+	{
+		print_iter(arg);
+		::std::cout << ::std::endl;
+		return;
+	}
 }
 
 #endif

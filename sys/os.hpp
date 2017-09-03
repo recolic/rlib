@@ -2,7 +2,7 @@
 #define R_OS_HPP
 
 #ifndef __OS_ID__
-#if defined(_Windows) || defined(__WIN32__) || defined(_WIN64)
+#if defined(_Windows) || defined(__WIN32__) || defined(_WIN64) || defined(WIN32)
 #   define __OS_ID__ WINDOWS
 #elif defined(__linux__) || defined(__linux)
 #   define __OS_ID__ LINUX

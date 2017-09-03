@@ -11,8 +11,10 @@
 #ifndef R_SCOPE_GUARD
 #define R_SCOPE_GUARD
 
+#include <rlib/require/cxx11>
 #include <functional>
 #include "noncopyable.hpp"
+
 namespace rlib {
     class scope_guard : private noncopyable
     {
@@ -45,10 +47,11 @@ namespace rlib {
     };
 }
 #ifndef defer
-#define defer(callable) rlib::scope_guard _guarder_id_##__COUNTER__(callable)
+#define defer(callable) ::rlib::scope_guard _guarder_id_##__COUNTER__(callable)
 #endif
 
 #define reinforce_scope_begin(guarderName, callable) scope_guard guarderName = callable; try{
 #define reinforce_scope_end(guarderName) } catch(...) { guarderName.force_call(); throw;}
+
 
 #endif
