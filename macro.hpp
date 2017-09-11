@@ -17,4 +17,13 @@
 #define MACRO_EQL(a, b) (MACRO_TO_CSTR(a) == MACRO_TO_CSTR(b))
 #endif
 
+#ifndef MACRO_CAT
+#define MACRO_CAT(a, b) _MACRO_CAT_I(a, b)
+#define _MACRO_CAT_I(a, b) _MACRO_CAT_II(~, a ## b)
+#define _MACRO_CAT_II(p, res) res
+#endif
+#ifndef MAKE_UNIQUE_NAME
+#define MAKE_UNIQUE_NAME(base) MACRO_CAT(base, __COUNTER__)
+#endif
+
 #endif
