@@ -8,14 +8,14 @@
 #include <stdexcept>
 #include <rlib/sys/os.hpp>
 
-#if 
+#ifndef WIN32 
 #include <sys/socket.h>
 //POSIX Version
 namespace rlib {
     class fdIO
     {
     public:
-        static ssize_t readn(int fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t readn(int fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success.
         {
             size_t  nleft;
             ssize_t nread;
@@ -37,7 +37,7 @@ namespace rlib {
             }
             return (n - nleft);         /* return >= 0 */
         }
-        static ssize_t writen(int fd, const void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t writen(int fd, const void *vptr, size_t n) noexcept //Return -1 on error, n on success.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -97,12 +97,13 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void readn_ex(int fd, void *vptr, size_t n) //with exception, never return error.
+        static size_t readn_ex(int fd, void *vptr, size_t n) //return read bytes.
         {
             auto ret = readn(fd, vptr, n);
             if(ret == -1) throw std::runtime_error("readn failed.");
+            return static_cast<size_t>(ret);
         }
-        static void writen_ex(int fd, const void *vptr, size_t n)
+        static void writen_ex(int fd, const void *vptr, size_t n) //never return error.
         {
             auto ret = writen(fd, vptr, n);
             if(ret == -1) throw std::runtime_error("writen failed.");
@@ -118,7 +119,7 @@ namespace rlib {
     class sockIO 
     {
     public:
-        static ssize_t recvn(int fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(int fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success.
         {
             size_t  nleft;
             ssize_t nread;
@@ -140,7 +141,7 @@ namespace rlib {
             }
             return (n - nleft);         /* return >= 0 */
         }
-        static ssize_t sendn(int fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(int fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, n on success.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -200,12 +201,13 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void recvn_ex(int fd, void *vptr, size_t n, int flags) //with exception, never return error.
+        static size_t recvn_ex(int fd, void *vptr, size_t n, int flags) //return read bytes.
         {
             auto ret = recvn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
+            return static_cast<size_t>(ret);
         }
-        static void sendn_ex(int fd, const void *vptr, size_t n, int flags)
+        static void sendn_ex(int fd, const void *vptr, size_t n, int flags) //never return error.
         {
             auto ret = sendn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("sendn failed.");
@@ -232,7 +234,7 @@ namespace rlib {
             return i;
         }
     public:
-        static ssize_t recvn(SOCKET fd, char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(SOCKET fd, char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success.
         {
             size_t  nleft;
             ssize_t nread;
@@ -254,7 +256,7 @@ namespace rlib {
             }
             return (n - nleft);         /* return >= 0 */
         }
-        static ssize_t sendn(SOCKET fd, const char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(SOCKET fd, const char *vptr, size_t n, int flags) noexcept //Return -1 on error, n on success.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -323,12 +325,13 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void recvn_ex(SOCKET fd, char *vptr, size_t n, int flags) //with exception, never return error.
+        static size_t recvn_ex(SOCKET fd, char *vptr, size_t n, int flags) //return read bytes.
         {
             auto ret = recvn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
+            return static_cast<size_t>(ret);
         }
-        static void sendn_ex(SOCKET fd, const char *vptr, size_t n, int flags)
+        static void sendn_ex(SOCKET fd, const char *vptr, size_t n, int flags)//never return error.
         {
             auto ret = sendn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
@@ -344,11 +347,11 @@ namespace rlib {
     class fdIO
     {
     public:
-        static ssize_t readn(SOCKET fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t readn(SOCKET fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success.
         {
             return sockIO::recvn(fd, (char *)vptr, n, 0);
         }
-        static ssize_t writen(SOCKET fd, const void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t writen(SOCKET fd, const void *vptr, size_t n) noexcept //Return -1 on error, n on success.
         {
             return sockIO::sendn(fd, (const char *)vptr, n, 0);
         }
@@ -356,11 +359,11 @@ namespace rlib {
         {
             return sockIO::recvall(fd, pvptr, initSize, 0);
         }
-        static void readn_ex(SOCKET fd, void *vptr, size_t n) //with exception, never return error.
+        static size_t readn_ex(SOCKET fd, void *vptr, size_t n) //return read bytes.
         {
             return sockIO::recvn_ex(fd, (char *)vptr, n, 0);
         }
-        static void writen_ex(SOCKET fd, const void *vptr, size_t n)
+        static void writen_ex(SOCKET fd, const void *vptr, size_t n)//never return error.
         {
             return sockIO::sendn_ex(fd, (const char *)vptr, n, 0);
         }

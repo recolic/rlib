@@ -46,8 +46,11 @@ namespace rlib {
         std::function<void()> f;
     };
 }
+
+
 #ifndef defer
-#define defer(callable) ::rlib::scope_guard _guarder_id_##__COUNTER__(callable)
+#include <rlib/macro.hpp>
+#define defer(callable) ::rlib::scope_guard MAKE_UNIQUE_NAME(_guarder_id_) (callable)
 #endif
 
 #define reinforce_scope_begin(guarderName, callable) scope_guard guarderName = callable; try{
