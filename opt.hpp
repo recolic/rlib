@@ -1,3 +1,11 @@
+/*
+This opt_parser works well for correct cmd args, 
+but not guaranteed to works well in all condition
+(for example, some ill formed argument).
+
+It's possible to read wrong information rather than
+raise an exception on some rare ill formed arguments.
+*/
 #ifndef R_OPT_HPP
 #define R_OPT_HPP
 
@@ -48,7 +56,7 @@ namespace rlib {
         }
 
         bool getBoolArg(const std::string &argName)
-        {
+        { //Return if it's defined.
             auto pos = std::find(args.cbegin(), args.cend(), argName);
             if(pos == args.cend()) return false;
             args.erase(pos);
