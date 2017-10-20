@@ -13,7 +13,7 @@
 
 #include <rlib/require/cxx11>
 #include <functional>
-#include "noncopyable.hpp"
+#include <rlib/noncopyable.hpp>
 
 namespace rlib {
     class scope_guard : private noncopyable

@@ -10,7 +10,7 @@
 #endif
 
 #ifndef MACRO_TO_CSTR
-#define MACRO_TO_CSTR(m) _R_MACRO_ENSTRING(MACRO_DECAY(m))
+#define MACRO_TO_CSTR(m) _R_MACRO_ENSTRING(m)
 #endif
 
 #ifndef MACRO_EQL

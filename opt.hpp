@@ -1,0 +1,77 @@
+#ifndef R_OPT_HPP
+#define R_OPT_HPP
+
+#include <rlib/require/cxx14>
+#include <rlib/noncopyable.hpp>
+#include <rlib/string/fstr.hpp>
+#include <rlib/scope_guard.hpp>
+
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <stdexcept>
+
+namespace rlib {
+    class opt_parser : private noncopyable
+    {
+    public:
+        opt_parser() = delete;
+        opt_parser(size_t arglen, char **argv) {
+            for(size_t cter = 1; cter < arglen; ++cter)
+                args.push_back(std::move(std::string(argv[cter])));
+        }
+
+        std::string getValueArg(const std::string &argName, bool required = false)
+        { //If required argument not exist, I'll throw. Else, return "" if arg is not read.
+            bool useEqualSym = false;
+            auto pos = std::find_if(args.cbegin(), args.cend(), [&](auto &ele)->bool{
+                if(ele == argName) return true;
+                if(ele.size() > argName.size() && ele.substr(0, argName.size()+1) == argName + "=") {
+                    useEqualSym = true;
+                    return true;
+                }
+                return false;
+            });
+            if(required && pos == args.cend())
+                throw std::invalid_argument(fstr_cxx("Required argument '%s' not provided.", argName.c_str()));
+            if(pos == args.cend())
+                return std::move(std::string(""));
+            defer(([&, pos]{if(!useEqualSym) args.erase(pos+1); args.erase(pos);}));
+            if(useEqualSym)
+                return std::move(pos->substr(argName.size() + 1));
+            else
+            {
+                if(++pos == args.cend())
+                    throw std::invalid_argument(fstr_cxx("Argument '%s' must provide value.", argName.c_str()));
+                return *pos;
+            }
+        }
+
+        bool getBoolArg(const std::string &argName)
+        {
+            auto pos = std::find(args.cbegin(), args.cend(), argName);
+            if(pos == args.cend()) return false;
+            args.erase(pos);
+            return true;
+        }
+
+        std::string getValueArg(const std::string &longName, const std::string &shortName, bool required = false)
+        {
+            std::string value = getValueArg(longName);
+            value = value.empty() ? getValueArg(shortName) : value;
+            if(required && value.empty())
+                throw std::invalid_argument(fstr_cxx("Required argument '%s/%s' not provided.", longName.c_str(), shortName.c_str()));
+            return value;
+        }
+
+        bool getBoolArg(const std::string &longName, const std::string &shortName)
+        {
+            return getBoolArg(longName) || getBoolArg(shortName);
+        }
+
+    private:
+       std::vector<std::string> args;
+    };
+}
+
+#endif
