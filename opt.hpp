@@ -41,7 +41,7 @@ namespace rlib {
                 return false;
             });
             if(required && pos == args.cend())
-                throw std::invalid_argument(fstr_cxx("Required argument '%s' not provided.", argName.c_str()));
+                throw std::invalid_argument(fstr("Required argument '%s' not provided.", argName.c_str()));
             if(pos == args.cend())
                 return std::move(std::string(""));
             defer(([&, pos]{if(!useEqualSym) args.erase(pos+1); args.erase(pos);}));
@@ -50,9 +50,14 @@ namespace rlib {
             else
             {
                 if(++pos == args.cend())
-                    throw std::invalid_argument(fstr_cxx("Argument '%s' must provide value.", argName.c_str()));
+                    throw std::invalid_argument(fstr("Argument '%s' must provide value.", argName.c_str()));
                 return *pos;
             }
+        }
+
+        std::string getValueArg(const std::string &argName, const char *pAnotherCStr)
+        { //getValueArg("--long", "-l") may be converted to getValueArg("--long", true).
+            return std::move(getValueArg(argName, pAnotherCStr, false));
         }
 
         bool getBoolArg(const std::string &argName)
@@ -65,10 +70,12 @@ namespace rlib {
 
         std::string getValueArg(const std::string &longName, const std::string &shortName, bool required = false)
         {
-            std::string value = getValueArg(longName);
-            value = value.empty() ? getValueArg(shortName) : value;
+            std::string valueL = getValueArg(longName);
+            std::string valueS = getValueArg(shortName);
+            
+            std::string value = valueL.empty() ? valueS : valueL;
             if(required && value.empty())
-                throw std::invalid_argument(fstr_cxx("Required argument '%s/%s' not provided.", longName.c_str(), shortName.c_str()));
+                throw std::invalid_argument(fstr("Required argument '%s/%s' not provided.", longName.c_str(), shortName.c_str()));
             return value;
         }
 
@@ -77,6 +84,10 @@ namespace rlib {
             return getBoolArg(longName) || getBoolArg(shortName);
         }
 
+        bool allArgDone() const
+        {
+            return args.empty();
+        }
     private:
        std::vector<std::string> args;
     };
