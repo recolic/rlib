@@ -1,9 +1,7 @@
 
-#CC?=gcc
-TESTS := $(shell find test -name '*.c')
-
-build:
-	$(foreach fl, $(TESTS), $(CC) -c $(fl) -o /tmp/test.o;)
+def:
+	echo "make install/uninstall."
+	exit 1
 
 install:
 	[ ! -d /usr/include/rlib ] || rm -rf /usr/include/rlib
