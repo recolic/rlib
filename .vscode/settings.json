@@ -1,13 +1,11 @@
 {
     "files.associations": {
-        "array": "cpp",
-        "chrono": "cpp",
-        "functional": "cpp",
-        "istream": "cpp",
-        "ostream": "cpp",
-        "ratio": "cpp",
-        "tuple": "cpp",
-        "type_traits": "cpp",
-        "utility": "cpp"
+        "cxx11": "cpp",
+        "cxx14": "cpp",
+        "cxx17": "cpp",
+        "gcc": "cpp",
+        "linux": "cpp",
+        "win": "cpp",
+        "compiler_detector": "cpp"
     }
 }
