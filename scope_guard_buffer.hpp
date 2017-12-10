@@ -38,10 +38,6 @@ namespace rlib {
         void dismiss() noexcept {
             clear();
         }
-    
-        scope_guards() = default;
-        scope_guards(const scope_guards&) = delete;
-        void operator = (const scope_guards&) = delete;
     };
 }
 
