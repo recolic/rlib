@@ -1,6 +1,6 @@
 #include <iostream>
 #include <rlib/terminal.hpp>
-using namespace rlib;
+using namespace rlib::terminal;
 int main()
 {
 	std::cout << color_t::red << font_t::bold << "hello world" << font_t::dark << "qaq..." << clear << "66666" << std::endl;
