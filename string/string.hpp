@@ -21,7 +21,7 @@ namespace rlib {
     template<typename... Args>
     std::string format_string_c(const std::string &fmt, Args... args)
     {
-        char *res = _format_string_c(fmt.c_str(), args ...);
+        char *res = _format_string_c_helper(fmt.c_str(), args ...);
         std::string s = res;
         free(res);
         return std::move(s);
