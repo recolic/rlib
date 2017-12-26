@@ -13,7 +13,7 @@
 
 #include <rlib/require/cxx11>
 #include <functional>
-#include <rlib/noncopyable.hpp>
+#include <rlib/class_decorator.hpp>
 
 namespace rlib {
     class scope_guard : private noncopyable

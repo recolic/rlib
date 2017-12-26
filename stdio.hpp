@@ -1,68 +1,105 @@
 #ifndef R_STDIO_HPP
 #define R_STDIO_HPP
 
+#include <rlib/require/cxx11>
+// Must link libr.a
+#include <string>
 #include <iostream>
+#include <rlib/string/string.hpp>
 
 namespace rlib {
-    class io {
-    public:
-    	template<typename PrintFinalT>
-    	static void print(PrintFinalT reqArg)
-    	{
-    		::std::cout << reqArg;
-    		return;
-    	}
-    	template<typename Required, typename... Optional>
-    	static void print(Required reqArgs, Optional... optiArgs)
-    	{
-    		::std::cout << reqArgs << ' ';
-    		print(optiArgs ...);
-    		return;
-    	}
-    	template<typename... Optional>
-    	static void println(Optional... optiArgs)
-    	{
-    		print(optiArgs ...);
-    		::std::cout << ::std::endl;
-    		return;
-    	}
-    
-    	template<typename Iterable, typename Printable>
-    	static void print_iter(Iterable arg, Printable spliter)
-    	{
-            for(const auto & i : arg)
-    		    ::std::cout << i << spliter;
-    		return;
-    	}
-    	template<typename Iterable, typename Printable>
-    	static void println_iter(Iterable arg, Printable spliter)
-    	{
-    		print_iter(arg, spliter);
-    		::std::cout << ::std::endl;
-    		return;
-    	}
-        template<typename Iterable>
-    	static void print_iter(Iterable arg)
-    	{
-            for(const auto & i : arg)
-    		    ::std::cout << i << ' ';
-    		return;
-    	}
-    	template<typename Iterable>
-    	static void println_iter(Iterable arg)
-    	{
-    		print_iter(arg);
-    		::std::cout << ::std::endl;
-    		return;
-    	}
-    
-        static std::string scanln()
-        {
-            ::std::string str;
-            ::std::getline(::std::cin, str);
-            return std::move(str);
-        }
-    };
+    template<typename PrintFinalT>
+    void print(PrintFinalT reqArg);
+    template<typename Required, typename... Optional>
+    void print(Required reqArgs, Optional... optiArgs);
+    template<typename... Optional>
+    void println(Optional... optiArgs);
+
+    template<typename Iterable, typename Printable>
+    void print_iter(Iterable arg, Printable spliter);
+    template<typename Iterable, typename Printable>
+    void println_iter(Iterable arg, Printable spliter);
+    template<typename Iterable>
+    void print_iter(Iterable arg);
+    template<typename Iterable>
+    void println_iter(Iterable arg);
+
+    template<typename... Args>
+    size_t printf(const std::string &fmt, Args... args);
+    template<typename... Args>
+    size_t printfln(const std::string &fmt, Args... args);
+
+    std::string scanln();
+
+
+// Implements.
+    extern bool enable_endl_flush;
+    template< class CharT, class Traits >
+    std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
+        os << '\n';
+        if(enable_endl_flush)
+            os.flush();
+        return os;
+    }
+
+    template<typename PrintFinalT>
+    void print(PrintFinalT reqArg)
+    {
+        ::std::cout << reqArg;
+    }
+    template<typename Required, typename... Optional>
+    void print(Required reqArgs, Optional... optiArgs)
+    {
+        ::std::cout << reqArgs << ' ';
+        print(optiArgs ...);
+    }
+    template<typename... Optional>
+    void println(Optional... optiArgs)
+    {
+       print(optiArgs ...);
+       ::std::cout << ::rlib::endl;
+    }
+
+    template<typename Iterable, typename Printable>
+    void print_iter(Iterable arg, Printable spliter)
+    {
+        for(const auto & i : arg)
+            ::std::cout << i << spliter;
+    }
+    template<typename Iterable, typename Printable>
+    void println_iter(Iterable arg, Printable spliter)
+    {
+        print_iter(arg, spliter);
+        ::std::cout << ::rlib::endl;
+    }
+    template<typename Iterable>
+    void print_iter(Iterable arg)
+    {
+        for(const auto & i : arg)
+            ::std::cout << i << ' ';
+    }
+    template<typename Iterable>
+    void println_iter(Iterable arg)
+    {
+        print_iter(arg);
+        ::std::cout << ::rlib::endl;
+    }
+
+    template<typename... Args>
+    size_t printf(const std::string &fmt, Args... args)
+    {
+        std::string to_print = format_string(fmt, args...); 
+        ::std::cout << to_print;
+        return to_print.size();
+    }
+    template<typename... Args>
+    size_t printfln(const std::string &fmt, Args... args)
+    {
+        size_t len = ::rlib::printf(fmt, args...);
+        ::std::cout << ::rlib::endl;
+        return len + 1;
+    }
 }
+
 
 #endif

@@ -1,6 +1,9 @@
 #ifndef R_STD_COLOR_HPP
 #define R_STD_COLOR_HPP
 
+#include <rlib/require/cxx11>
+#include <rlib/sys/os.hpp>
+
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -23,7 +26,10 @@ namespace rlib::terminal {
         fontInfo() = default;
         string toString() const
         {
-            return std::move(clear ? std::string("\033[0m") : (color_to_string() + font_to_string()));
+            if(rlib::OSInfo::os == rlib::OSInfo::os_t::WINDOWS)
+                return std::move(std::string());
+            else
+                return std::move(clear ? std::string("\033[0m") : (color_to_string() + font_to_string()));
         }
     private:
         color_t textColor = color_t::color_unset;

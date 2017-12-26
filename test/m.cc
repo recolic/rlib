@@ -9,11 +9,11 @@ constexpr int mod(int n) {return n%2;}
 #define S MACRO_CAT(SELE_, GEN_M)
 
 
-#include <rlib/print.hpp>
-using rlib::println;
+#include <rlib/stdio.hpp>
+using rlib::io;
 int main()
 {
-    println(S);
+    io::println(S);
     println(S);
     println(S);
     println(S);
