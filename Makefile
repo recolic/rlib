@@ -16,7 +16,7 @@ install_header:
 	cp -r . /usr/include/rlib
 	rm -rf /usr/include/rlib/test /usr/include/rlib/.git
 
-install_library:
+install_library: compile_library
 	cp libr.a /usr/lib/
 
 install: install_header install_library
