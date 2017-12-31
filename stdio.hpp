@@ -29,8 +29,12 @@ namespace rlib {
     template<typename... Args>
     size_t printfln(const std::string &fmt, Args... args);
 
-    std::string scanln();
-
+    inline std::string scanln()
+    {
+        ::std::string line;
+        ::std::getline(::std::cin, line);
+        return std::move(line);
+    }
 
 // Implements.
     extern bool enable_endl_flush;

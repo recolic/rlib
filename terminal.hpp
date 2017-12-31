@@ -11,7 +11,7 @@
 using std::string;
 using std::basic_ostream;
 
-namespace rlib::terminal {
+namespace rlib {
     enum class color_t {color_unset = 10, black = 0, red, green, brown, blue, magenta, cyan, lightgray};
     enum class font_t {font_unset = 0, bold = 1, underline = 4, dark = 2, background = 7, striked = 9}; //Edit line53 if (int)font_t may >= 10 !!
     class clear_t {} clear;

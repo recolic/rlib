@@ -1,8 +1,9 @@
 #include <rlib/stdio.hpp>
-using rlib::printfln;
+#include <rlib/terminal.hpp>
+using namespace rlib;
 
 int main() {
-    auto cter = printfln("Hello, {}={}, miao{}.", 6.6, 7, "www");
+    auto cter = printfln("{}Hello, {}={}, miao{}.{}", color_t::red, 6.6, 7, "www", clear);
     printfln("cter={}.", cter);
     return 0;
 
