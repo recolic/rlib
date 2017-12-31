@@ -26,7 +26,7 @@ namespace rlib {
             f(args ...);
         return ::std::move(f(args ...));
     }
-    template <class operation_t, typename , typename... args_t>
+    template <class operation_t, typename... args_t>
     static inline ::std::list<typename ::std::result_of<operation_t(args_t ...)>::type> repeat_and_return_list(size_t count, operation_t f, args_t... args)
     {
         ::std::list<typename ::std::result_of<operation_t(args_t ...)>::type> ret;
