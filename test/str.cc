@@ -1,14 +1,15 @@
 #include <rlib/string/string.hpp>
 using namespace rlib;
 
-#include <rlib/print.hpp>
+#include <rlib/stdio.hpp>
 #include <string>
 using namespace std;
 
 void test(const string &s)
 {
     println_iter(splitString(s));
-
+    println_iter(splitString(s, " w"s));
+    println(">>>", joinString("|", splitString(s)));
 }
 
 int main()

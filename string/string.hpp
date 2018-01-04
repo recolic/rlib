@@ -11,7 +11,17 @@
 #include <type_traits>
 
 namespace rlib {
-	std::vector<std::string> splitString(const std::string &tod, const char divider = ' ');
+	std::vector<std::string> splitString(const std::string &toSplit, const char &divider = ' ');
+	std::vector<std::string> splitString(const std::string &toSplit, const std::string &divider);
+    template <class ForwardIterator>
+    std::string joinString(const char &toJoin, ForwardIterator begin, ForwardIterator end);
+    template <class ForwardIterator>
+    std::string joinString(const std::string &toJoin, ForwardIterator begin, ForwardIterator end);
+    template <class ForwardIterable>
+    std::string joinString(const char &toJoin, ForwardIterable begin, ForwardIterable end);
+    template <class ForwardIterable>
+    std::string joinString(const std::string &toJoin, ForwardIterable begin, ForwardIterable end);
+  
     size_t replaceSubString(std::string& str, const std::string &from, const std::string& to);
     bool replaceSubStringOnce(std::string& str, const std::string& from, const std::string& to);
     template<typename... Args>
@@ -57,30 +67,63 @@ namespace rlib {
         return ss.str();
     }
 
-	inline std::vector<std::string> splitString(const std::string &tod, const char divider)
+	inline std::vector<std::string> splitString(const std::string &toSplit, const char &divider)
 	{
-		size_t lastPos = 0;
-		size_t thisPos = tod.find(divider);
-	    std::vector<std::string> sbuf;
-		if (thisPos != ::std::string::npos)
-		{
-			sbuf.push_back(tod.substr(0, thisPos));
-			goto gt_1;
-		}
-		else
-	    {
-	        sbuf.push_back(tod);
-	        return sbuf;
-	    }
-		do {
-			sbuf.push_back(tod.substr(lastPos + 1, thisPos - lastPos - 1));
-		gt_1:
-			lastPos = thisPos;
-			thisPos = tod.find(divider, lastPos + 1);
-		} while (thisPos != ::std::string::npos);
-		sbuf.push_back(tod.substr(lastPos + 1));
-		return ::std::move(sbuf);
+        std::vector<std::string> buf;
+        size_t curr = 0, prev = 0;
+        while((curr = toSplit.find(divider, curr)) != std::string::npos) {
+            buf.push_back(toSplit.substr(prev, curr - prev));
+            ++curr; // skip divider
+            prev = curr;
+        }
+        buf.push_back(toSplit.substr(prev));
+        return std::move(buf);
 	}
+    inline std::vector<std::string> splitString(const std::string &toSplit, const std::string &divider)
+	{
+        std::vector<std::string> buf;
+        size_t curr = 0, prev = 0;
+        while((curr = toSplit.find(divider, curr)) != std::string::npos) {
+            buf.push_back(toSplit.substr(prev, curr - prev));
+            curr += divider.size(); // skip divider
+            prev = curr;
+        }
+        buf.push_back(toSplit.substr(prev));
+        return std::move(buf);
+	}
+    template <class ForwardIterator>
+    std::string joinString(const char &toJoin, ForwardIterator begin, ForwardIterator end) {
+        std::string result;
+        for(ForwardIterator iter = begin; iter != end; ++iter) {
+            if(iter != begin)
+                result += toJoin;
+            result += *iter;
+        }
+        return std::move(result);
+    }
+    template <class ForwardIterator>
+    std::string joinString(const std::string &toJoin, ForwardIterator begin, ForwardIterator end) {
+        std::string result;
+        for(ForwardIterator iter = begin; iter != end; ++iter) {
+            if(iter != begin)
+                result += toJoin;
+            result += *iter;
+        }
+        return std::move(result);
+    }
+    template <class ForwardIterable>
+    std::string joinString(const std::string &toJoin, ForwardIterable buf) {
+        auto begin = buf.begin();
+        auto end = buf.end();
+        return std::move(joinString(toJoin, begin, end));
+    }
+    template <class ForwardIterable>
+    std::string joinString(const char &toJoin, ForwardIterable buf) {
+        auto begin = buf.begin();
+        auto end = buf.end();
+        return std::move(joinString(toJoin, begin, end));
+    }
+
     inline size_t replaceSubString(std::string& str, const std::string &from, const std::string& to) 
     {
         if(from.empty())
