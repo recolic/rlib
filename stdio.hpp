@@ -14,6 +14,7 @@ namespace rlib {
     void print(Required reqArgs, Optional... optiArgs);
     template<typename... Optional>
     void println(Optional... optiArgs);
+    void println();
 
     template<typename Iterable, typename Printable>
     void print_iter(Iterable arg, Printable spliter);
@@ -60,8 +61,12 @@ namespace rlib {
     template<typename... Optional>
     void println(Optional... optiArgs)
     {
-       print(optiArgs ...);
-       ::std::cout << ::rlib::endl;
+        print(optiArgs ...);
+        println();
+    }
+    inline void println()
+    {
+        ::std::cout << ::rlib::endl;
     }
 
     template<typename Iterable, typename Printable>
