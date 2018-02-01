@@ -138,6 +138,12 @@
 #endif
 
 #ifndef __COMPILER_ID__
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#define __COMPILER_ID__ ICC
+#endif
+#endif
+
+#ifndef __COMPILER_ID__
 #if defined(__GNUC__)
 #define __COMPILER_ID__ GCC
 #endif
