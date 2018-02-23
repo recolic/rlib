@@ -11,7 +11,7 @@ RCPP_CLASS_METHOD_DECL_2(at)
 RCPP_CLASS_END()
 
 RCPP_CLASS_METHOD_IMPL(vector, push_back, void, int data) {
-    printf("pushing back %d", data);
+    printf("pushing back %d\n", data);
 }
 RCPP_CLASS_METHOD_IMPL(vector, at, int, int index) {
     int element = index * index;
@@ -31,6 +31,6 @@ int main(){
     RCPP_CALL(vct, push_back, 333);
     vct.push_back(&vct, 666);
 
-    printf("Element at index %d is %d.", 5, vct.at(&vct, 5));
+    printf("Element at index %d is %d.\n", 5, vct.at(&vct, 5));
     return 123;
 }

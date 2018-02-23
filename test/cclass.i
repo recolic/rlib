@@ -806,19 +806,19 @@ at_rcpp_t at;
 };
 
 inline void push_back_rcpp_impl(struct vector *this, int data) {
-    printf("pushing back %d", data);
+    printf("pushing back %d\n", data);
 }
 inline int at_rcpp_impl(struct vector *this, int index) {
     int element = index * index;
     return element;
 }
 
-inline void vector_constructor(struct vector *this, void *arg) {
+void vector_constructor(struct vector *this, void *arg) {
     this->push_back = &push_back_rcpp_impl;
     this->at = &at_rcpp_impl;
     printf("constructor called\n");
 }
-inline void vector_destructor(struct vector *this) {
+void vector_destructor(struct vector *this) {
     printf("destructor called\n");
 }
 int main(){
@@ -830,6 +830,6 @@ int main(){
     vct.push_back(&vct, 333);
     vct.push_back(&vct, 666);
 
-    printf("Element at index %d is %d.", 5, vct.at(&vct, 5));
+    printf("Element at index %d is %d.\n", 5, vct.at(&vct, 5));
     return 123;
 }
