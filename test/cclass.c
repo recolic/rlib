@@ -6,8 +6,8 @@ RCPP_CLASS_METHOD_DECL_1(vector, push_back, void, int)
 RCPP_CLASS_METHOD_DECL_1(vector, at, int, int)
 
 RCPP_CLASS_BEGIN(vector)
-RCPP_CLASS_METHOD_DECL_2(push_back)
-RCPP_CLASS_METHOD_DECL_2(at)
+RCPP_CLASS_METHOD_DECL_2(vector, push_back)
+RCPP_CLASS_METHOD_DECL_2(vector, at)
 RCPP_CLASS_END()
 
 RCPP_CLASS_METHOD_IMPL(vector, push_back, void, int data) {
@@ -19,8 +19,8 @@ RCPP_CLASS_METHOD_IMPL(vector, at, int, int index) {
 }
 
 RCPP_CLASS_CONSTRUCTOR_IMPL(vector) {
-    RCPP_CLASS_METHOD_REGISTER(push_back)
-    RCPP_CLASS_METHOD_REGISTER(at)
+    RCPP_CLASS_METHOD_REGISTER(vector, push_back)
+    RCPP_CLASS_METHOD_REGISTER(vector, at)
     printf("constructor called\n");
 }
 RCPP_CLASS_DESTRUCTOR_IMPL(vector) {
