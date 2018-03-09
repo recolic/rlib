@@ -1,3 +1,11 @@
+/*
+ *
+ * string.hpp: string process utility.
+ * Recolic Keghart <root@recolic.net>
+ * MIT License
+ *
+ */
+
 #ifndef R_STRING_HPP
 #define R_STRING_HPP
 

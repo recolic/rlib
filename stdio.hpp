@@ -1,3 +1,12 @@
+/*
+ *
+ * stdio wrapper for modern c++: python like print/println/printf/printfln
+ *                               print_iter println_iter
+ * Recolic Keghart <root@recolic.net>
+ * MIT License
+ *
+ */
+
 #ifndef R_STDIO_HPP
 #define R_STDIO_HPP
 
