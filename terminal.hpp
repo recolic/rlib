@@ -1,3 +1,11 @@
+/*
+ *
+ * terminal.hpp: unix terminal font/color wrapper for modern c++
+ * by Recolic Keghart <root@recolic.net>
+ * MIT License
+ *
+ * */
+
 #ifndef R_STD_COLOR_HPP
 #define R_STD_COLOR_HPP
 
