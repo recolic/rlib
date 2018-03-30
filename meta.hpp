@@ -1,7 +1,8 @@
 #ifndef RLIB_META_HPP_
 #define RLIB_META_HPP_
 
-#include <rlib/require/cxx14>
+#include <rlib/require/cxx17>
+#include <cstddef> // size_t
 
 namespace rlib {
     template <typename T>
