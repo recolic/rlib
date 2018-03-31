@@ -10,8 +10,23 @@
 #include <chrono>
 
 namespace rlib {
-    template <class operation_t, typename... args_t>
-    static inline double timed_func(::std::function<operation_t> f, args_t... args)
+    namespace impl {
+        template <typename Func, typename... Args>
+        struct repeated_func {
+            using return_type = typename std::result_of<Func(Args ...)>::type;
+            return_type operator ()(size_t count, Func &&f, Args && ... args) {
+                for(size_t cter = 0; cter < count - 1; ++cter)
+                    f(args ...);
+                return f(args ...);
+            }
+        };
+    }
+}
+
+namespace rlib {
+
+    template <class Func, typename... Args>
+    static inline double timed_func(::std::function<Func> f, Args... args)
     {
         auto begin = std::chrono::high_resolution_clock::now();
         f(args ...);
@@ -19,17 +34,16 @@ namespace rlib {
         return ::std::chrono::duration<double>(end - begin).count(); 
     }
 
-    template <class operation_t, typename... args_t>
-    static inline typename ::std::result_of<operation_t(args_t ...)>::type repeat(size_t count, operation_t f, args_t... args)
+    template <class Func, typename... Args>
+    static inline auto repeat(size_t count, Func &&f, Args && ... args)
     {
-        for(size_t cter = 0; cter < count - 1; ++cter)
-            f(args ...);
-        return ::std::move(f(args ...));
+        //<typename impl::repeated_func<Func, Args ...>::return_type (void)> 
+        return std::bind((impl::repeated_func<Func, Args ...>()), args ...);
     }
-    template <class operation_t, typename... args_t>
-    static inline ::std::list<typename ::std::result_of<operation_t(args_t ...)>::type> repeat_and_return_list(size_t count, operation_t f, args_t... args)
+    template <class Func, typename... Args>
+    static inline ::std::list<typename ::std::result_of<Func(Args ...)>::type> repeat_and_return_list(size_t count, Func f, Args... args)
     {
-        ::std::list<typename ::std::result_of<operation_t(args_t ...)>::type> ret;
+        ::std::list<typename ::std::result_of<Func(Args ...)>::type> ret;
         for(size_t cter = 0; cter < count; ++cter)
             ret.push_back(std::move(f(args ...)));
         return std::move(ret);
