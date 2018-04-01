@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 #include <sys/types.h>
-#include <iostream>
+#include <fstream>
 
 #include <rlib/sys/os.hpp>
 #if RLIB_OS_ID == OS_WINDOWS
@@ -15,10 +15,21 @@ using fd = int;
 #if RLIB_COMPILER_ID == CC_GCC 
 #include <ext/stdio_filebuf.h>
 namespace rlib {
-inline auto fd_to_istream(fd posix_handle) {
+inline auto fd_to_ifstream(fd posix_handle) {
      __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in);
-     return std::istream(&filebuf).rdbuf();
+     return std::move(std::ifstream(&filebuf));
 }
+inline auto fd_to_ofstream(fd posix_handle) {
+     __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::out);
+     return std::move(std::ofstream(&filebuf));
+}
+inline auto fd_to_fstream(fd posix_handle) {
+     __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in || std::ios::out);
+     return std::move(std::fstream(&filebuf));
+}
+
+
+
 } // rlib
 #elif RLIB_COMPILER_ID == CC_MSVC
 namespace rlib {
