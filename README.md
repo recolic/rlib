@@ -5,8 +5,8 @@ Here is recolic's private library...
 # TODO
 
 ```c++
-repair rlib::functional
 RETEST rlib::noncopyable
+rlib::stdio fd control is still a problem.
 
 rlib::meta::print_constexpr
 rlib::meta::array
