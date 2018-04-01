@@ -23,23 +23,23 @@
 
 namespace rlib {
 //TODO: Pass args by rvalue reference.
-	constexpr std::vector<std::string> splitString(const std::string &toSplit, const char &divider = ' ');
-	constexpr std::vector<std::string> splitString(const std::string &toSplit, const std::string &divider);
+	std::vector<std::string> splitString(const std::string &toSplit, const char &divider = ' ');
+	std::vector<std::string> splitString(const std::string &toSplit, const std::string &divider);
     template <class ForwardIterator>
-    constexpr std::string joinString(const char &toJoin, ForwardIterator begin, ForwardIterator end);
+    std::string joinString(const char &toJoin, ForwardIterator begin, ForwardIterator end);
     template <class ForwardIterator>
-    constexpr std::string joinString(const std::string &toJoin, ForwardIterator begin, ForwardIterator end);
+    std::string joinString(const std::string &toJoin, ForwardIterator begin, ForwardIterator end);
     template <class ForwardIterable>
-    constexpr std::string joinString(const char &toJoin, ForwardIterable begin, ForwardIterable end);
+    std::string joinString(const char &toJoin, ForwardIterable begin, ForwardIterable end);
     template <class ForwardIterable>
-    constexpr std::string joinString(const std::string &toJoin, ForwardIterable begin, ForwardIterable end);
+    std::string joinString(const std::string &toJoin, ForwardIterable begin, ForwardIterable end);
   
-    constexpr size_t replaceSubString(std::string& str, const std::string &from, const std::string& to);
-    constexpr bool replaceSubStringOnce(std::string& str, const std::string& from, const std::string& to);
+    size_t replaceSubString(std::string& str, const std::string &from, const std::string& to);
+    bool replaceSubStringOnce(std::string& str, const std::string& from, const std::string& to);
     template <typename... Args>
     std::string format_string_c(const std::string &fmt, Args... args);
     template <typename... Args>
-    constexpr std::string format_string(const std::string &fmt, Args... args);
+    std::string format_string(const std::string &fmt, Args... args);
 
     namespace impl {
         struct formatter {
@@ -55,7 +55,7 @@ namespace rlib {
     }
 
     namespace literals {
-        constexpr impl::formatter operator "" _format (const char *str, size_t) {
+        impl::formatter operator "" _format (const char *str, size_t) {
             return std::move(impl::formatter(str));
         }
     }
@@ -72,12 +72,12 @@ namespace rlib {
     }
 
     template<typename StdString>
-    constexpr void _format_string_helper(std::stringstream &ss, const StdString &fmt) {
+    void _format_string_helper(std::stringstream &ss, const StdString &fmt) {
 		static_assert(std::is_same<StdString, std::string>::value, "incorrect argument type to _format_string_helper");
         ss << fmt;
     }
     template<typename Arg1, typename... Args>
-    constexpr void _format_string_helper(std::stringstream &ss, const std::string &fmt, Arg1 arg1, Args... args) {
+    void _format_string_helper(std::stringstream &ss, const std::string &fmt, Arg1 arg1, Args... args) {
         size_t pos = 0;
         while((pos = fmt.find("{}")) != std::string::npos) {
             if(pos != 0 && fmt[pos-1] == '\\') {
@@ -91,13 +91,13 @@ namespace rlib {
 		_format_string_helper(ss, fmt);
     }
     template<typename... Args>
-    constexpr std::string format_string(const std::string &fmt, Args... args) {
+    std::string format_string(const std::string &fmt, Args... args) {
         std::stringstream ss;
         _format_string_helper(ss, fmt, args...);
         return ss.str();
     }
 
-	constexpr inline std::vector<std::string> splitString(const std::string &toSplit, const char &divider)
+	inline std::vector<std::string> splitString(const std::string &toSplit, const char &divider)
 	{
         std::vector<std::string> buf;
         size_t curr = 0, prev = 0;
@@ -109,7 +109,7 @@ namespace rlib {
         buf.push_back(toSplit.substr(prev));
         return std::move(buf);
 	}
-    constexpr inline std::vector<std::string> splitString(const std::string &toSplit, const std::string &divider)
+    inline std::vector<std::string> splitString(const std::string &toSplit, const std::string &divider)
 	{
         std::vector<std::string> buf;
         size_t curr = 0, prev = 0;
@@ -122,7 +122,7 @@ namespace rlib {
         return std::move(buf);
 	}
     template <class ForwardIterator>
-    constexpr std::string joinString(const char &toJoin, ForwardIterator begin, ForwardIterator end) {
+    std::string joinString(const char &toJoin, ForwardIterator begin, ForwardIterator end) {
         std::string result;
         for(ForwardIterator iter = begin; iter != end; ++iter) {
             if(iter != begin)
@@ -132,7 +132,7 @@ namespace rlib {
         return std::move(result);
     }
     template <class ForwardIterator>
-    constexpr std::string joinString(const std::string &toJoin, ForwardIterator begin, ForwardIterator end) {
+    std::string joinString(const std::string &toJoin, ForwardIterator begin, ForwardIterator end) {
         std::string result;
         for(ForwardIterator iter = begin; iter != end; ++iter) {
             if(iter != begin)
@@ -142,19 +142,19 @@ namespace rlib {
         return std::move(result);
     }
     template <class ForwardIterable>
-    constexpr std::string joinString(const std::string &toJoin, ForwardIterable buf) {
+    std::string joinString(const std::string &toJoin, ForwardIterable buf) {
         auto begin = buf.begin();
         auto end = buf.end();
         return std::move(joinString(toJoin, begin, end));
     }
     template <class ForwardIterable>
-    constexpr std::string joinString(const char &toJoin, ForwardIterable buf) {
+    std::string joinString(const char &toJoin, ForwardIterable buf) {
         auto begin = buf.begin();
         auto end = buf.end();
         return std::move(joinString(toJoin, begin, end));
     }
 
-    constexpr inline size_t replaceSubString(std::string& str, const std::string &from, const std::string& to) 
+    inline size_t replaceSubString(std::string& str, const std::string &from, const std::string& to) 
     {
         if(from.empty())
             return 0;
@@ -168,7 +168,7 @@ namespace rlib {
         }
         return times;
     }
-    constexpr inline bool replaceSubStringOnce(std::string& str, const std::string& from, const std::string& to) 
+    inline bool replaceSubStringOnce(std::string& str, const std::string& from, const std::string& to) 
     {
         size_t start_pos = str.find(from);
         if(start_pos == std::string::npos)

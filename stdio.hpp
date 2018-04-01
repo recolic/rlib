@@ -11,7 +11,7 @@
 #define R_STDIO_HPP
 
 #include <rlib/require/cxx11> // Use fold expression if cxx17 is available.
-#include <rlib/sys/fdset.hpp> // fd
+#include <rlib/sys/fd.hpp> // fd
 #include <string>
 #include <iostream>
 #include <rlib/string/string.hpp> // format_string
@@ -22,17 +22,17 @@ namespace rlib {
     namespace impl {
 #if RLIB_COMPILER_ID == CC_GCC 
 #include <ext/stdio_filebuf.h>
-constexpr inline std::istream fd_to_istream(fd posix_handle) {
+constexpr inline ::std::istream fd_to_istream(fd posix_handle) {
      __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in);
      return std::move(std::istream(filebuf));
 }
 #elif RLIB_COMPILER_ID == CC_MSVC
-constexpr inline std::istream fd_to_istream(fd posix_handle) {
+constexpr inline ::std::istream fd_to_istream(fd posix_handle) {
     ifstream ifs(::_fdopen(posix_handle, "r"));
     return std::move(ifs);
 }
 #else
-constexpr inline std::istream fd_to_istream(fd handle) {
+constexpr inline ::std::istream fd_to_istream(fd handle) {
     if constexpr(handle == STDIN_FILENO)
         return std::cin;
     else
