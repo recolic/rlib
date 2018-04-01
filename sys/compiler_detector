@@ -218,10 +218,10 @@
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__INTEL_COMPILER) || defined(__ICL)
-#define RLIB_COMPILER_ID CC_ICC
+#define RLIB_COMPILER_ID CC_INTELC
 #endif
 #endif
-#define CC_ICC 90745
+#define CC_INTELC 90745
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__KCC)
