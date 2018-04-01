@@ -45,7 +45,7 @@ namespace rlib {
     {
     public:
         enum class os_t {UNKNOWN = OS_UNKNOWN, WINDOWS = OS_WINDOWS, LINUX = OS_LINUX, MACOS = OS_MACOS, BSD = OS_BSD, IOS = OS_IOS, ANDROID = OS_ANDROID, UNIX = OS_UNIX};
-        enum class compiler_t {UNKNOWN = CC_UNKNOWN, GCC = CC_GCC, CLANG = CC_CLANG, MSVC = CC_MSVC, INTELC = CC_INTELC, BORLAND = CC_BORLAND, IARC = CC_IARC, SOLARIS = CC_SOLARIS/*, ZAPCC = CC_ZAPCC*/};
+        enum class compiler_t {UNKNOWN = CC_UNKNOWN, GCC = CC_GCC, CLANG = CC_CLANG, MSVC = CC_MSVC, ICC = CC_ICC, BORLAND = CC_BORLAND, IARC = CC_IARC, SOLARIS = CC_SOLARIS/*, ZAPCC = CC_ZAPCC*/};
         //C = CC_Compiler which not supports cxx1x yet is not listed here. 201708.
         
         static constexpr os_t os = 

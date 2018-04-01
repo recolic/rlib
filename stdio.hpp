@@ -17,16 +17,16 @@
 #include <rlib/string/string.hpp> // format_string
 #include <unistd.h> // STDOUT_FILENO
 
-//TODO: update os.hpp for determine gcc/msvc easier
+#include <rlib/sys/os.hpp>
 namespace rlib {
     namespace impl {
-#if is_gcc
+#if RLIB_COMPILER_ID == CC_GCC 
 #include <ext/stdio_filebuf.h>
 constexpr inline std::istream fd_to_istream(fd posix_handle) {
      __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in);
      return std::move(std::istream(filebuf));
 }
-#elif is_msvc
+#elif RLIB_COMPILER_ID == CC_MSVC
 constexpr inline std::istream fd_to_istream(fd posix_handle) {
     ifstream ifs(::_fdopen(posix_handle, "r"));
     return std::move(ifs);
