@@ -3,11 +3,9 @@
 using rlib::println;
 using rlib::print;
 
-#include <iostream>
 #include <iomanip>
-using std::cout;
-using std::endl;
-int main( int argl, char **argv)
+#include <cassert>
+int main(int argl, char **argv)
 {
     rlib::opt_parser opt(argl, argv);
     print(std::boolalpha);

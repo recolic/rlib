@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fstream>
+#include <iostream>
 
 #include <rlib/sys/os.hpp>
 #if RLIB_OS_ID == OS_WINDOWS
@@ -15,39 +16,71 @@ using fd = int;
 #if RLIB_COMPILER_ID == CC_GCC 
 #include <ext/stdio_filebuf.h>
 namespace rlib {
-inline auto fd_to_ifstream(fd posix_handle) {
-     __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in);
-     return std::move(std::ifstream(&filebuf));
-}
-inline auto fd_to_ofstream(fd posix_handle) {
-     __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::out);
-     return std::move(std::ofstream(&filebuf));
-}
-inline auto fd_to_fstream(fd posix_handle) {
-     __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in || std::ios::out);
-     return std::move(std::fstream(&filebuf));
-}
-
-
-
+    template <fd posix_handle>
+    inline std::istream & fd_to_istream() {
+         __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in);
+         return std::ifstream(&filebuf);
+    }
+    template <fd posix_handle>
+    inline std::ostream & fd_to_ostream() {
+         __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::out);
+         return std::ofstream(&filebuf);
+    }
+    template <fd posix_handle>
+    inline std::iostream & fd_to_iostream() {
+         __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in || std::ios::out);
+         return std::fstream(&filebuf);
+    }
 } // rlib
 #elif RLIB_COMPILER_ID == CC_MSVC
 namespace rlib {
-inline auto fd_to_istream(fd posix_handle) {
-    ifstream ifs(::_fdopen(posix_handle, "r"));
-    return ifs.rdbuf();
-}
+    template <fd posix_handle>
+    inline std::istream & fd_to_istream() {
+        ifstream fs(::_fdopen(posix_handle, "r"));
+        return fs;
+    }
+    template <fd posix_handle>
+    inline std::ostream & fd_to_ostream() {
+        ofstream fs(::_fdopen(posix_handle, "w"));
+        return fs;
+    }
+    template <fd posix_handle>
+    inline std::iostream & fd_to_iostream() {
+        fstream fs(::_fdopen(posix_handle, "rw"));
+        return fs;
+    }
 } // rlib
 #else
 namespace rlib {
-constexpr inline auto fd_to_istream(fd handle) {
-    if constexpr(handle == STDIN_FILENO)
-        return std::cin.rdbuf();
-    else
-        throw std::invalid_argument("filefd != 1 to stream is not implemented except gcc/msvc.");
-}
+    template <fd>
+    constexpr inline std::istream & fd_to_istream() {
+        throw std::invalid_argument("fd != 0 to istream is not implemented except gcc/msvc.");
+    }
+    template <fd>
+    constexpr inline std::ostream & fd_to_ostream() {
+        throw std::invalid_argument("fd != 1/2 to ostream is not implemented except gcc/msvc.");
+    }
+    template <fd>
+    constexpr inline std::iostream & fd_to_iostream() {
+        throw std::invalid_argument("fd to iostream is not implemented except gcc/msvc.");
+    }
+
 } // rlib
 #endif
+namespace rlib {
+    template <>
+    constexpr inline std::istream & fd_to_istream<STDIN_FILENO>() {
+        return std::cin;
+    }
+    template <>
+    constexpr inline std::ostream & fd_to_ostream<STDOUT_FILENO>() {
+        return std::cout;
+    }
+    template <>
+    constexpr inline std::ostream & fd_to_ostream<STDERR_FILENO>() {
+        return std::cerr;
+    }
+}
 
 namespace rlib{
     class [[deprecated]] FileDescriptorSet
