@@ -10,6 +10,7 @@ int main() {
     auto m = [](int i){
         rlib::println("i is", i);
     };
+    std::function<void(int)> b (m);
     auto f = rlib::repeat(4, m, 777);
 //    f(4,m,444);
 //    auto ff = std::bind(&decltype(f)::operator(), &f, 4, m, 444);
