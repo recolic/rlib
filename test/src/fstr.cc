@@ -1,15 +1,12 @@
-#include "rlib/string/fstr.hpp"
-#include <iostream>
-#include <string>
-
+#include <rlib/string/string.hpp>
+#include <rlib/stdio.hpp>
 
 using namespace rlib;
-using namespace std;
+using namespace rlib::literals;
 
 int main()
 {
-    string s = fstr("here:%s", "miaow");
-    cout << s << endl;
+    println("fuck {} at {} a.m."_format("hust", 8));
     return 0;
 }
 

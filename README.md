@@ -6,6 +6,7 @@ Here is recolic's private library...
 
 ```c++
 repair rlib::functional
+RETEST rlib::noncopyable
 
 rlib::meta::print_constexpr
 rlib::meta::array

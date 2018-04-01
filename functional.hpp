@@ -36,7 +36,7 @@ namespace rlib {
 
 namespace rlib {
     template <class Func, typename... Args>
-    static inline double time_of(Func && f, Args && ... args)
+    constexpr static inline double timeof(Func && f, Args && ... args)
     {
         auto begin = std::chrono::high_resolution_clock::now();
         f(std::forward<Args>(args) ...);

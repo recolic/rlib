@@ -19,7 +19,7 @@ int main() {
 //    auto ff = std::bind(f, 4,m,444);
     f();
 
-    rlib::println("time of f is", rlib::time_of(f));
+    rlib::println("time of f is", rlib::timeof(f));
 
 }
 
