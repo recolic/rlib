@@ -3,11 +3,18 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+
+#include <rlib/sys/os.hpp>
+#if RLIB_OS_ID == OS_WINDOWS
+using fd = HANDLE;
+#else
+using fd = int;
+#endif
+
 namespace rlib{
-    class FileDescriptorSet
+    [[deprecated]] class FileDescriptorSet
     {
     public:
-        using fd=int;
         FileDescriptorSet() : m_size(0), maxFileDescriptor(NULL) {FD_ZERO(&m_fds_data);}
         void push(fd FileDescriptor) {FD_SET(FileDescriptor, &m_fds_data); ++m_size; maxFileDescriptor = (maxFileDescriptor > FileDescriptor ? maxFileDescriptor : FileDescriptor);}
         void pop(fd FileDescriptor) {FD_CLR(FileDescriptor, &m_fds_data); --m_size;} //It will break maxFileDescriptor.(for performance reason).
