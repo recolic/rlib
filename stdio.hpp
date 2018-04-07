@@ -18,36 +18,63 @@
 #include <unistd.h> // STDOUT_FILENO
 
 namespace rlib {
-    template <fd Fd = STDOUT_FILENO, typename PrintFinalT>
-    void print(PrintFinalT reqArg);
-    template <fd Fd = STDOUT_FILENO, typename Required, typename... Optional>
-    void print(Required reqArgs, Optional... optiArgs);
-    template <fd Fd = STDOUT_FILENO, typename... Optional>
-    void println(Optional... optiArgs);
-    template <fd Fd = STDOUT_FILENO>
-    void println();
+// print to custom stream
+    template <typename PrintFinalT>
+    void print(std::ostream &os, PrintFinalT reqArg);
+    template <typename Required, typename... Optional>
+    void print(std::ostream &os, Required reqArgs, Optional... optiArgs);
+    template <typename... Optional>
+    void println(std::ostream &os, Optional... optiArgs);
+    template <>
+    void println(std::ostream &os);
 
-    template <fd Fd = STDOUT_FILENO, typename Iterable, typename Printable>
-    void print_iter(Iterable arg, Printable spliter);
-    template <fd Fd = STDOUT_FILENO, typename Iterable, typename Printable>
-    void println_iter(Iterable arg, Printable spliter);
-    template <fd Fd = STDOUT_FILENO, typename Iterable>
-    void print_iter(Iterable arg);
-    template <fd Fd = STDOUT_FILENO, typename Iterable>
-    void println_iter(Iterable arg);
+    template <typename Iterable, typename Printable>
+    void print_iter(std::ostream &os, Iterable arg, Printable spliter);
+    template <typename Iterable, typename Printable>
+    void println_iter(std::ostream &os, Iterable arg, Printable spliter);
+    template <typename Iterable>
+    void print_iter(std::ostream &os, Iterable arg);
+    template <typename Iterable>
+    void println_iter(std::ostream &os, Iterable arg);
 
-    template <fd Fd = STDOUT_FILENO, typename... Args>
-    size_t printf(const std::string &fmt, Args... args);
-    template <fd Fd = STDOUT_FILENO, typename... Args>
-    size_t printfln(const std::string &fmt, Args... args);
+    template <typename... Args>
+    size_t printf(std::ostream &os, const std::string &fmt, Args... args);
+    template <typename... Args>
+    size_t printfln(std::ostream &os, const std::string &fmt, Args... args);
 
-    template <fd Fd = STDIN_FILENO>
-    std::string scanln()
-    {
+    inline std::string scanln(std::istream &is = std::cin, char delimiter = '\n') noexcept {
         std::string line;
-        std::getline(fd_to_istream<Fd>(), line);
+        std::getline(is, line, delimiter);
         return std::move(line);
     }
+
+    inline bool sync_with_stdio(bool sync = true) noexcept {
+        return std::ios::sync_with_stdio(sync);
+    }
+
+// print to stdout
+    template <typename PrintFinalT>
+    void print(PrintFinalT reqArg);
+    template <typename Required, typename... Optional>
+    void print(Required reqArgs, Optional... optiArgs);
+    template <typename... Optional>
+    void println(Optional... optiArgs);
+    template <>
+    void println();
+
+    template <typename Iterable, typename Printable>
+    void print_iter(Iterable arg, Printable spliter);
+    template <typename Iterable, typename Printable>
+    void println_iter(Iterable arg, Printable spliter);
+    template <typename Iterable>
+    void print_iter(Iterable arg);
+    template <typename Iterable>
+    void println_iter(Iterable arg);
+
+    template <typename... Args>
+    size_t printf(const std::string &fmt, Args... args);
+    template <typename... Args>
+    size_t printfln(const std::string &fmt, Args... args);
 
 // Implements.
     extern bool enable_endl_flush;
@@ -59,66 +86,130 @@ namespace rlib {
         return os;
     }
 
-    template <fd Fd = STDOUT_FILENO, typename PrintFinalT>
+    template <typename PrintFinalT>
     void print(PrintFinalT reqArg)
     {
-        fd_to_ostream<Fd>() << reqArg;
+        std::cout << reqArg;
     }
-    template <fd Fd = STDOUT_FILENO, typename Required, typename... Optional>
+    template <typename Required, typename... Optional>
     void print(Required reqArgs, Optional... optiArgs)
     {
-        fd_to_ostream<Fd>() << reqArgs << ' ';
+        std::cout << reqArgs << ' ';
         print(optiArgs ...);
     }
-    template <fd Fd = STDOUT_FILENO, typename... Optional>
+    template <typename... Optional>
     void println(Optional... optiArgs)
     {
         print(optiArgs ...);
         println();
     }
-    template <fd Fd = STDOUT_FILENO> 
+    template <> 
     void println()
     {
-        fd_to_ostream<Fd>() << rlib::endl;
+        std::cout << rlib::endl;
     }
 
-    template <fd Fd = STDOUT_FILENO, typename Iterable, typename Printable>
+    template <typename Iterable, typename Printable>
     void print_iter(Iterable arg, Printable spliter)
     {
         for(const auto & i : arg)
-            fd_to_ostream<Fd>() << i << spliter;
+            std::cout << i << spliter;
     }
-    template <fd Fd = STDOUT_FILENO, typename Iterable, typename Printable>
+    template <typename Iterable, typename Printable>
     void println_iter(Iterable arg, Printable spliter)
     {
         print_iter(arg, spliter);
-        fd_to_ostream<Fd>() << rlib::endl;
+        std::cout << rlib::endl;
     }
-    template <fd Fd = STDOUT_FILENO, typename Iterable>
+    template <typename Iterable>
     void print_iter(Iterable arg)
     {
         for(const auto & i : arg)
-            fd_to_ostream<Fd>() << i << ' ';
+            std::cout << i << ' ';
     }
-    template <fd Fd = STDOUT_FILENO, typename Iterable>
+    template <typename Iterable>
     void println_iter(Iterable arg)
     {
         print_iter(arg);
-        fd_to_ostream<Fd>() << rlib::endl;
+        std::cout << rlib::endl;
     }
 
-    template <fd Fd = STDOUT_FILENO, typename... Args>
+    template <typename... Args>
     size_t printf(const std::string &fmt, Args... args)
     {
         std::string to_print = format_string(fmt, args...); 
-        fd_to_ostream<Fd>() << to_print;
+        std::cout << to_print;
         return to_print.size();
     }
-    template <fd Fd = STDOUT_FILENO, typename... Args>
+    template <typename... Args>
     size_t printfln(const std::string &fmt, Args... args)
     {
         size_t len = rlib::printf(fmt, args...);
-        fd_to_ostream<Fd>() << rlib::endl;
+        std::cout << rlib::endl;
+        return len + 1;
+    }
+
+// With custom os
+    template <typename PrintFinalT>
+    void print(std::ostream &os, PrintFinalT reqArg)
+    {
+        os << reqArg;
+    }
+    template <typename Required, typename... Optional>
+    void print(std::ostream &os, Required reqArgs, Optional... optiArgs)
+    {
+        os << reqArgs << ' ';
+        print(os, optiArgs ...);
+    }
+    template <typename... Optional>
+    void println(std::ostream &os, Optional... optiArgs)
+    {
+        print(os, optiArgs ...);
+        println();
+    }
+    template <> 
+    void println(std::ostream &os)
+    {
+        os << rlib::endl;
+    }
+
+    template <typename Iterable, typename Printable>
+    void print_iter(std::ostream &os, Iterable arg, Printable spliter)
+    {
+        for(const auto & i : arg)
+            os << i << spliter;
+    }
+    template <typename Iterable, typename Printable>
+    void println_iter(std::ostream &os, Iterable arg, Printable spliter)
+    {
+        print_iter(os, arg, spliter);
+        os << rlib::endl;
+    }
+    template <typename Iterable>
+    void print_iter(std::ostream &os, Iterable arg)
+    {
+        for(const auto & i : arg)
+            os << i << ' ';
+    }
+    template <typename Iterable>
+    void println_iter(std::ostream &os, Iterable arg)
+    {
+        print_iter(os, arg);
+        os << rlib::endl;
+    }
+
+    template <typename... Args>
+    size_t printf(std::ostream &os, const std::string &fmt, Args... args)
+    {
+        std::string to_print = format_string(fmt, args...); 
+        os << to_print;
+        return to_print.size();
+    }
+    template <typename... Args>
+    size_t printfln(std::ostream &os, const std::string &fmt, Args... args)
+    {
+        size_t len = rlib::printf(fmt, args...);
+        os << rlib::endl;
         return len + 1;
     }
 }

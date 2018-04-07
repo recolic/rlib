@@ -4,7 +4,7 @@ using namespace rlib;
 using namespace rlib::terminal;
 
 int main() {
-    auto cter = printfln("{}Hello, {}={}, miao{}.{}", color_t::red, 6.6, 7, "www", clear);
+    auto cter = printfln<2>("{}Hello, {}={}, miao{}.{}", color_t::red, 6.6, 7, "www", clear);
     printfln("cter={}.", cter);
     println("test");
     return 0;

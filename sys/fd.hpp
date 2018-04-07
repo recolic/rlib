@@ -13,74 +13,63 @@ using fd = HANDLE;
 using fd = int;
 #endif
 
+// Unfinished. I'm not sure I must implement it.
+#if 1+1 == 3
 #if RLIB_COMPILER_ID == CC_GCC 
 #include <ext/stdio_filebuf.h>
 namespace rlib {
-    template <fd posix_handle>
-    inline std::istream & fd_to_istream() {
-         __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in);
-         return std::ifstream(&filebuf);
+    inline std::istream & fd_to_istream(fd handle) {
+        if(handle == STDIN_FILENO) return std::cin;
+        __gnu_cxx::stdio_filebuf<char> filebuf(handle, std::ios::in);
+        return std::istream(&filebuf);
     }
-    template <fd posix_handle>
-    inline std::ostream & fd_to_ostream() {
-         __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::out);
-         return std::ofstream(&filebuf);
+    inline std::ostream & fd_to_ostream(fd handle) {
+        if(handle == STDOUT_FILENO) return std::cout;
+        if(handle == STDERR_FILENO) return std::cerr;
+        __gnu_cxx::stdio_filebuf<char> filebuf(handle, std::ios::out);
+        return std::ostream(&filebuf);
     }
-    template <fd posix_handle>
-    inline std::iostream & fd_to_iostream() {
-         __gnu_cxx::stdio_filebuf<char> filebuf(posix_handle, std::ios::in || std::ios::out);
-         return std::fstream(&filebuf);
+    inline std::iostream & fd_to_iostream(fd handle) {
+        __gnu_cxx::stdio_filebuf<char> filebuf(handle, std::ios::in | std::ios::out);
+        return std::iostream(&filebuf);
     }
 } // rlib
 #elif RLIB_COMPILER_ID == CC_MSVC
 namespace rlib {
-    template <fd posix_handle>
-    inline std::istream & fd_to_istream() {
-        ifstream fs(::_fdopen(posix_handle, "r"));
+    inline std::istream & fd_to_istream(fd handle) {
+        if(handle == STDIN_FILENO) return std::cin;
+        ifstream fs(::_fdopen(handle, "r"));
         return fs;
     }
-    template <fd posix_handle>
-    inline std::ostream & fd_to_ostream() {
-        ofstream fs(::_fdopen(posix_handle, "w"));
+    inline std::ostream & fd_to_ostream(fd handle) {
+        if(handle == STDOUT_FILENO) return std::cout;
+        if(handle == STDERR_FILENO) return std::cerr;
+        ofstream fs(::_fdopen(handle, "w"));
         return fs;
     }
-    template <fd posix_handle>
-    inline std::iostream & fd_to_iostream() {
-        fstream fs(::_fdopen(posix_handle, "rw"));
+    inline std::iostream & fd_to_iostream(fd handle) {
+        fstream fs(::_fdopen(handle, "rw"));
         return fs;
     }
 } // rlib
 #else
 namespace rlib {
-    template <fd>
-    constexpr inline std::istream & fd_to_istream() {
+    constexpr inline std::istream & fd_to_istream(fd handle) {
+        if(handle == STDIN_FILENO) return std::cin;
         throw std::invalid_argument("fd != 0 to istream is not implemented except gcc/msvc.");
     }
-    template <fd>
-    constexpr inline std::ostream & fd_to_ostream() {
+    constexpr inline std::ostream & fd_to_ostream(fd handle) {
+        if(handle == STDOUT_FILENO) return std::cout;
+        if(handle == STDERR_FILENO) return std::cerr;
         throw std::invalid_argument("fd != 1/2 to ostream is not implemented except gcc/msvc.");
     }
-    template <fd>
-    constexpr inline std::iostream & fd_to_iostream() {
+    constexpr inline std::iostream & fd_to_iostream(fd handle) {
         throw std::invalid_argument("fd to iostream is not implemented except gcc/msvc.");
     }
 
 } // rlib
 #endif
-namespace rlib {
-    template <>
-    constexpr inline std::istream & fd_to_istream<STDIN_FILENO>() {
-        return std::cin;
-    }
-    template <>
-    constexpr inline std::ostream & fd_to_ostream<STDOUT_FILENO>() {
-        return std::cout;
-    }
-    template <>
-    constexpr inline std::ostream & fd_to_ostream<STDERR_FILENO>() {
-        return std::cerr;
-    }
-}
+#endif
 
 namespace rlib{
     class [[deprecated]] FileDescriptorSet
