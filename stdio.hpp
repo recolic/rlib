@@ -48,10 +48,6 @@ namespace rlib {
         return std::move(line);
     }
 
-    inline bool sync_with_stdio(bool sync = true) noexcept {
-        return std::ios::sync_with_stdio(sync);
-    }
-
 // print to stdout
     template <typename PrintFinalT>
     void print(PrintFinalT reqArg);
@@ -76,10 +72,18 @@ namespace rlib {
     template <typename... Args>
     size_t printfln(const std::string &fmt, Args... args);
 
+    namespace impl {extern bool enable_endl_flush;}
+
+    inline bool sync_with_stdio(bool sync = true) noexcept {
+        return std::ios::sync_with_stdio(sync);
+    }
+    inline bool enable_endl_flush(bool enable = true) noexcept {
+        return impl::enable_endl_flush = enable;
+    }
+
 // Implements.
-    extern bool enable_endl_flush;
     template < class CharT, class Traits >
-    std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
+    inline std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
         os << '\n';
         if(enable_endl_flush)
             os.flush();
