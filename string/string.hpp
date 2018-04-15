@@ -159,7 +159,7 @@ namespace rlib {
     inline std::string stripString(const std::string &toStrip, char stripped) {
         auto len = toStrip.size();
         size_t begin = 0;
-        size_t end = len;
+        size_t end = len - 1;
         while(toStrip[begin] == stripped) ++begin;
         while(end != begin && toStrip[end] == stripped) --end;
         return std::move(toStrip.substr(begin, end));

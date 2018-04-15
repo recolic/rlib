@@ -19,6 +19,7 @@ int main()
     test("");
     test(">PAQ P<DSP<")   ;
 
+    println(stripString(" 87sd6 8s7d5 8    8 75    ") + "|");
     string s = "fuck             you                  r mom 34qwo0 ghwerf 0832 ";
     replaceSubString(s, "ghw", "fuck you");
     println(s);
