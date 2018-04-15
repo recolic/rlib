@@ -162,7 +162,7 @@ namespace rlib {
         size_t end = len - 1;
         while(toStrip[begin] == stripped) ++begin;
         while(end != begin && toStrip[end] == stripped) --end;
-        return std::move(toStrip.substr(begin, end));
+        return std::move(toStrip.substr(begin, end+1));
     }
 
     inline size_t replaceSubString(std::string& str, const std::string &from, const std::string& to) 
