@@ -33,6 +33,8 @@ namespace rlib {
     std::string joinString(const char &toJoin, ForwardIterable begin, ForwardIterable end);
     template <class ForwardIterable>
     std::string joinString(const std::string &toJoin, ForwardIterable begin, ForwardIterable end);
+
+    std::string stripString(const std::string &toStrip, char stripped = ' ');
   
     size_t replaceSubString(std::string& str, const std::string &from, const std::string& to);
     bool replaceSubStringOnce(std::string& str, const std::string& from, const std::string& to);
@@ -152,6 +154,15 @@ namespace rlib {
         auto begin = buf.begin();
         auto end = buf.end();
         return std::move(joinString(toJoin, begin, end));
+    }
+
+    inline std::string stripString(const std::string &toStrip, char stripped = ' ') {
+        auto len = toStrip.size();
+        size_t begin = 0;
+        size_t end = len();
+        while(toStrip[begin] == stripped) ++begin;
+        while(end != begin && toStrip[end] == stripped) --end;
+        return std::move(toStrip.substr(begin, end));
     }
 
     inline size_t replaceSubString(std::string& str, const std::string &from, const std::string& to) 
