@@ -23,6 +23,29 @@
 
 namespace rlib {
 //TODO: Pass args by rvalue reference.
+
+    class string : public std::string {
+        std::vector<string> split(const char &divider = ' ');
+        std::vector<string> split(const std::string &divider);
+
+        template <class ForwardIterator>
+        string join(ForwardIterator begin, ForwardIterator end);
+        template <class ForwardIterable>
+        string join(const ForwardIterable &buffer);
+
+        template <typename ForwardIterator>
+        string strip(ForwardIterator begin, ForwardIterator end);
+        template <class ForwardIterable>
+        string strip(const ForwardIterable &strippedCharBuffer);
+        template <>
+        string strip(char stripped = ' ');
+
+        size_t replace(const std::string &from, const std::string &to);
+        bool replace_once(const std::string &from, const std::string &to);
+
+        template <typename... Args>
+        string format(Args... args);
+    };
 	std::vector<std::string> splitString(const std::string &toSplit, const char &divider = ' ');
 	std::vector<std::string> splitString(const std::string &toSplit, const std::string &divider);
     template <class ForwardIterator>
