@@ -210,6 +210,9 @@ namespace rlib {
         impl::formatter operator "" _format (const char *str, size_t) {
             return std::move(impl::formatter(str));
         }
+        rlib::string operator "" rs (const char *str, size_t len) {
+            return std::move(rlib::string(str, len));
+        }
     }
 
 

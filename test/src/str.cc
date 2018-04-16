@@ -1,5 +1,6 @@
 #include <rlib/string/string.hpp>
 using namespace rlib;
+using namespace rlib::literals;
 
 #include <rlib/stdio.hpp>
 
@@ -23,6 +24,9 @@ int main()
     println(s);
     s.replace_inplace("    ", "  ");
     println(s);
+    
+    println("{} are {} shits."_format("hust and hust", 2));
+    println("?"rs .join("   shit !! ..."rs .split()));
     return 0;
 }
 
