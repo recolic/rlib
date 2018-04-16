@@ -26,7 +26,7 @@ int main()
     println(s);
     
     println("{} are {} shits."_format("hust and hust", 2));
-    println("?"rs .join("   shit !! ..."rs .split()));
+    println("?"s .join("   shit !! ..."s .split()));
     return 0;
 }
 
