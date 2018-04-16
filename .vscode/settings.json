@@ -6,6 +6,8 @@
         "gcc": "cpp",
         "linux": "cpp",
         "win": "cpp",
-        "compiler_detector": "cpp"
+        "compiler_detector": "cpp",
+        "*.tcc": "cpp",
+        "string_view": "cpp"
     }
 }

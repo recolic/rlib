@@ -2,14 +2,12 @@
 using namespace rlib;
 
 #include <rlib/stdio.hpp>
-#include <string>
-using namespace std;
 
 void test(const string &s)
 {
-    println_iter(splitString(s));
-    println_iter(splitString(s, " w"s));
-    println(">>>", joinString("|", splitString(s)));
+    println_iter(s.split());
+    println_iter(s.split("w"));
+    println(">>>", string("|").join(s.split()));
 }
 
 int main()
@@ -19,11 +17,11 @@ int main()
     test("");
     test(">PAQ P<DSP<")   ;
 
-    println(stripString(" 87sd6 8s7d5 8    8 75    ") + "|");
+    println(string(" 87sd6 8s7d5 8    8 75    ").strip() + "|");
     string s = "fuck             you                  r mom 34qwo0 ghwerf 0832 ";
-    replaceSubString(s, "ghw", "fuck you");
+    s.replace_inplace("ghw", "fuck you");
     println(s);
-    replaceSubString(s, "   ", "  ");
+    s.replace_inplace("    ", "  ");
     println(s);
     return 0;
 }
