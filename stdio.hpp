@@ -42,7 +42,7 @@ namespace rlib {
     template <typename... Args>
     size_t printfln(std::ostream &os, const std::string &fmt, Args... args);
 
-    inline std::string scanln(std::istream &is = std::cin, char delimiter = '\n') noexcept {
+    inline rlib::string scanln(std::istream &is = std::cin, char delimiter = '\n') noexcept {
         std::string line;
         std::getline(is, line, delimiter);
         return std::move(line);
