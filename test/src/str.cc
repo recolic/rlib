@@ -20,9 +20,9 @@ int main()
 
     println(string(" 87sd6 8s7d5 8    8 75    ").strip() + "|");
     string s = "fuck             you                  r mom 34qwo0 ghwerf 0832 ";
-    s.replace_inplace("ghw", "fuck you");
+    s.replace("ghw", "fuck you");
     println(s);
-    s.replace_inplace("    ", "  ");
+    s.replace("    ", "  ");
     println(s);
     
     println("{} are {} shits."_format("hust and hust", 2));

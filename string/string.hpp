@@ -56,7 +56,7 @@ namespace rlib {
         inline char *_format_string_c_helper(const char *fmt, ...)
         {
             int n;
-            int size = std::strlen(fmt);     /* Guess we need no more than 100 bytes */
+            int size = std::strlen(fmt);
             char *p, *np;
             va_list ap;
 
@@ -96,7 +96,6 @@ namespace rlib {
     class string : public std::string {
     public:
         using std::string::string;
-        // Warning: Allocator not supported. Some unusual constructed not supported.
         string(const std::string &s) : std::string(s) {}
         string(std::string &&s) : std::string(std::forward<std::string>(s)) {}
         //string(const char *s, size_t count) : std::string(s, count) {}
@@ -131,8 +130,13 @@ namespace rlib {
             return std::move(buf);
         }
 
+        template <class ForwardIterable>
+        string &join(const ForwardIterable &buffer) {
+            join(buffer.cbegin(), buffer.cend());
+            return *this;
+        }
         template <class ForwardIterator>
-        string join(ForwardIterator begin, ForwardIterator end) const {
+        string &join(ForwardIterator begin, ForwardIterator end) {
             const string &toJoin = *this;
             std::string result;
             for(ForwardIterator iter = begin; iter != end; ++iter) {
@@ -140,56 +144,72 @@ namespace rlib {
                     result += toJoin;
                 result += *iter;
             }
-            return std::move(result);
-        }
-        template <class ForwardIterable>
-        string join(const ForwardIterable &buffer) const {
-            return std::move(this->join(buffer.cbegin(), buffer.cend()));
+            return operator=(std::move(result));
         }
 
-        template <typename ForwardIterator>
-        string strip(ForwardIterator begin, ForwardIterator end) const;
-        template <class ForwardIterable>
-        string strip(const ForwardIterable &strippedCharBuffer) const;
-        string strip(char stripped = ' ') const {
-            const string &toStrip = *this;
-            auto len = toStrip.size();
-            size_t begin = 0;
-            size_t end = len - 1;
-            while(toStrip[begin] == stripped) ++begin;
-            while(end != begin && toStrip[end] == stripped) --end;
-            return std::move(toStrip.substr(begin, end+1));
+        string &strip() {
+            strip(" \t\r\n");
+            return *this;
+        }
+        template <typename CharOrStringOrView>
+        string &strip(const CharOrStringOrView &stripped) {
+            size_t len = size();
+            size_t begin = find_first_not_of(stripped);
+
+            if(begin == std::string::npos) {
+                clear();
+                return *this;
+            }
+            size_t end = find_last_not_of(stripped);
+
+            erase(end + 1, len - end - 1);
+            erase(0, begin);
+            return *this;
         }
 
-        //TODO: Change name so it won't fight with std::string
-        size_t replace_inplace(const std::string &from, const std::string &to) {
+        string &replace(const std::string &from, const std::string &to) {
+            size_t _;
+            replace(from, to, _);
+            return *this;
+        }
+        string &replace(const std::string &from, const std::string &to, size_t &out_times) {
             if(from.empty())
-                return 0;
+                return *this;
             size_t start_pos = 0;
             size_t times = 0;
             while((start_pos = find(from, start_pos)) != std::string::npos)
             {
                 ++times;
-                replace(start_pos, from.length(), to);
+                this->std::string::replace(start_pos, from.length(), to);
                 start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
             }
-            return times;
+            out_times = times;
+            return *this;
         }
-        bool replace_once_inplace(const std::string &from, const std::string &to) {
+        string &replace_once(const std::string &from, const std::string &to) {
+            bool _;
+            replace_once(from, to, _);
+            return *this;
+        }
+        string &replace_once(const std::string &from, const std::string &to, bool &out_replaced) {
             size_t start_pos = find(from);
-            if(start_pos == std::string::npos)
-                return false;
-            replace(start_pos, from.length(), to);
-            return true;
+            if(start_pos == std::string::npos) {
+                out_replaced = false;
+            }
+            else {
+                this->std::string::replace(start_pos, from.length(), to);
+                out_replaced = true;
+            }
+            return *this;
         }
 
         template <typename... Args>
-        string format(Args... args) const {
-            return std::move(impl::format_string(*this, args ...));
+        string &format(Args... args) {
+            return operator=(std::move(impl::format_string(*this, args ...)));
         }
         template <typename... Args>
-        string cformat(Args... args) const {
-            return std::move(impl::format_string_c(*this, args ...));
+        string &cformat(Args... args) {
+            return operator=(std::move(impl::format_string_c(*this, args ...)));
         }
     };
 
