@@ -1,4 +1,4 @@
-#include <rlib/string/string.hpp>
+#include <rlib/string.hpp>
 using namespace rlib;
 using namespace rlib::literals;
 

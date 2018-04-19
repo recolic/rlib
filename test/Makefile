@@ -6,7 +6,7 @@
 # 	and `make` to build and run all modules.
 # 
 # ready-to-use modules:
-# 	string      rlib/string/string.hpp
+# 	string      rlib/string.hpp
 # 	meta        rlib/meta.hpp
 # 	trait       rlib/traits.hpp
 # 	stdio       rlib/stdio.hpp

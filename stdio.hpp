@@ -14,7 +14,7 @@
 #include <rlib/sys/fd.hpp> // fd
 #include <string>
 #include <iostream>
-#include <rlib/string/string.hpp> // format_string
+#include <rlib/string.hpp> // format_string
 #include <unistd.h> // STDOUT_FILENO
 
 namespace rlib {

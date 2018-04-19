@@ -11,7 +11,7 @@ raise an exception on some rare ill formed arguments.
 
 #include <rlib/require/cxx14>
 #include <rlib/class_decorator.hpp>
-#include <rlib/string/string.hpp>
+#include <rlib/string.hpp>
 #include <rlib/scope_guard.hpp>
 
 #include <string>
@@ -20,7 +20,7 @@ raise an exception on some rare ill formed arguments.
 #include <stdexcept>
 
 namespace rlib {
-    using namespace rlib::literals;
+    using rlib::literals::operator "" _format;
     class opt_parser : private noncopyable
     {
     public:
