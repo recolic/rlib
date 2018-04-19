@@ -141,7 +141,7 @@ namespace rlib {
     template <typename... Args>
     size_t printf(const std::string &fmt, Args... args)
     {
-        std::string to_print = format_string(fmt, args...); 
+        std::string to_print = impl::format_string(fmt, args...); 
         std::cout << to_print;
         return to_print.size();
     }

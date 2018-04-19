@@ -31,9 +31,9 @@ namespace rlib{
 namespace rlib {
     template<typename T>
     struct is_callable {
-        using impl = std::conditional<std::is_class<T>::value, is_callable_helper<T>, std::is_function<T>>::type;
+        using _impl = typename std::conditional<std::is_class<T>::value, impl::is_callable_helper<T>, std::is_function<T>>::type;
         static constexpr bool value() noexcept {
-            return impl::value;
+            return _impl::value;
         }
         constexpr operator bool() noexcept {
             return is_callable<T>::value();
