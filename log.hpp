@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <list>
+#include <climits>
 #include <rlib/sys/os.hpp>
 #include <rlib/sys/fd.hpp>
 #include <rlib/stdio.hpp>
@@ -26,7 +27,15 @@ namespace rlib {
     using namespace rlib::literals;
 
     // Allow extension.
-    enum log_level_t { FATAL = 1, ERROR, WARNING, INFO, VERBOSE, DEBUG };
+    enum class log_level_t : int { FATAL = 1, ERROR, WARNING, INFO, VERBOSE, DEBUG };
+    namespace impl { extern int max_predefined_log_level; }
+    /*
+    How to update log_level_t:
+        Extend `enum log_level_t ...`
+        Modify libr.cc:`max_predefined_log_level ...`
+        Add an RLIB_IMPL_MACRO_LOG_ADD_SHORTHAND
+        Append logger::predefined_log_level_name
+    */
 
     class logger {
     public:
@@ -52,11 +61,22 @@ namespace rlib {
 #endif
 #endif
 
-        void log(const std::string &info, log_level_t level = log_level_t::INFO) const {
-            println(stream, "[{}]{}"_format(log_level_name(level), info));
+        void set_flush(bool enable_flush) noexcept {
+            this->enable_flush = enable_flush;
         }
-        void register_log_level(log_level_t new_level, const std::string &name) {
+        void log(const std::string &info, log_level_t level = log_level_t::INFO) const {
+            stream << "[{}]{}"_format(log_level_name(level), info) << RLIB_IMPL_ENDLINE;
+            if(enable_flush)
+                stream.flush();
+        }
+        // Warning: this method is not thread-safe.
+        log_level_t register_log_level(const std::string &name) {
+            if(impl::max_predefined_log_level == INT_MAX)
+                throw std::overflow_error("At most {}(INT_MAX) log_level is allowed."_format(INT_MAX));
+            ++ impl::max_predefined_log_level;
+            log_level_t new_level = (log_level_t)impl::max_predefined_log_level;
             custom_log_level_names.push_back({new_level, name});
+            return new_level;
         }
 
 #define RLIB_IMPL_MACRO_LOG_ADD_SHORTHAND(_name, _enum_name) void _name(const std::string &info) const { \
@@ -111,6 +131,7 @@ namespace rlib {
 
         std::ostream &stream;
         bool must_delete_stream_as_ofstream = false;
+        bool enable_flush = true;
 #if RLIB_ENABLE_LOGGER_FROM_FD == 1
 #   if RLIB_COMPILER_ID == CC_GCC
         __gnu_cxx::stdio_filebuf<char> _gcc_filebuf;

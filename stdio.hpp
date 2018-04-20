@@ -16,6 +16,14 @@
 #include <rlib/string.hpp> // format_string
 #include <unistd.h> // STDOUT_FILENO
 
+#if RLIB_OS_ID == OS_WINDOWS
+#define RLIB_IMPL_ENDLINE "\r\n"
+#elif RLIB_OS_ID == OS_MACOS
+#define RLIB_IMPL_ENDLINE "\r"
+#else
+#define RLIB_IMPL_ENDLINE "\n"
+#endif
+
 namespace rlib {
 // print to custom stream
     template <typename PrintFinalT>
@@ -83,7 +91,7 @@ namespace rlib {
 // Implements.
     template < class CharT, class Traits >
     inline std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
-        os << '\n';
+        os << RLIB_IMPL_ENDLINE;
         if(enable_endl_flush)
             os.flush();
         return os;
@@ -107,7 +115,7 @@ namespace rlib {
         println();
     }
     template <> 
-    void println()
+    inline void println()
     {
         std::cout << rlib::endl;
     }
@@ -171,7 +179,7 @@ namespace rlib {
         println();
     }
     template <> 
-    void println(std::ostream &os)
+    inline void println(std::ostream &os)
     {
         os << rlib::endl;
     }
