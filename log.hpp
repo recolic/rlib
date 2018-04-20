@@ -42,7 +42,10 @@ namespace rlib {
         logger() = delete;
         logger(std::ostream &stream) : stream(stream) {}
         logger(const std::string &file_name) : stream(*new std::ofstream(file_name, std::ios::out)), 
-            must_delete_stream_as_ofstream(true) {}
+            must_delete_stream_as_ofstream(true) {
+                if(!dynamic_cast<std::ofstream &>(stream))
+                    throw std::runtime_error("Failed to open file {}."_format(file_name));
+            }
         ~logger() {
             if(must_delete_stream_as_ofstream)
                 delete dynamic_cast<std::ofstream *>(&stream);
