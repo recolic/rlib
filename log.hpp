@@ -61,10 +61,15 @@ namespace rlib {
 #endif
 #endif
 
+        void set_log_level(log_level_t max_level) {
+            this->log_level = max_level;
+        }
         void set_flush(bool enable_flush) noexcept {
             this->enable_flush = enable_flush;
         }
         void log(const std::string &info, log_level_t level = log_level_t::INFO) const {
+            if(is_predefined_log_level(level) && level > this->log_level)
+                return;
             stream << "[{}]{}"_format(log_level_name(level), info) << RLIB_IMPL_ENDLINE;
             if(enable_flush)
                 stream.flush();
@@ -110,6 +115,9 @@ namespace rlib {
                 return "";
             }
         }
+        static constexpr bool is_predefined_log_level(log_level_t level) noexcept {
+            return predefined_log_level_name(level)[0] != '\0';
+        }
         std::string log_level_name(log_level_t level) const noexcept {
             std::string name = predefined_log_level_name(level);
             if(!name.empty())
@@ -128,6 +136,7 @@ namespace rlib {
         }
 
         std::list<std::pair<log_level_t, std::string> > custom_log_level_names;
+        log_level_t log_level = log_level_t::INFO; // `Ignore` deadline.
 
         std::ostream &stream;
         bool must_delete_stream_as_ofstream = false;
