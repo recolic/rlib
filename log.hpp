@@ -10,15 +10,15 @@
 #include <rlib/stdio.hpp>
 
 // currently disable this error-prone shit.
-#define RLIB_ENABLE_LOGGER_FROM_FD 0
+#define RLIB_IMPL_ENABLE_LOGGER_FROM_FD 0
 
-#ifndef RLIB_ENABLE_LOGGER_FROM_FD
+#ifndef RLIB_IMPL_ENABLE_LOGGER_FROM_FD
 #if RLIB_OS_ID != OS_UNKNOWN
 #   if RLIB_COMPILER_ID == CC_GCC
 #       include <ext/stdio_filebuf.h>
-#       define RLIB_ENABLE_LOGGER_FROM_FD 1
+#       define RLIB_IMPL_ENABLE_LOGGER_FROM_FD 1
 #   elif RLIB_COMPILER_ID == CC_MSVC
-#       define RLIB_ENABLE_LOGGER_FROM_FD 1
+#       define RLIB_IMPL_ENABLE_LOGGER_FROM_FD 1
 #   endif
 #endif
 #endif
@@ -51,7 +51,7 @@ namespace rlib {
                 delete dynamic_cast<std::ofstream *>(&stream);
         }
         
-#if RLIB_ENABLE_LOGGER_FROM_FD == 1
+#if RLIB_IMPL_ENABLE_LOGGER_FROM_FD == 1
 #if RLIB_OS_ID != OS_UNKNOWN
         logger(fd file_descriptor_or_handle)
 #   if RLIB_COMPILER_ID == CC_GCC
@@ -144,7 +144,7 @@ namespace rlib {
         std::ostream &stream;
         bool must_delete_stream_as_ofstream = false;
         bool enable_flush = true;
-#if RLIB_ENABLE_LOGGER_FROM_FD == 1
+#if RLIB_IMPL_ENABLE_LOGGER_FROM_FD == 1
 #   if RLIB_COMPILER_ID == CC_GCC
         __gnu_cxx::stdio_filebuf<char> _gcc_filebuf;
         std::ostream _gcc_real_stream;
