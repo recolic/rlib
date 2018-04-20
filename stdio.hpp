@@ -11,7 +11,6 @@
 #define R_STDIO_HPP
 
 #include <rlib/require/cxx11> // Use fold expression if cxx17 is available.
-#include <rlib/sys/fd.hpp> // fd
 #include <string>
 #include <iostream>
 #include <rlib/string.hpp> // format_string

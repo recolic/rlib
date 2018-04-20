@@ -25,8 +25,8 @@ namespace rlib{
         public:
             static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(yes);
         };
-    } //rlib
-} //impl
+    } //impl
+} //rlib
 
 namespace rlib {
     template<typename T>

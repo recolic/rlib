@@ -13,7 +13,7 @@ using fd = HANDLE;
 using fd = int;
 #endif
 
-// Unfinished. I'm not sure I must implement it.
+// Unfinished. I'm not sure if I must implement it.
 #if 1+1 == 3
 #if RLIB_COMPILER_ID == CC_GCC 
 #include <ext/stdio_filebuf.h>
