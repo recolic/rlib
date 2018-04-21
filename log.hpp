@@ -8,6 +8,7 @@
 #include <rlib/sys/os.hpp>
 #include <rlib/sys/fd.hpp>
 #include <rlib/stdio.hpp>
+#include <rlib/sys/time.hpp>
 
 // currently disable this error-prone shit.
 #define RLIB_IMPL_ENABLE_LOGGER_FROM_FD 0
@@ -73,7 +74,7 @@ namespace rlib {
         void log(const std::string &info, log_level_t level = log_level_t::INFO) const {
             if(is_predefined_log_level(level) && level > this->log_level)
                 return;
-            stream << "[{}]{}"_format(log_level_name(level), info) << RLIB_IMPL_ENDLINE;
+            stream << "[{}|{}] {}"_format(get_current_time_str(), log_level_name(level), info) << RLIB_IMPL_ENDLINE;
             if(enable_flush)
                 stream.flush();
         }
