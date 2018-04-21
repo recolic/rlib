@@ -9,6 +9,7 @@
 #include <rlib/sys/fd.hpp>
 #include <rlib/stdio.hpp>
 #include <rlib/sys/time.hpp>
+#include <rlib/class_decorator.hpp>
 
 // currently disable this error-prone shit.
 #define RLIB_IMPL_ENABLE_LOGGER_FROM_FD 0
@@ -38,18 +39,34 @@ namespace rlib {
         Append logger::predefined_log_level_name
     */
 
-    class logger {
+    class logger : rlib::noncopyable {
     public:
         logger() = delete;
-        logger(std::ostream &stream) : stream(stream) {}
-        logger(const std::string &file_name) : stream(*new std::ofstream(file_name, std::ios::out)), 
+        logger(std::ostream &stream) : pstream(&stream) {}
+        logger(const std::string &file_name) : pstream(new std::ofstream(file_name, std::ios::out)), 
             must_delete_stream_as_ofstream(true) {
-                if(!dynamic_cast<std::ofstream &>(stream))
+                if(!dynamic_cast<std::ofstream &>(*pstream))
                     throw std::runtime_error("Failed to open file {}."_format(file_name));
             }
+        logger(logger &&another) : pstream(another.pstream), 
+            must_delete_stream_as_ofstream(another.must_delete_stream_as_ofstream),
+            enable_flush(another.enable_flush), 
+            log_level(another.log_level),
+            custom_log_level_names(std::move(another.custom_log_level_names)) 
+            {another.must_delete_stream_as_ofstream = false;}
         ~logger() {
             if(must_delete_stream_as_ofstream)
-                delete dynamic_cast<std::ofstream *>(&stream);
+                delete dynamic_cast<std::ofstream *>(pstream);
+        }
+
+        logger &operator=(logger &&another) {
+            pstream = another.pstream;
+            enable_flush = another.enable_flush;
+            must_delete_stream_as_ofstream = another.must_delete_stream_as_ofstream;
+            log_level = another.log_level;
+            custom_log_level_names = std::move(another.custom_log_level_names);
+            another.must_delete_stream_as_ofstream = false;
+            return *this;
         }
         
 #if RLIB_IMPL_ENABLE_LOGGER_FROM_FD == 1
@@ -74,9 +91,9 @@ namespace rlib {
         void log(const std::string &info, log_level_t level = log_level_t::INFO) const {
             if(is_predefined_log_level(level) && level > this->log_level)
                 return;
-            stream << "[{}|{}] {}"_format(get_current_time_str(), log_level_name(level), info) << RLIB_IMPL_ENDLINE;
+            (*pstream) << "[{}|{}] {}"_format(get_current_time_str(), log_level_name(level), info) << RLIB_IMPL_ENDLINE;
             if(enable_flush)
-                stream.flush();
+                pstream->flush();
         }
         // Warning: this method is not thread-safe.
         log_level_t register_log_level(const std::string &name) {
@@ -142,7 +159,7 @@ namespace rlib {
         std::list<std::pair<log_level_t, std::string> > custom_log_level_names;
         log_level_t log_level = log_level_t::INFO; // `Ignore` deadline.
 
-        std::ostream &stream;
+        std::ostream *pstream;
         bool must_delete_stream_as_ofstream = false;
         bool enable_flush = true;
 #if RLIB_IMPL_ENABLE_LOGGER_FROM_FD == 1

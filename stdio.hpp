@@ -92,7 +92,7 @@ namespace rlib {
     template < class CharT, class Traits >
     inline std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
         os << RLIB_IMPL_ENDLINE;
-        if(enable_endl_flush)
+        if(impl::enable_endl_flush)
             os.flush();
         return os;
     }
