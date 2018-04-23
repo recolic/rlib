@@ -26,6 +26,13 @@
 #endif
 #endif
 
+// shorthand for __cplusplus macro.
+#ifndef RLIB_CXX_STD
+#if defined(__cplusplus)
+#define RLIB_CXX_STD (__cplusplus / 100)
+#endif
+#endif
+
 #define RLIB_OS_ID_MAGIC 990719
 #define OS_WINDOWS (RLIB_OS_ID_MAGIC + 1) 
 #define OS_LINUX   (RLIB_OS_ID_MAGIC + 2) 
