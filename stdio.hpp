@@ -11,11 +11,18 @@
 #define R_STDIO_HPP
 
 #include <rlib/require/cxx11> // Use fold expression if cxx17 is available.
-#include <rlib/sys/fd.hpp> // fd
 #include <string>
 #include <iostream>
 #include <rlib/string.hpp> // format_string
 #include <unistd.h> // STDOUT_FILENO
+
+#if RLIB_OS_ID == OS_WINDOWS
+#define RLIB_IMPL_ENDLINE "\r\n"
+#elif RLIB_OS_ID == OS_MACOS
+#define RLIB_IMPL_ENDLINE "\r"
+#else
+#define RLIB_IMPL_ENDLINE "\n"
+#endif
 
 namespace rlib {
 // print to custom stream
@@ -84,8 +91,8 @@ namespace rlib {
 // Implements.
     template < class CharT, class Traits >
     inline std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
-        os << '\n';
-        if(enable_endl_flush)
+        os << RLIB_IMPL_ENDLINE;
+        if(impl::enable_endl_flush)
             os.flush();
         return os;
     }
@@ -108,7 +115,7 @@ namespace rlib {
         println();
     }
     template <> 
-    void println()
+    inline void println()
     {
         std::cout << rlib::endl;
     }
@@ -172,7 +179,7 @@ namespace rlib {
         println();
     }
     template <> 
-    void println(std::ostream &os)
+    inline void println(std::ostream &os)
     {
         os << rlib::endl;
     }
