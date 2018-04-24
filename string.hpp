@@ -105,6 +105,54 @@ namespace rlib {
         //string(const std::string &other, size_t pos, size_t count) : std::string(other, pos, count) {}
         //template<typename InputIt> string(InputIt first, InputIt last) : std::string(first, last) {}        
 
+    private:
+        template <typename T> struct as_helper {};
+        template <typename T>
+        T as(as_helper<T>) const {
+            if(empty()) return T();
+            return static_cast<T>(*this);
+        }
+        int as(as_helper<int>) const {
+            if(empty()) return 0;
+            return std::stoi(*this);
+        }
+        long as(as_helper<long>) const {
+            if(empty()) return 0;
+            return std::stol(*this);
+        }
+        unsigned long as(as_helper<unsigned long>) const {
+            if(empty()) return 0;
+            return std::stoul(*this);
+        }
+        unsigned long long as(as_helper<unsigned long long>) const {
+            if(empty()) return 0;
+            return std::stoull(*this);
+        }
+        long long as(as_helper<long long>) const {
+            if(empty()) return 0;
+            return std::stoll(*this);
+        }
+        float as(as_helper<float>) const {
+            if(empty()) return 0;
+            return std::stof(*this);
+        }
+        long double as(as_helper<long double>) const {
+            if(empty()) return 0;
+            return std::stold(*this);
+        }
+        double as(as_helper<double>) const {
+            if(empty()) return 0;
+            return std::stod(*this);
+        }
+
+    public:
+        template <typename T>
+        T as() const {
+            return std::forward<T>(as(as_helper<T>()));
+        }
+
+
+
         std::vector<string> split(const char &divider = ' ') const {
             const string &toSplit = *this;
             std::vector<string> buf;
@@ -129,6 +177,33 @@ namespace rlib {
             buf.push_back(toSplit.substr(prev));
             return std::move(buf);
         }
+        template <typename T>
+        std::vector<T> split_as(const char &divider = ' ') const {
+            const string &toSplit = *this;
+            std::vector<T> buf;
+            size_t curr = 0, prev = 0;
+            while((curr = toSplit.find(divider, curr)) != std::string::npos) {
+                buf.push_back(string(toSplit.substr(prev, curr - prev)).as<T>());
+                ++curr; // skip divider
+                prev = curr;
+            }
+            buf.push_back(string(toSplit.substr(prev)).as<T>());
+            return std::move(buf);
+        }
+        template <typename T>
+        std::vector<T> split_as(const std::string &divider) const {
+            const string &toSplit = *this;
+            std::vector<T> buf;
+            size_t curr = 0, prev = 0;
+            while((curr = toSplit.find(divider, curr)) != std::string::npos) {
+                buf.push_back(string(toSplit.substr(prev, curr - prev)).as<T>());
+                curr += divider.size(); // skip divider
+                prev = curr;
+            }
+            buf.push_back(string(toSplit.substr(prev)).as<T>());
+            return std::move(buf);
+        }
+
 
         template <class ForwardIterable>
         string &join(const ForwardIterable &buffer) {
