@@ -98,12 +98,6 @@ namespace rlib {
         using std::string::string;
         string(const std::string &s) : std::string(s) {}
         string(std::string &&s) : std::string(std::forward<std::string>(s)) {}
-        //string(const char *s, size_t count) : std::string(s, count) {}
-        //string(const char *s) : std::string(s) {}
-        //string(size_t count, char c) : std::string(count, c) {}
-        //string(const std::string &other, size_t pos) : std::string(other, pos) {}
-        //string(const std::string &other, size_t pos, size_t count) : std::string(other, pos, count) {}
-        //template<typename InputIt> string(InputIt first, InputIt last) : std::string(first, last) {}        
 
     private:
         template <typename T> struct as_helper {};
