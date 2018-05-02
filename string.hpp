@@ -106,6 +106,12 @@ namespace rlib {
             if(empty()) return T();
             return static_cast<T>(*this);
         }
+        std::string as(as_helper<std::string>) const {
+            return std::move(*this);
+        }
+        rlib::string as(as_helper<rlib::string>) const {
+            return std::move(*this);
+        }
         int as(as_helper<int>) const {
             if(empty()) return 0;
             return std::stoi(*this);
@@ -144,8 +150,6 @@ namespace rlib {
         T as() const {
             return std::forward<T>(as(as_helper<T>()));
         }
-
-
 
         std::vector<string> split(const char &divider = ' ') const {
             const string &toSplit = *this;
@@ -197,7 +201,6 @@ namespace rlib {
             buf.push_back(string(toSplit.substr(prev)).as<T>());
             return std::move(buf);
         }
-
 
         template <class ForwardIterable>
         string &join(const ForwardIterable &buffer) {
@@ -303,8 +306,6 @@ namespace rlib {
             return std::move(rlib::string(str, len));
         }
     }
-
-
 }
 
 #endif
