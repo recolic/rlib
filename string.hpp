@@ -302,7 +302,7 @@ namespace rlib {
         inline impl::formatter operator "" _format (const char *str, size_t) {
             return std::move(impl::formatter(str));
         }
-        inline rlib::string operator "" s (const char *str, size_t len) {
+        inline rlib::string operator "" _rs (const char *str, size_t len) {
             return std::move(rlib::string(str, len));
         }
     }
