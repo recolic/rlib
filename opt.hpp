@@ -30,13 +30,13 @@ namespace rlib {
                 args.push_back(std::move(std::string(argv[cter])));
         }
 
-        std::string getCommand() {
+        rlib::string getCommand() {
             auto cmd = std::move(args[0]);
             args.erase(args.begin());
             return std::move(cmd);
         }
 
-        std::string getValueArg(const std::string &argName, bool required = false)
+        rlib::string getValueArg(const std::string &argName, bool required = false)
         { //If required argument not exist, I'll throw. Else, return "" if arg is not read.
             bool useEqualSym = false;
             auto pos = std::find_if(args.cbegin(), args.cend(), [&](auto &ele)->bool{
@@ -62,7 +62,7 @@ namespace rlib {
             }
         }
 
-        std::string getValueArg(const std::string &argName, const char *pAnotherCStr)
+        rlib::string getValueArg(const std::string &argName, const char *pAnotherCStr)
         { //getValueArg("--long", "-l") may be converted to getValueArg("--long", true).
             return std::move(getValueArg(argName, pAnotherCStr, false));
         }
@@ -75,7 +75,7 @@ namespace rlib {
             return true;
         }
 
-        std::string getValueArg(const std::string &longName, const std::string &shortName, bool required = false)
+        rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required = false)
         {
             std::string valueL = getValueArg(longName);
             std::string valueS = getValueArg(shortName);
