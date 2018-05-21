@@ -30,6 +30,12 @@ namespace rlib {
                 args.push_back(std::move(std::string(argv[cter])));
         }
 
+        std::string getCommand() {
+            auto cmd = std::move(args[0]);
+            args.erase(args.begin());
+            return std::move(cmd);
+        }
+
         std::string getValueArg(const std::string &argName, bool required = false)
         { //If required argument not exist, I'll throw. Else, return "" if arg is not read.
             bool useEqualSym = false;
@@ -90,7 +96,7 @@ namespace rlib {
             return args.empty();
         }
     private:
-       std::vector<std::string> args;
+        std::vector<std::string> args;
     };
 }
 
