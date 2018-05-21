@@ -36,7 +36,7 @@ namespace rlib {
             return std::move(cmd);
         }
 
-        rlib::string getValueArg(const std::string &argName, bool required = false)
+        rlib::string getValueArg(const std::string &argName, bool required = true, const std::string &def = std::string())
         { //If required argument not exist, I'll throw. Else, return "" if arg is not read.
             bool useEqualSym = false;
             auto pos = std::find_if(args.cbegin(), args.cend(), [&](auto &ele)->bool{
@@ -50,7 +50,7 @@ namespace rlib {
             if(required && pos == args.cend())
                 throw std::invalid_argument("Required argument '{}' not provided."_format(argName));
             if(pos == args.cend())
-                return std::move(std::string(""));
+                return std::move(def);
             defer(([&, pos]{if(!useEqualSym) args.erase(pos+1); args.erase(pos);}));
             if(useEqualSym)
                 return std::move(pos->substr(argName.size() + 1));
@@ -62,9 +62,9 @@ namespace rlib {
             }
         }
 
-        rlib::string getValueArg(const std::string &argName, const char *pAnotherCStr)
+        rlib::string getValueArg(const std::string &longName, const char *shortName)
         { //getValueArg("--long", "-l") may be converted to getValueArg("--long", true).
-            return std::move(getValueArg(argName, pAnotherCStr, false));
+            return std::move(getValueArg(longName, shortName, true));
         }
 
         bool getBoolArg(const std::string &argName)
@@ -75,15 +75,15 @@ namespace rlib {
             return true;
         }
 
-        rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required = false)
+        rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required = true, const std::string &def = std::string())
         {
-            std::string valueL = getValueArg(longName);
-            std::string valueS = getValueArg(shortName);
+            std::string valueL = getValueArg(longName, false);
+            std::string valueS = getValueArg(shortName, false);
             
             std::string value = valueL.empty() ? valueS : valueL;
             if(required && value.empty())
                 throw std::invalid_argument("Required argument '{}/{}' not provided."_format(longName, shortName));
-            return value;
+            return std::move(value);
         }
 
         bool getBoolArg(const std::string &longName, const std::string &shortName)

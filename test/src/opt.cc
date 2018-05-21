@@ -9,7 +9,7 @@ int main(int argl, char **argv)
 {
     rlib::opt_parser opt(argl, argv);
     print(std::boolalpha);
-    println(opt.getValueArg("--fuck"), opt.getValueArg("--shit", "-s", true), opt.getBoolArg("--boolt", "-b"));
+    println(opt.getValueArg("--fuck", false), opt.getValueArg("--shit", "-s"), opt.getBoolArg("--boolt", "-b"));
     println("ALldone:", opt.allArgDone());
     return 0;
 }
