@@ -1,4 +1,4 @@
-#include "../c-with-class.h"
+#include <rlib/c-with-class.h>
 #include <stdio.h>
 
 RCPP_CLASS_DECL(vector)

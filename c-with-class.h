@@ -5,6 +5,10 @@
 //TODO: use macro to type class_name only once.
 //#error c_with_class not completed yet
 
+#ifdef __cplusplus
+#error You should not use c-with-class.h in real C++.
+#endif
+
 #define RCPP_NEW(type,name,constructor_arg) struct type name __attribute__((cleanup(type##_rcpp_destructor)));type##_rcpp_constructor(&name,constructor_arg)
 #define RCPP_CALL(i_objectname,i_funcname, ...) i_objectname.i_funcname(&i_objectname, ##__VA_ARGS__) //ONLY static public function can be called directly!!!
 #define RCPP_PCALL(p_objectname,i_funcname, ...) p_objectname->i_funcname(p_objectname, ##__VA_ARGS__)

@@ -28,7 +28,7 @@ namespace rlib {
         template <size_t index>
         struct at {
             static constexpr auto value() {
-                return at_last<sizeof...(arr) - index - 1, arr ...>::value();
+                return at_last<sizeof...(arr) - index - 1>::value();
             }
             constexpr operator element_type() {
                 return at<index>::value();

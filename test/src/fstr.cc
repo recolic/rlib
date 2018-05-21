@@ -7,7 +7,7 @@ using namespace rlib::literals;
 int main()
 {
     println("fuck {} at {} a.m."_format("hust", 8));
-    auto s = "shit {}/{}."s .format("???", 1.234);
+    auto s = "shit {}/{}."_rs .format("???", 1.234);
     println(s);
     return 0;
 }

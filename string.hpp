@@ -104,7 +104,7 @@ namespace rlib {
         template <typename T>
         T as(as_helper<T>) const {
             if(empty()) return T();
-            return static_cast<T>(*this);
+            return T(*this);
         }
         std::string as(as_helper<std::string>) const {
             return std::move(*this);
@@ -112,38 +112,41 @@ namespace rlib {
         rlib::string as(as_helper<rlib::string>) const {
             return std::move(*this);
         }
-        int as(as_helper<int>) const {
-            if(empty()) return 0;
-            return std::stoi(*this);
+        char as(as_helper<char>) const {
+            if(size() > 1)
+                throw std::invalid_argument("Can not convert rlib::string to char: size() > 1.");
+            return size() == 0 ? '\0' : *cbegin();
         }
-        long as(as_helper<long>) const {
-            if(empty()) return 0;
-            return std::stol(*this);
+        unsigned char as(as_helper<unsigned char>) const {
+            return static_cast<unsigned char>(as<char>());
         }
-        unsigned long as(as_helper<unsigned long>) const {
-            if(empty()) return 0;
-            return std::stoul(*this);
+
+#define RLIB_IMPL_GEN_AS_NUMERIC(type, std_conv) \
+        type as(as_helper<type>) const { \
+            if(empty()) return 0; \
+            return std::std_conv(*this); \
         }
-        unsigned long long as(as_helper<unsigned long long>) const {
-            if(empty()) return 0;
-            return std::stoull(*this);
+
+        RLIB_IMPL_GEN_AS_NUMERIC(int, stoi)
+        RLIB_IMPL_GEN_AS_NUMERIC(long, stol)
+        RLIB_IMPL_GEN_AS_NUMERIC(unsigned long, stoul)
+        RLIB_IMPL_GEN_AS_NUMERIC(unsigned long long, stoull)
+        RLIB_IMPL_GEN_AS_NUMERIC(long long, stoll)
+        RLIB_IMPL_GEN_AS_NUMERIC(float, stof)
+        RLIB_IMPL_GEN_AS_NUMERIC(double, stod)
+        RLIB_IMPL_GEN_AS_NUMERIC(long double, stold)
+
+#define RLIB_IMPL_GEN_AS_ALIAS(new_type, old_type) \
+        new_type as(as_helper<new_type>) const { \
+            return static_cast<new_type>(as<old_type>()); \
         }
-        long long as(as_helper<long long>) const {
-            if(empty()) return 0;
-            return std::stoll(*this);
-        }
-        float as(as_helper<float>) const {
-            if(empty()) return 0;
-            return std::stof(*this);
-        }
-        long double as(as_helper<long double>) const {
-            if(empty()) return 0;
-            return std::stold(*this);
-        }
-        double as(as_helper<double>) const {
-            if(empty()) return 0;
-            return std::stod(*this);
-        }
+
+        RLIB_IMPL_GEN_AS_ALIAS(unsigned int, unsigned long)
+        RLIB_IMPL_GEN_AS_ALIAS(unsigned short, unsigned long)
+        //RLIB_IMPL_GEN_AS_ALIAS(uint8_t, unsigned long)
+
+        RLIB_IMPL_GEN_AS_ALIAS(short, int)
+        //RLIB_IMPL_GEN_AS_ALIAS(int8_t, int)
 
     public:
         template <typename T>
