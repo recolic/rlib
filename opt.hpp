@@ -51,7 +51,7 @@ namespace rlib {
                 throw std::invalid_argument("Required argument '{}' not provided."_format(argName));
             if(pos == args.cend())
                 return std::move(def);
-            defer(([&, pos]{if(!useEqualSym) args.erase(pos+1); args.erase(pos);}));
+            rlib_defer(([&, pos]{if(!useEqualSym) args.erase(pos+1); args.erase(pos);}));
             if(useEqualSym)
                 return std::move(pos->substr(argName.size() + 1));
             else
