@@ -43,9 +43,9 @@ namespace rlib {
 }
 
 
-#ifndef defer
+#ifndef rlib_defer
 #include <rlib/macro.hpp>
-#define defer(callable) ::rlib::scope_guard RLIB_MAKE_UNIQUE_NAME(_guarder_id_) (callable)
+#define rlib_defer(callable) ::rlib::scope_guard RLIB_MAKE_UNIQUE_NAME(_guarder_id_) (callable)
 #endif
 
 #define RLIB_reinforce_scope_begin(guarderName, callable) scope_guard guarderName = callable; try{
@@ -76,6 +76,7 @@ namespace rlib {
         template<class Callable>
         scope_guards& operator += (Callable && undo_func) {
             fbuf.emplace_front(std::forward<Callable>(undo_func));
+            return *this;
         }
 
         ~scope_guards() {
