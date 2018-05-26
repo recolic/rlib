@@ -80,9 +80,13 @@ namespace rlib {
             std::string valueL = getValueArg(longName, false);
             std::string valueS = getValueArg(shortName, false);
             
-            std::string value = valueL.empty() ? valueS : valueL;
-            if(required && value.empty())
-                throw std::invalid_argument("Required argument '{}/{}' not provided."_format(longName, shortName));
+            const std::string &value = valueL.empty() ? valueS : valueL;
+            if(value.empty()) {
+                if(required)
+                    throw std::invalid_argument("Required argument '{}/{}' not provided."_format(longName, shortName));
+                else
+                    return def;
+            }
             return std::move(value);
         }
 
