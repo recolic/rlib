@@ -5,7 +5,7 @@
 #include <ctime>
 #include <iomanip>
 namespace rlib {
-    static inline  std::string get_current_time_str() noexcept {
+    static inline std::string get_current_time_str() noexcept {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         std::time_t now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(24));
         static char mbstr[128];

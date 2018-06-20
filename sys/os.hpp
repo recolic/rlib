@@ -15,7 +15,7 @@
 #   elif TARGET_OS_MAC
 #   define RLIB_OS_ID OS_MACOS
 #   else
-#   define RLIB_OS_ID OS_UNKNOWN_UNIX
+#   define RLIB_OS_ID OS_UNKNOWN
 #   endif
 #elif defined(__OS_ANDROID__)
 #   define RLIB_OS_ID OS_ANDROID
