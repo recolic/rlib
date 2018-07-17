@@ -3,6 +3,7 @@
 
 #include <rlib/require/cxx17>
 #include <cstddef> // size_t
+#include <tuple>
 
 namespace rlib::impl {
     template <auto first_ele, auto... _>
@@ -34,6 +35,10 @@ namespace rlib {
                 return at<index>::value();
             }
         };
+
+        static constexpr auto to_tuple() {
+            return std::make_tuple(arr ...);
+        }
 
     private:
         template <size_t index, auto first_ele, auto... _arr>
