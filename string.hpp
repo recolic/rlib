@@ -11,6 +11,7 @@
 
 #include <rlib/require/cxx14>
 #include <rlib/class_decorator.hpp>
+#include <rlib/meta.hpp>
 
 #include <vector>
 #include <string>
@@ -25,29 +26,57 @@
 namespace rlib {
     // literals::_format, format_string, string::format
     namespace impl {
-        template<typename StdString>
-        void _format_string_helper(std::stringstream &ss, const StdString &fmt) {
-            ss << fmt;
+        thread_local extern std::stringstream to_string_by_sstream_ss;        
+        template <typename VarT>
+        std::string to_string_by_sstream(VarT &thing) {
+            auto &ss = to_string_by_sstream_ss;
+            ss.str(std::string());
+            ss << thing;
+            return std::move(ss.str());
         }
-        template<typename Arg1, typename... Args>
-        void _format_string_helper(std::stringstream &ss, const std::string &fmt, Arg1 arg1, Args... args) {
-            size_t pos = 0;
-            while((pos = fmt.find("{}")) != std::string::npos) {
+
+        thread_local extern std::stringstream _format_string_helper_ss;
+        template<typename... Args>
+        std::string _format_string_helper(const std::string &fmt, Args... args) {
+            auto &ss = _format_string_helper_ss; // cached stringstream is much quicker.
+            ss.str(std::string());
+            size_t pos = 0, prev_pos = 0;
+            std::array<std::string, sizeof...(args)> argsArr{to_string_by_sstream(args) ...};
+            size_t current_used_arg = 0;
+            bool discovered_escape_char = false;
+            while((pos = fmt.find("{}", pos)) != std::string::npos) {
                 if(pos != 0 && fmt[pos-1] == '\\') {
-                    ++pos;
-                    continue;
+                    // Invalid hit.
+                    discovered_escape_char = true;
+                    pos += 2;
                 }
-                ss << fmt.substr(0, pos) << arg1;
-                _format_string_helper(ss, fmt.substr(pos + 2), args ...);
-                return;
+                else {
+                    std::string cutted_tmp_str = fmt.substr(prev_pos, pos - prev_pos);
+                    if(discovered_escape_char) {
+                        // hand-written string replace. Replace `\{}` to `{}`.
+                        size_t pos = 0;
+                        while((pos = cutted_tmp_str.find("\\{}", pos)) != std::string::npos) {
+                            cutted_tmp_str.erase(pos, 1);
+                            pos += 2;
+                        }
+                    }
+                    ss << cutted_tmp_str << argsArr[current_used_arg];
+                    pos += 2;
+                    prev_pos = pos;
+                    ++current_used_arg;
+                }
             }
-		_format_string_helper(ss, fmt);
+            ss << fmt.substr(prev_pos);
+            return std::move(ss.str());
         }
         template<typename... Args>
         std::string format_string(const std::string &fmt, Args... args) {
-            std::stringstream ss;
-            _format_string_helper(ss, fmt, args...);
-            return ss.str();
+            return _format_string_helper(fmt, args...);
+        }
+
+        template<class MetaFmtArr, typename... Args>
+        constexpr std::string format_string_meta(Args... args) {
+            return (args + ...);
         }
     }
 
