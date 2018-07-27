@@ -20,7 +20,6 @@ raise an exception on some rare ill formed arguments.
 #include <stdexcept>
 
 namespace rlib {
-    using rlib::literals::operator "" _format;
     class opt_parser : private noncopyable
     {
     public:
@@ -38,6 +37,7 @@ namespace rlib {
 
         rlib::string getValueArg(const std::string &argName, bool required = true, const std::string &def = std::string())
         { //If required argument not exist, I'll throw. Else, return "" if arg is not read.
+            using rlib::literals::operator "" _format;
             bool useEqualSym = false;
             auto pos = std::find_if(args.cbegin(), args.cend(), [&](auto &ele)->bool{
                 if(ele == argName) return true;
@@ -77,6 +77,7 @@ namespace rlib {
 
         rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required = true, const std::string &def = std::string())
         {
+            using rlib::literals::operator "" _format;
             std::string valueL = getValueArg(longName, false);
             std::string valueS = getValueArg(shortName, false);
             

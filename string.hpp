@@ -149,6 +149,22 @@ namespace rlib {
         unsigned char as(as_helper<unsigned char>) const {
             return static_cast<unsigned char>(as<char>());
         }
+        bool as(as_helper<bool>) const {
+            if(*this == "true") {
+                return true;
+            }
+            else if(*this == "false") {
+                return false;
+            }
+            // Nothing is slower than throw(); Just test more cases...
+            else if(*this == "1" || *this == "True" || *this == "TRUE") {
+                return true;
+            }
+            else if(*this == "0" || *this == "False" || *this == "FALSE") {
+                return false;
+            }
+            throw std::invalid_argument("Can not convert rlib::string to bool. Not matching any template.");
+        }
 
 #define RLIB_IMPL_GEN_AS_NUMERIC(type, std_conv) \
         type as(as_helper<type>) const { \
