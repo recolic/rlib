@@ -3,6 +3,7 @@
 
 #include <rlib/require/cxx17>
 #include <rlib/class_decorator.hpp>
+#include <rlib/sys/os.hpp>
 
 #include <type_traits>
 #include <list>
@@ -62,4 +63,57 @@ namespace rlib {
         return std::bind(impl::repeated_func_return_list<Func, Args ...>(), count, std::forward<Func>(f), std::forward<Args>(args) ...);
     }
 }
+
+namespace std {
+#if RLIB_CXX_STD >= 2017
+    class execution;
+#endif
+}
+
+// functools here.
+#include <algorithm>
+namespace rlib {
+    template <Iterable buffer_t>
+    class wrappedIterable : public buffer_t {
+    public:
+        using buffer_t::buffer_t;
+        using buffer_type = buffer_t;
+        using value_type = buffer_t::value_type;
+        using this_type = wrappedIterable<buffer_t>;
+        wrappedIterable(const buffer_t &b) : buffer_t(b) {}
+        wrappedIterable(buffer_t &&b) : buffer_t(std::forward<buffer_t>(b)) {}
+
+#if RLIB_CXX_STD >= 2017
+        // std::foreach wrapper
+        this_type &map(std::execution &&policy, std::function<value_type(const value_type &)> mapper_func) {
+            std::for_each(std::forward<std::execution>(policy), begin, end, [&mapper_func](value_type &v){v = mapper_func(v);});
+        }
+        this_type &map(std::execution &&policy, std::function<void(value_type &)> mapper_func) {
+            std::for_each(std::forward<std::execution>(policy), begin, end, mapper_func);
+        }
+
+
+#endif
+        // std::foreach wrapper
+        this_type &map(std::function<value_type(const value_type &)> mapper_func) {
+            std::for_each(begin, end, [&mapper_func](value_type &v){v = mapper_func(v);});
+            return *this;
+        }
+        this_type &map(std::function<void(value_type &)> mapper_func) {
+            std::for_each(begin, end, mapper_func);
+            return *this;
+        }
+
+        this_type &filter(std::function<bool(const value_type &)> filter_func) {
+            std::remove_if(begin, end, [&filter_func](const value_type &v) -> bool {return !filter_func(v);});
+            return *this;
+        }
+
+        this_type &flat_map(std::function<buffer_type<value_type>(const value_type &)>) {
+
+        }
+
+    };
+}
+
 #endif
