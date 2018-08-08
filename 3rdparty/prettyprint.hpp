@@ -11,6 +11,14 @@
 #ifndef H_PRETTY_PRINT
 #define H_PRETTY_PRINT
 
+// Recolic add
+#if _GLIBCXX_OSTREAM
+#include <rlib/sys/os.hpp>
+#if RLIB_COMPILER_ID == CC_CLANG
+#error In clang, you must include prettyprint.hpp before STD ostream or rlib/stdio.hpp.
+#endif
+#endif
+
 #include <cstddef>
 #include <iterator>
 #include <memory>
