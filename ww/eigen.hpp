@@ -8,9 +8,9 @@
 
 namespace rlib {
     namespace impl {
-        template <int row, int col, int ... extra> struct eigenMatExtracterHelper {
-            static constexpr int _y = row;
-            static constexpr int _x = col;
+        template <int row, int col, int _opt, int dyRow, int dyCol> struct eigenMatExtracterHelper {
+            static constexpr int _y = row == ::Eigen::Dynamic ? dyRow : row;
+            static constexpr int _x = col == ::Eigen::Dynamic ? dyCol : col;
         };
         template <typename T>
         struct eigenMatExtracter {
@@ -39,14 +39,14 @@ namespace rlib {
          */
         // Warning: If ScalaT has copy constructor, it won't be called.
         //          ScalarT must be able to copy by std::memcpy.
-        template <size_t m, size_t n, typename MatT, typename ScalarT>
+        template <size_t m, size_t n, typename MatT, typename ScalarT, bool disableDynamicCheck = false>
         void initBandMatrix(MatT &fixedMatRef, std::initializer_list<ScalarT> _values, ScalarT nullScalar = ScalarT{}) {
             using wrappedMat = rlib::impl::eigenMatExtracter<MatT>;
             static_assert(std::is_same<typename wrappedMat::scalarType, ScalarT>::value,
                 "Element of std::array and Eigen::Matrix must be the same.");
             constexpr int MatSizeX = wrappedMat::x;
             constexpr int MatSizeY = wrappedMat::y;
-            static_assert(MatSizeX != ::Eigen::Dynamic && MatSizeY != ::Eigen::Dynamic,
+            static_assert(disableDynamicCheck || (MatSizeX != ::Eigen::Dynamic && MatSizeY != ::Eigen::Dynamic),
                 "initBandMatrix must not be applied on Dynamic Matrix.");
             static_assert(MatSizeX >= n, "MatSizeX MUST >= n");
             static_assert(MatSizeY >= m, "MatSizeY MUST >= m");
@@ -93,11 +93,25 @@ namespace rlib {
                 std::memcpy(unitRPtr + (unitRStep * cter) + copyRangeBegin, values.data(), copyRangeLen * sizeof(ScalarT));
             }
         }
+        template <typename ScalarT, int MatSizeY, int MatSizeX> struct EigenMatrixStackLimitChecker {
+#if EIGEN_STACK_ALLOCATION_LIMIT
+            //static constexpr bool value = ::Eigen::internal::check_static_allocation_size<ScalarT, MatSizeX*MatSizeY>();
+            // Eigen::internal implemented this feature without checking alignment size. So I won't check it.
+            static constexpr bool value = sizeof(ScalarT) * MatSizeX * MatSizeY <= EIGEN_STACK_ALLOCATION_LIMIT;
+#else
+            static constexpr bool value = true;
+#endif
+            using resultType = typename std::conditional<value, ::Eigen::Matrix<ScalarT, MatSizeY, MatSizeX>, 
+                ::Eigen::Matrix<ScalarT, ::Eigen::Dynamic, ::Eigen::Dynamic, ::Eigen::DontAlign | ::Eigen::ColMajor, MatSizeY, MatSizeX>>::type;
+            
+        };
         template <typename ScalarT, int MatSizeY, int MatSizeX, size_t m, size_t n>
-        typename ::Eigen::Matrix<ScalarT, MatSizeY, MatSizeX> getBandMatrix(std::initializer_list<ScalarT> _values) {
-            using ResultT = typename ::Eigen::Matrix<ScalarT, MatSizeY, MatSizeX>;
+        typename EigenMatrixStackLimitChecker<ScalarT, MatSizeY, MatSizeX>::resultType
+            getBandMatrix(std::initializer_list<ScalarT> _values) {
+            using ResultT = typename EigenMatrixStackLimitChecker<ScalarT, MatSizeY, MatSizeX>::resultType;
+
             ResultT result;
-            initBandMatrix<m, n>(result, std::move(_values));
+            initBandMatrix<m, n, ResultT, ScalarT, true>(result, std::move(_values));
             return std::move(result);
         }
     }
