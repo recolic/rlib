@@ -1,5 +1,6 @@
 #include <rlib/ww/eigen.hpp>
 #include <iostream>
+#include <eigen3/Eigen/Sparse>
 using namespace rlib::Eigen;
 using namespace ::Eigen;
 
@@ -18,5 +19,6 @@ int main() {
     };
     initBundledMatrix(myEmptyFloatMatrix, testingMap, 7, 6);
     std::cout << myEmptyFloatMatrix << "\n" << getBundledMatrix<MatrixXf>(testingMap, 7, 6) << '\n' << getBundledMatrix<Matrix<float,7,6>>(testingMap) << std::endl;
+    std::cout << "hi\n" << getBundledMatrix<SparseMatrix<float>>(testingMap, 7, 6) << std::endl;
     return 0;
 }

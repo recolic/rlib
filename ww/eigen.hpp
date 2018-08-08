@@ -1,7 +1,8 @@
 #ifndef RLIB_WW_EIGEN_HPP_
 #define RLIB_WW_EIGEN_HPP_
 
-#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/SparseCore>
 #include <initializer_list>
 #include <rlib/require/cxx14>
 #include <cassert>
@@ -26,6 +27,31 @@ namespace rlib {
             static constexpr int x = eigenMatExtracterHelper<Args ...>::_x;
             static constexpr int y = eigenMatExtracterHelper<Args ...>::_y;
             using scalarType = ScalarT;
+        };
+
+        template <typename T>
+        struct anyMatrixAssign {
+            //static constexpr bool is_sparse_mat = has_coeffRef<T>();
+            //static constexpr bool is_sparse_mat = std::is_same<typename T::Base, ::Eigen::SparseCompressedBase<T>>::value;
+            static constexpr bool is_sparse_mat = std::is_base_of<::Eigen::SparseCompressedBase<T>, T>::value;
+            // invalid type
+            template <typename ScalarT>
+            static std::enable_if_t<(sizeof(ScalarT),!is_sparse_mat)> assign(T &mat, size_t x, size_t y, const ScalarT &value) {
+                throw std::invalid_argument("anyMatrixAssign can only be used to Eigen::Matrix or Eigen::SparseMatrix");
+            }
+            // is SparseMatrix (SparseMatrix signature is too strange... Unable to use partial specialization)
+            template <typename ScalarT>
+            static std::enable_if_t<(sizeof(ScalarT),is_sparse_mat)> assign(T &mat, size_t x, size_t y, const ScalarT &value) {
+                mat.coeffRef(y, x) = value;
+            }
+        };
+        template <template<typename, int...> class MatType, typename ScalarT, int... Args>
+        struct anyMatrixAssign <MatType<ScalarT, Args...>> {
+            // is Matrix
+            static void assign(MatType<ScalarT, Args...> &mat, size_t x, size_t y, const ScalarT &value) {
+                static_assert(std::is_same<MatType<ScalarT, Args...>, ::Eigen::Matrix<ScalarT, Args...>>::value, "anyMatrixAssign can only be used to Eigen::Matrix or Eigen::SparseMatrix");
+                mat(y, x) = value;
+            }
         };
     }
     namespace Eigen {
@@ -58,6 +84,7 @@ namespace rlib {
             static_assert(MatSizeX >= n, "MatSizeX MUST >= n");
             static_assert(MatSizeY >= m, "MatSizeY MUST >= m");
 
+            static_assert(std::is_trivially_constructible<ScalarT, ScalarT>::value, "initBandMatrix ScalarT must be trivially constructible now.TODO: fix it.");
  
             ScalarT *cmat = fixedMatRef.data(); // Fortran-style matrix. I must reverse m/n below.
             // unitA replica area refers to `First column with ALL m+n-1 values in argument`.
@@ -177,7 +204,8 @@ namespace rlib {
                 while(true) {
                     if(cterX == matSizeX || cterY == matSizeY)
                         break;
-                    matRef(cterY, cterX) = val;
+                    //matRef(cterY, cterX) = val;
+                    impl::anyMatrixAssign<RandomAccessedMatT>::assign(matRef, cterX, cterY, val);
                     ++cterX;
                     ++cterY;
                 }
