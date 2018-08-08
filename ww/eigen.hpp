@@ -70,9 +70,8 @@ namespace rlib {
             std::array<ScalarT, unitRStep> zeros{nullScalar};
             // unitL
             for(int cter = 0; cter < unitLCols; ++cter) {
-                // Warning: assume n <= MatSizeX here.
                 std::memcpy(unitLPtr + unitLStep * cter, zeros.data(), unitLStep * sizeof(ScalarT));
-                std::memcpy(unitLPtr + unitLStep * cter, values.data() + ((m+n-1)-(m+cter)), (m + cter) * sizeof(ScalarT));
+                std::memcpy(unitLPtr + unitLStep * cter, values.data() + ((m+n-1)-(m+cter)), std::min(m+cter, (size_t)unitLStep) * sizeof(ScalarT));
             }
             // unitA, hot
             std::array<ScalarT, unitAStep> unitAMem {nullScalar};
