@@ -40,7 +40,7 @@ namespace rlib {
         // Warning: If ScalaT has copy constructor, it won't be called.
         //          ScalarT must be able to copy by std::memcpy.
         template <size_t m, size_t n, typename MatT, typename ScalarT, bool disableDynamicCheck = false>
-        void initBandMatrix(MatT &fixedMatRef, std::initializer_list<ScalarT> _values, ScalarT nullScalar = ScalarT{}) {
+        void initBandMatrix(MatT &fixedMatRef, const std::array<ScalarT, m+n-1> &values, ScalarT nullScalar = ScalarT{}) {
             using wrappedMat = rlib::impl::eigenMatExtracter<MatT>;
             static_assert(std::is_same<typename wrappedMat::scalarType, ScalarT>::value,
                 "Element of std::array and Eigen::Matrix must be the same.");
@@ -51,9 +51,6 @@ namespace rlib {
             static_assert(MatSizeX >= n, "MatSizeX MUST >= n");
             static_assert(MatSizeY >= m, "MatSizeY MUST >= m");
 
-            assert(_values.size() == m+n-1);
-            std::array<ScalarT, m+n-1> values;
-            std::copy(_values.begin(), _values.end(), values.begin());
  
             ScalarT *cmat = fixedMatRef.data(); // Fortran-style matrix. I must reverse m/n below.
             // unitA replica area refers to `First column with ALL m+n-1 values in argument`.
@@ -93,6 +90,14 @@ namespace rlib {
                 std::memcpy(unitRPtr + (unitRStep * cter) + copyRangeBegin, values.data(), copyRangeLen * sizeof(ScalarT));
             }
         }
+        template <size_t m, size_t n, typename MatT, typename ScalarT, bool disableDynamicCheck = false>
+        void initBandMatrix(MatT &fixedMatRef, std::initializer_list<ScalarT> _values, ScalarT nullScalar = ScalarT{}) {
+            assert(_values.size() == m+n-1);
+            std::array<ScalarT, m+n-1> values;
+            std::copy(_values.begin(), _values.end(), values.begin());
+            initBandMatrix<m, n, MatT, ScalarT, disableDynamicCheck>(fixedMatRef, values, nullScalar);
+        }
+ 
         template <typename ScalarT, int MatSizeY, int MatSizeX> struct EigenMatrixStackLimitChecker {
 #if EIGEN_STACK_ALLOCATION_LIMIT
             //static constexpr bool value = ::Eigen::internal::check_static_allocation_size<ScalarT, MatSizeX*MatSizeY>();
@@ -114,6 +119,17 @@ namespace rlib {
             initBandMatrix<m, n, ResultT, ScalarT, true>(result, std::move(_values));
             return std::move(result);
         }
+        template <typename ScalarT, int MatSizeY, int MatSizeX, size_t m, size_t n>
+        typename EigenMatrixStackLimitChecker<ScalarT, MatSizeY, MatSizeX>::resultType
+            getBandMatrix(const std::array<ScalarT, m+n-1> &values) {
+            using ResultT = typename EigenMatrixStackLimitChecker<ScalarT, MatSizeY, MatSizeX>::resultType;
+
+            ResultT result;
+            initBandMatrix<m, n, ResultT, ScalarT, true>(result, values);
+            return std::move(result);
+        }
+
+
     }
 }
 
