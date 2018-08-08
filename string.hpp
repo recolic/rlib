@@ -74,10 +74,11 @@ namespace rlib {
             return _format_string_helper(fmt, args...);
         }
 
+        /*
         template<class MetaFmtArr, typename... Args>
         constexpr std::string format_string_meta(Args... args) {
             return (args + ...);
-        }
+        }*/
     }
 
     // format_string_c, string::cformat
