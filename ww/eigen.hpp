@@ -8,6 +8,7 @@
 #include <cassert>
 #include <array>
 #include <map>
+#include <list>
 
 namespace rlib {
     namespace impl {
@@ -191,25 +192,41 @@ namespace rlib {
          * In bundledMatrix, there's no need to know matSize at compile time, because compiler may do little thing
          *     to optimize a magic, long, for loop, compared with the RBtree access time...
          */
+        template <typename ScalarT>
+        struct rope_t {
+            std::pair<int, int> pos; // {posY, posX}
+            size_t len;
+            const ScalarT &val;
+            rope_t(std::pair<int,int> pos, size_t len, const ScalarT &val)
+                : pos(pos), len(len), val(val) {}
+        };
         template <typename RandomAccessedMatT, typename ScalarT>
-        void initBundledMatrix(RandomAccessedMatT &matRef, const std::map<int, ScalarT> &ropes, size_t matSizeY, size_t matSizeX) {
-            // Be calm... Do not play with C++17
-            for(const auto &pair : ropes) {
-                int index = pair.first;
-                const ScalarT &val = pair.second;
-                assert(index > 0-(int)matSizeY && index < (int)matSizeX && ("Index of rope must NOT exceed the matrix area.", true));
+        void drawRopes(RandomAccessedMatT &matRef, const std::list<rope_t<ScalarT>> &ropes) {
+            for(const auto &rope : ropes) {
                 // cache unfriendly but what if it's a sparse matrix? so it doesn't matter.
-                size_t cterX = (index>0?index:0);
-                size_t cterY = (index<0?0-index:0);
-                while(true) {
-                    if(cterX == matSizeX || cterY == matSizeY)
-                        break;
-                    //matRef(cterY, cterX) = val;
-                    impl::anyMatrixAssign<RandomAccessedMatT>::assign(matRef, cterX, cterY, val);
+                size_t cterX = rope.pos.second;
+                size_t cterY = rope.pos.first;
+                for(size_t cter = 0; cter < rope.len; ++cter) {
+                    impl::anyMatrixAssign<RandomAccessedMatT>::assign(matRef, cterX, cterY, rope.val);
                     ++cterX;
                     ++cterY;
                 }
             }
+        }
+        template <typename RandomAccessedMatT, typename ScalarT>
+        void initBundledMatrix(RandomAccessedMatT &matRef, const std::map<int, ScalarT> &ropes, size_t matSizeY, size_t matSizeX) {
+            std::list<rope_t<ScalarT>> ropes_with_pos;
+            // Be calm... Do not play with C++17
+            for(const auto &pair : ropes) {
+                int index = pair.first;
+                const ScalarT &val = pair.second;
+                int posX = (index>0?index:0);
+                int posY = (index<0?0-index:0);
+                assert(posY < (int)matSizeY && posX < (int)matSizeX && ("Index of rope must NOT exceed the matrix area.", true));
+                size_t len = std::min(matSizeY-posY, matSizeX-posX);
+                ropes_with_pos.emplace_back(std::make_pair(posY,posX), len, val);
+            }
+            drawRopes(matRef, ropes_with_pos);
         }
         template <typename DynamicInitedMatT, typename ScalarT>
         auto getBundledMatrix(const std::map<int, ScalarT> &ropes, size_t matSizeY, size_t matSizeX) {
