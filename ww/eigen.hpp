@@ -196,7 +196,7 @@ namespace rlib {
         struct rope_t {
             std::pair<int, int> pos; // {posY, posX}
             size_t len;
-            const ScalarT &val;
+            ScalarT val;
             rope_t(std::pair<int,int> pos, size_t len, const ScalarT &val)
                 : pos(pos), len(len), val(val) {}
         };
