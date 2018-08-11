@@ -26,14 +26,7 @@
 #endif
 #endif
 
-// shorthand for __cplusplus macro.
-#ifndef RLIB_CXX_STD
-#if defined(__cplusplus)
-#define RLIB_CXX_STD (__cplusplus / 100)
-#endif
-#endif
-
-#define RLIB_OS_ID_MAGIC 990719
+#define RLIB_OS_ID_MAGIC 980427
 #define OS_WINDOWS (RLIB_OS_ID_MAGIC + 1) 
 #define OS_LINUX   (RLIB_OS_ID_MAGIC + 2) 
 #define OS_MACOS   (RLIB_OS_ID_MAGIC + 3) 
@@ -46,7 +39,25 @@
 #include "compiler_detector"
 // Define RLIB_COMPILER_ID and RLIB_COMPILER_VER
 
-#if __cplusplus >= 201103L
+// shorthand for __cplusplus macro.
+#ifndef RLIB_CXX_STD
+#   if RLIB_COMPILER_ID == CC_MSVC
+#       if defined(__cplusplus)
+#       if __cplusplus == 199711L
+#           pragma message (": warning MSVC_Wrong__cplusplus: Your MSVC is possibly set __cplusplus to wrong value. Please upgrade to VS2017 15.7 Preview 3 and recompile with /Zc:__cplusplus. Or I'll assume you support C++17 and set RLIB_CXX_STD to 2017. (refer to https://blogs.msdn.microsoft.com/vcblog/2018/04/09/msvc-now-correctly-reports-__cplusplus/)")
+#           define RLIB_CXX_STD 2017
+#       else
+#           define RLIB_CXX_STD (__cplusplus / 100L)
+#       endif
+#       endif
+#   else
+#       if defined(__cplusplus)
+#       define RLIB_CXX_STD (__cplusplus / 100L)
+#       endif
+#   endif
+#endif
+
+#if RLIB_CXX_STD >= 2011
 namespace rlib {
     class os_info
     {

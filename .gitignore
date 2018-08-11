@@ -30,3 +30,5 @@
 
 .vscode/
 .idea/
+*.gi
+tmp/
