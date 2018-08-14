@@ -5,6 +5,8 @@ CXXFLAGS = -O3 -std=c++1z
 CFLAGS = 
 ARFLAGS = rcs
 
+PREFIX ?= /usr
+
 def: compile_library
 
 compile_library:
@@ -12,18 +14,22 @@ compile_library:
 	$(AR) $(ARFLAGS) libr.a libr.o
 
 install_header:
-	[ ! -d /usr/include/rlib ] || rm -rf /usr/include/rlib
-	cp -r . /usr/include/rlib
-	rm -rf /usr/include/rlib/test /usr/include/rlib/.git
+	[ ! -d $(PREFIX)/include/rlib ] || rm -rf $(PREFIX)/include/rlib
+	cp -r . $(PREFIX)/include/rlib
+	rm -rf $(PREFIX)/include/rlib/test $(PREFIX)/include/rlib/.git
 
 install_library: compile_library
-	cp libr.a /usr/lib/
+	cp libr.a $(PREFIX)/lib/
 
-install: install_header install_library
+install_cmake: install_library
+	[ ! -d $(PREFIX)/lib/cmake/rlib ] || rm -rf $(PREFIX)/lib/cmake/rlib
+	[ ! -d $(PREFIX)/lib/cmake ] || cp -r cmake $(PREFIX)/lib/cmake/rlib
+
+install: install_header install_library install_cmake
 
 uninstall:
-	rm -rf /usr/include/rlib
-	rm /usr/lib/libr.a
+	rm -rf $(PREFIX)/include/rlib
+	rm $(PREFIX)/lib/libr.a
 
 clean:
 	rm *.o *.a
