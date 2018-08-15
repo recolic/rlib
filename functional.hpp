@@ -71,6 +71,7 @@ namespace std {
 }
 
 // functools here.
+#if 0 // not finished
 #include <algorithm>
 namespace rlib {
     template <Iterable buffer_t>
@@ -115,5 +116,6 @@ namespace rlib {
 
     };
 }
+#endif
 
 #endif

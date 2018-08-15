@@ -12,6 +12,7 @@
 #include <rlib/require/cxx14>
 #include <rlib/class_decorator.hpp>
 #include <rlib/meta.hpp>
+#include <rlib/sys/os.hpp>
 
 #include <vector>
 #include <string>
@@ -29,8 +30,12 @@ namespace rlib {
         thread_local extern std::stringstream to_string_by_sstream_ss;        
         template <typename VarT>
         std::string to_string_by_sstream(VarT &thing) {
+#if RLIB_COMPILER_ID == CC_ICC // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
+            std::stringstream ss;
+#else
             auto &ss = to_string_by_sstream_ss;
             ss.str(std::string());
+#endif
             ss << thing;
             return std::move(ss.str());
         }
@@ -38,8 +43,12 @@ namespace rlib {
         thread_local extern std::stringstream _format_string_helper_ss;
         template<typename... Args>
         std::string _format_string_helper(const std::string &fmt, Args... args) {
+#if RLIB_COMPILER_ID == CC_ICC // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
+            std::stringstream ss;
+#else
             auto &ss = _format_string_helper_ss; // cached stringstream is much quicker.
             ss.str(std::string());
+#endif
             size_t pos = 0, prev_pos = 0;
             std::array<std::string, sizeof...(args)> argsArr{to_string_by_sstream(args) ...};
             size_t current_used_arg = 0;

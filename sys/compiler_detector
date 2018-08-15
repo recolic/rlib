@@ -140,32 +140,32 @@
 #define CC_DJGPP 90733
 
 #ifndef RLIB_COMPILER_ID
+#if defined(__ICC) || defined(__INTEL_COMPILER)
+#define RLIB_COMPILER_ID CC_ICC
+#endif
+#endif
+#define CC_ICC 90734
+
+#ifndef RLIB_COMPILER_ID
 #if defined(__EDG__)
 #define RLIB_COMPILER_ID CC_EDG
 #endif
 #endif
-#define CC_EDG 90734
+#define CC_EDG 90735
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__PATHCC__)
 #define RLIB_COMPILER_ID CC_EKOPATH
 #endif
 #endif
-#define CC_EKOPATH 90735
+#define CC_EKOPATH 90736
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__FCC_VERSION)
 #define RLIB_COMPILER_ID CC_FUJITSU
 #endif
 #endif
-#define CC_FUJITSU 90736
-
-#ifndef RLIB_COMPILER_ID
-#if defined(__ICC) || defined(__INTEL_COMPILER)
-#define RLIB_COMPILER_ID CC_ICC
-#endif
-#endif
-#define CC_ICC 90737
+#define CC_FUJITSU 90737
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__GNUC__)
@@ -217,286 +217,279 @@
 #define CC_IMAGECRAFT 90744
 
 #ifndef RLIB_COMPILER_ID
-#if defined(__INTEL_COMPILER) || defined(__ICL)
-#define RLIB_COMPILER_ID CC_INTELC
-#endif
-#endif
-#define CC_INTELC 90745
-
-#ifndef RLIB_COMPILER_ID
 #if defined(__KCC)
 #define RLIB_COMPILER_ID CC_KAICXX
 #endif
 #endif
-#define CC_KAICXX 90746
+#define CC_KAICXX 90745
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__CA__) || defined(__KEIL__)
 #define RLIB_COMPILER_ID CC_KEIL_CARM
 #endif
 #endif
-#define CC_KEIL_CARM 90747
+#define CC_KEIL_CARM 90746
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__C166__)
 #define RLIB_COMPILER_ID CC_KEIL_C166
 #endif
 #endif
-#define CC_KEIL_C166 90748
+#define CC_KEIL_C166 90747
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__C51__) || defined(__CX51__)
 #define RLIB_COMPILER_ID CC_KEIL_C51
 #endif
 #endif
-#define CC_KEIL_C51 90749
+#define CC_KEIL_C51 90748
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__LCC__)
 #define RLIB_COMPILER_ID CC_LCC
 #endif
 #endif
-#define CC_LCC 90750
+#define CC_LCC 90749
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__llvm__)
 #define RLIB_COMPILER_ID CC_LLVM
 #endif
 #endif
-#define CC_LLVM 90751
+#define CC_LLVM 90750
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__MWERKS__) || defined(__CWCC__)
 #define RLIB_COMPILER_ID CC_METROWERKS
 #endif
 #endif
-#define CC_METROWERKS 90752
+#define CC_METROWERKS 90751
 
 #ifndef RLIB_COMPILER_ID
 #if defined(_MSC_VER)
 #define RLIB_COMPILER_ID CC_MSVC
 #endif
 #endif
-#define CC_MSVC 90753
+#define CC_MSVC 90752
 
 #ifndef RLIB_COMPILER_ID
 #if defined(_MRI)
 #define RLIB_COMPILER_ID CC_MICROTEC
 #endif
 #endif
-#define CC_MICROTEC 90754
+#define CC_MICROTEC 90753
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__NDPC__) || defined(__NDPX__)
 #define RLIB_COMPILER_ID CC_MICROWAY
 #endif
 #endif
-#define CC_MICROWAY 90755
+#define CC_MICROWAY 90754
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__sgi) || defined(sgi)
 #define RLIB_COMPILER_ID CC_MIPSPRO
 #endif
 #endif
-#define CC_MIPSPRO 90756
+#define CC_MIPSPRO 90755
 
 #ifndef RLIB_COMPILER_ID
 #if defined(MIRACLE)
 #define RLIB_COMPILER_ID CC_MIRACLE
 #endif
 #endif
-#define CC_MIRACLE 90757
+#define CC_MIRACLE 90756
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__MRC__) || defined(MPW_C) || defined(MPW_CPLUS)
 #define RLIB_COMPILER_ID CC_MPW
 #endif
 #endif
-#define CC_MPW 90758
+#define CC_MPW 90757
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__CC_NORCROFT)
 #define RLIB_COMPILER_ID CC_NORCROFT
 #endif
 #endif
-#define CC_NORCROFT 90759
+#define CC_NORCROFT 90758
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__NWCC__)
 #define RLIB_COMPILER_ID CC_NWCC
 #endif
 #endif
-#define CC_NWCC 90760
+#define CC_NWCC 90759
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__OPEN64__) || defined(__OPENCC__)
 #define RLIB_COMPILER_ID CC_OPEN64
 #endif
 #endif
-#define CC_OPEN64 90761
+#define CC_OPEN64 90760
 
 #ifndef RLIB_COMPILER_ID
 #if defined(ORA_PROC)
 #define RLIB_COMPILER_ID CC_ORACLE_PROC
 #endif
 #endif
-#define CC_ORACLE_PROC 90762
+#define CC_ORACLE_PROC 90761
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__SUNPRO_C) || defined(__SUNPRO_CC)
 #define RLIB_COMPILER_ID CC_SOLARIS
 #endif
 #endif
-#define CC_SOLARIS 90763
+#define CC_SOLARIS 90762
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__PACIFIC__)
 #define RLIB_COMPILER_ID CC_PACIFIC
 #endif
 #endif
-#define CC_PACIFIC 90764
+#define CC_PACIFIC 90763
 
 #ifndef RLIB_COMPILER_ID
 #if defined(_PACC_VER)
 #define RLIB_COMPILER_ID CC_PLAM
 #endif
 #endif
-#define CC_PLAM 90765
+#define CC_PLAM 90764
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__POCC__)
 #define RLIB_COMPILER_ID CC_PELLES
 #endif
 #endif
-#define CC_PELLES 90766
+#define CC_PELLES 90765
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__PGI)
 #define RLIB_COMPILER_ID CC_PORTLAND
 #endif
 #endif
-#define CC_PORTLAND 90767
+#define CC_PORTLAND 90766
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__RENESAS__) || defined(__HITACHI__)
 #define RLIB_COMPILER_ID CC_RENESAS
 #endif
 #endif
-#define CC_RENESAS 90768
+#define CC_RENESAS 90767
 
 #ifndef RLIB_COMPILER_ID
 #if defined(SASC) || defined(__SASC) || defined(__SASC__)
 #define RLIB_COMPILER_ID CC_SASC
 #endif
 #endif
-#define CC_SASC 90769
+#define CC_SASC 90768
 
 #ifndef RLIB_COMPILER_ID
 #if defined(_SCO_DS)
 #define RLIB_COMPILER_ID CC_SCO_OPENSERVER
 #endif
 #endif
-#define CC_SCO_OPENSERVER 90770
+#define CC_SCO_OPENSERVER 90769
 
 #ifndef RLIB_COMPILER_ID
 #if defined(SDCC)
 #define RLIB_COMPILER_ID CC_SDCC
 #endif
 #endif
-#define CC_SDCC 90771
+#define CC_SDCC 90770
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__SNC__)
 #define RLIB_COMPILER_ID CC_SN
 #endif
 #endif
-#define CC_SN 90772
+#define CC_SN 90771
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__VOSC__)
 #define RLIB_COMPILER_ID CC_STRATUS_VOS
 #endif
 #endif
-#define CC_STRATUS_VOS 90773
+#define CC_STRATUS_VOS 90772
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__SC__)
 #define RLIB_COMPILER_ID CC_SYMANTEC
 #endif
 #endif
-#define CC_SYMANTEC 90774
+#define CC_SYMANTEC 90773
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__TenDRA__)
 #define RLIB_COMPILER_ID CC_TENDRA
 #endif
 #endif
-#define CC_TENDRA 90775
+#define CC_TENDRA 90774
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__TI_COMPILER_VERSION__) || defined(_TMS320C6X)
 #define RLIB_COMPILER_ID CC_TEXAS
 #endif
 #endif
-#define CC_TEXAS 90776
+#define CC_TEXAS 90775
 
 #ifndef RLIB_COMPILER_ID
 #if defined(THINKC3) || defined(THINKC4)
 #define RLIB_COMPILER_ID CC_THINK
 #endif
 #endif
-#define CC_THINK 90777
+#define CC_THINK 90776
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__TINYC__)
 #define RLIB_COMPILER_ID CC_TINYC
 #endif
 #endif
-#define CC_TINYC 90778
+#define CC_TINYC 90777
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__TURBOC__)
 #define RLIB_COMPILER_ID CC_TURBOC
 #endif
 #endif
-#define CC_TURBOC 90779
+#define CC_TURBOC 90778
 
 #ifndef RLIB_COMPILER_ID
 #if defined(_UCC)
 #define RLIB_COMPILER_ID CC_UCC
 #endif
 #endif
-#define CC_UCC 90780
+#define CC_UCC 90779
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__USLC__)
 #define RLIB_COMPILER_ID CC_USLC
 #endif
 #endif
-#define CC_USLC 90781
+#define CC_USLC 90780
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__VBCC__)
 #define RLIB_COMPILER_ID CC_VBCC
 #endif
 #endif
-#define CC_VBCC 90782
+#define CC_VBCC 90781
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__WATCOMC__)
 #define RLIB_COMPILER_ID CC_WATCOM
 #endif
 #endif
-#define CC_WATCOM 90783
+#define CC_WATCOM 90782
 
 #ifndef RLIB_COMPILER_ID
 #if defined(__ZTC__)
 #define RLIB_COMPILER_ID CC_ZORTECH
 #endif
 #endif
-#define CC_ZORTECH 90784
+#define CC_ZORTECH 90783
 
 #ifndef RLIB_COMPILER_ID
 #define RLIB_COMPILER_ID CC_UNKNOWN
 #endif
-#define CC_UNKNOWN 90785
+#define CC_UNKNOWN 90784

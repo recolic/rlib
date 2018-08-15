@@ -23,6 +23,8 @@ with open("cc_list") as fd:
     for i in osarr:
         if i == '':
             continue
+        if i[0] == '#':
+            continue
         iarr=i.split(' ')
         if len(iarr) < 2:
             continue

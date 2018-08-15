@@ -6,8 +6,6 @@ using namespace rlib::literals;
 
 int main()
 {
-    rlib::impl::format_string_meta<rlib::meta_array<'f','u','c','k'>, std::string, std::string>(std::string("fuck"),std::string("shit"));
-
     println("fuck {} at {} a.m."_format("hust", 8));
     auto s = "shit {}/{}."_rs .format("???", 1.234);
     println(s);
