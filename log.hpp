@@ -88,10 +88,11 @@ namespace rlib {
         void set_flush(bool enable_flush) noexcept {
             this->enable_flush = enable_flush;
         }
-        void log(const std::string &info, log_level_t level = log_level_t::INFO) const {
+        template <typename ... Args>
+        void log(log_level_t level, const std::string &info, Args ... extra_args) const {
             if(is_predefined_log_level(level) && level > this->log_level)
                 return;
-            (*pstream) << "[{}|{}] {}"_format(get_current_time_str(), log_level_name(level), info) << RLIB_IMPL_ENDLINE;
+            (*pstream) << "[{}|{}] {}"_format(get_current_time_str(), log_level_name(level), impl::format_string(info, std::forward<Args>(extra_args) ...)) << RLIB_IMPL_ENDLINE;
             if(enable_flush)
                 pstream->flush();
         }
@@ -105,8 +106,8 @@ namespace rlib {
             return new_level;
         }
 
-#define RLIB_IMPL_MACRO_LOG_ADD_SHORTHAND(_name, _enum_name) void _name(const std::string &info) const { \
-            log(info, log_level_t::_enum_name); }
+#define RLIB_IMPL_MACRO_LOG_ADD_SHORTHAND(_name, _enum_name) template <typename ... Args> void _name(const std::string &info, Args ... extra) const { \
+            log(log_level_t::_enum_name, info, std::forward<Args>(extra) ...); }
 
         RLIB_IMPL_MACRO_LOG_ADD_SHORTHAND(fatal, FATAL)
         RLIB_IMPL_MACRO_LOG_ADD_SHORTHAND(error, ERROR)

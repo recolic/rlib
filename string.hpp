@@ -79,10 +79,14 @@ namespace rlib {
             return std::move(ss.str());
         }
         template<typename... Args>
-        std::string format_string(const std::string &fmt, Args... args) {
+        inline std::string format_string(const std::string &fmt, Args... args) {
             return _format_string_helper(fmt, args...);
         }
-
+        template<>
+        inline std::string format_string<>(const std::string &fmt) {
+            return fmt;
+        }
+ 
         /*
         template<class MetaFmtArr, typename... Args>
         constexpr std::string format_string_meta(Args... args) {

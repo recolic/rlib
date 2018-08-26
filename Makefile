@@ -10,7 +10,7 @@ PREFIX ?= /usr
 def: compile_library
 
 compile_library:
-	$(CXX) $(CXXFLAGS) -c libr.cc -o libr.o
+	$(CXX) $(CXXFLAGS) -c libr.cc -I . -o libr.o
 	$(AR) $(ARFLAGS) libr.a libr.o
 
 install_header:

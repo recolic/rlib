@@ -10,9 +10,9 @@ int main() {
     // logging to file.
     logger file_logger("/tmp/rlib.test.log");
     file_logger.info("shit here.");
-    file_logger.verbose_info("???");
+    file_logger.verbose("???");
     
     log_level_t my_level = file_logger.register_log_level("MyLogLev");
-    file_logger.log("my info.... whit's a fuck", my_level);
+    file_logger.log(my_level, "my info.... whit's a fuck");
     return 0;
 }
