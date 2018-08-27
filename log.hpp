@@ -157,10 +157,11 @@ namespace rlib {
             return std::move(name);
         }
 
+        std::ostream *pstream;
+
         std::list<std::pair<log_level_t, std::string> > custom_log_level_names;
         log_level_t log_level = log_level_t::INFO; // `Ignore` deadline.
 
-        std::ostream *pstream;
         bool must_delete_stream_as_ofstream = false;
         bool enable_flush = true;
 #if RLIB_IMPL_ENABLE_LOGGER_FROM_FD == 1
