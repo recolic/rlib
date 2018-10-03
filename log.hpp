@@ -6,7 +6,6 @@
 #include <list>
 #include <climits>
 #include <rlib/sys/os.hpp>
-#include <rlib/sys/fd.hpp>
 #include <rlib/stdio.hpp>
 #include <rlib/sys/time.hpp>
 #include <rlib/class_decorator.hpp>
@@ -15,6 +14,7 @@
 #define RLIB_IMPL_ENABLE_LOGGER_FROM_FD 0
 
 #ifndef RLIB_IMPL_ENABLE_LOGGER_FROM_FD
+#include <rlib/sys/fd.hpp>
 #if RLIB_OS_ID != OS_UNKNOWN
 #   if RLIB_COMPILER_ID == CC_GCC
 #       include <ext/stdio_filebuf.h>

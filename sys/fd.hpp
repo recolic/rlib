@@ -3,8 +3,7 @@
 
 #include <rlib/sys/os.hpp>
 #if RLIB_OS_ID == OS_WINDOWS
-#include <WinDef.h>
-#include <WinNT.h>
+#include <Windows.h>
 using fd = HANDLE;
 #else
 using fd = int;

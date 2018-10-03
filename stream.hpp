@@ -20,5 +20,9 @@ namespace rlib {
         RLIB_IMPL_VAR_DECL NullStreamBuf null_streambuf;
     }
     
+#if RLIB_CXX_STD < 2017
+    extern std::ostream null_stream;
+#else
     RLIB_IMPL_VAR_DECL std::ostream null_stream(&impl::null_streambuf);
+#endif
 }

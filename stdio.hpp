@@ -14,7 +14,6 @@
 #include <string>
 #include <iostream>
 #include <rlib/string.hpp> // format_string
-#include <unistd.h> // STDOUT_FILENO
 
 #if RLIB_OS_ID == OS_WINDOWS
 #define RLIB_IMPL_ENDLINE "\r\n"
