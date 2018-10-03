@@ -11,7 +11,6 @@
 
 #include <rlib/require/cxx14>
 #include <rlib/class_decorator.hpp>
-#include <rlib/meta.hpp>
 #include <rlib/sys/os.hpp>
 
 #include <vector>
