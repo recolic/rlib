@@ -13,6 +13,7 @@
 #include <rlib/class_decorator.hpp>
 #include <rlib/sys/os.hpp>
 
+#include <array>
 #include <vector>
 #include <string>
 #include <cstdarg>
