@@ -37,7 +37,7 @@ namespace rlib {
             ss.str(std::string());
 #endif
             ss << thing;
-            return std::move(ss.str());
+            return ss.str();
         }
 
         thread_local extern std::stringstream _format_string_helper_ss;
@@ -76,7 +76,7 @@ namespace rlib {
                 }
             }
             ss << fmt.substr(prev_pos);
-            return std::move(ss.str());
+            return ss.str();
         }
         template<typename... Args>
         inline std::string format_string(const std::string &fmt, Args... args) {
@@ -132,7 +132,7 @@ namespace rlib {
             char *res = _format_string_c_helper(fmt.c_str(), args ...);
             std::string s = res;
             free(res);
-            return std::move(s);
+            return s;
         }
     }
 
@@ -223,7 +223,7 @@ namespace rlib {
                 prev = curr;
             }
             buf.push_back(toSplit.substr(prev));
-            return std::move(buf);
+            return buf;
         }
         std::vector<string> split(const std::string &divider) const {
             const string &toSplit = *this;
@@ -235,7 +235,7 @@ namespace rlib {
                 prev = curr;
             }
             buf.push_back(toSplit.substr(prev));
-            return std::move(buf);
+            return buf;
         }
         template <typename T>
         std::vector<T> split_as(const char &divider = ' ') const {
@@ -362,10 +362,10 @@ namespace rlib {
 
     namespace literals {
         inline impl::formatter operator "" _format (const char *str, size_t) {
-            return std::move(impl::formatter(str));
+            return impl::formatter(str);
         }
         inline rlib::string operator "" _rs (const char *str, size_t len) {
-            return std::move(rlib::string(str, len));
+            return rlib::string(str, len);
         }
     }
 }

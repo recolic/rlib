@@ -26,7 +26,7 @@ namespace rlib {
         opt_parser() = delete;
         opt_parser(size_t arglen, char **argv) {
             for(size_t cter = 1; cter < arglen; ++cter)
-                args.push_back(std::move(std::string(argv[cter])));
+                args.push_back(std::string(argv[cter]));
         }
 
         rlib::string getCommand() {
@@ -53,7 +53,7 @@ namespace rlib {
                 return std::move(def);
             rlib_defer(([&, pos]{if(!useEqualSym) args.erase(pos+1); args.erase(pos);}));
             if(useEqualSym)
-                return std::move(pos->substr(argName.size() + 1));
+                return pos->substr(argName.size() + 1);
             else
             {
                 if(++pos == args.cend())
@@ -64,7 +64,7 @@ namespace rlib {
 
         rlib::string getValueArg(const std::string &longName, const char *shortName)
         { //getValueArg("--long", "-l") may be converted to getValueArg("--long", true).
-            return std::move(getValueArg(longName, shortName, true));
+            return getValueArg(longName, shortName, true);
         }
 
         bool getBoolArg(const std::string &argName)

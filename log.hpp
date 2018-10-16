@@ -49,10 +49,10 @@ namespace rlib {
                     throw std::runtime_error("Failed to open file {}."_format(file_name));
             }
         logger(logger &&another) : pstream(another.pstream), 
-            must_delete_stream_as_ofstream(another.must_delete_stream_as_ofstream),
-            enable_flush(another.enable_flush), 
+            custom_log_level_names(std::move(another.custom_log_level_names)),
             log_level(another.log_level),
-            custom_log_level_names(std::move(another.custom_log_level_names)) 
+            must_delete_stream_as_ofstream(another.must_delete_stream_as_ofstream),
+            enable_flush(another.enable_flush)
             {another.must_delete_stream_as_ofstream = false;}
         ~logger() {
             if(must_delete_stream_as_ofstream)
@@ -143,7 +143,7 @@ namespace rlib {
         std::string log_level_name(log_level_t level) const noexcept {
             std::string name = predefined_log_level_name(level);
             if(!name.empty())
-                return std::move(name);
+                return name;
             for(const auto &level_and_name : custom_log_level_names) {
                 if(level == level_and_name.first) {
                     name = level_and_name.second;
@@ -151,10 +151,10 @@ namespace rlib {
                 }
             }
             if(!name.empty())
-                return std::move(name);
+                return name;
             name = "LEVEL-";
             name += std::to_string((int)level);
-            return std::move(name);
+            return name;
         }
 
         std::ostream *pstream;
