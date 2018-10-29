@@ -307,9 +307,96 @@ namespace rlib {
     };
 }
 #else
+#include <windows.h>
 #include <winsock2.h>
+#include <ws2tcpip.h>
 //WINsock version
 namespace rlib {
+    template <bool doNotWSAStartup = false>
+    static inline fd quick_listen(const std::string &addr, uint16_t port) {
+    {
+        WSADATA wsaData;
+        SOCKET listenfd = INVALID_SOCKET;
+        if(!doNotWSAStartup) {
+            int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+            if (iResult != 0) throw std::runtime_error("WSAStartup failed with error: {}\n"_format(iResult));
+        }
+    
+        addrinfo *psaddr;
+        addrinfo hints { 0 };
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+        hints.ai_protocol = IPPROTO_TCP;
+        auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &psaddr);
+        if(_ != 0) {
+            WSACleanup();
+            throw std::runtime_error("Failed to getaddrinfo. returnval={}, check `man getaddrinfo`'s return value."_format(_));
+        }
+    
+        bool success = false;
+        for (addrinfo *rp = psaddr; rp != NULL; rp = rp->ai_next) {
+            listenfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            if (listenfd == INVALID_SOCKET)
+                continue;
+            int reuse = 1;
+            if(setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(int)) < 0) throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
+            if (bind(listenfd, rp->ai_addr, rp->ai_addrlen) != SOCKET_ERROR) {
+                success = true;
+                break; /* Success */
+            }
+            closesocket(listenfd);
+        }
+        if(!success) throw std::runtime_error("Failed to bind to any of these addr.");
+    
+        if(SOCKET_ERROR == ::listen(listenfd, 16)) throw std::runtime_error("listen failed.");
+    
+        freeaddrinfo(psaddr);
+        return listenfd;
+    }
+
+    template <bool doNotWSAStartup = false>
+    static inline fd quick_connect(const std::string &addr, uint16_t port) {
+    {
+        WSADATA wsaData;
+        SOCKET listenfd = INVALID_SOCKET;
+        if(!doNotWSAStartup) {
+            int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+            if (iResult != 0) throw std::runtime_error("WSAStartup failed with error: {}\n"_format(iResult));
+        }
+    
+        addrinfo *paddr;
+        addrinfo hints { 0 };
+    
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = IPPROTO_TCP;
+        auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &paddr);
+        if(_ != 0) {
+            WSACleanup();
+            throw std::runtime_error("getaddrinfo failed. Check network connection to {}:{}; returnval={}, check `man getaddrinfo`'s return value."_format(serverIp.c_str(), serverPort, _));
+        }
+        rlib_defer([p=paddr]{WSACleanup();freeaddrinfo(p);});
+    
+        bool success = false;
+        for (addrinfo *rp = paddr; rp != NULL; rp = rp->ai_next) {
+            sockfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            if (sockfd == INVALID_SOCKET)
+                continue;
+            int reuse = 1;
+            if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(int)) < 0) throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
+            if (connect(sockfd, rp->ai_addr, rp->ai_addrlen) != SOCKET_ERROR) {
+                success = true;
+                break; /* Success */
+            }
+            closesocket(sockfd);
+        }   
+        if(!success) throw std::runtime_error("Failed to connect to any of these addr.");
+    
+        freeaddrinfo(paddr);
+        return sockfd;
+    }
+
     class sockIO 
     {
     private:
