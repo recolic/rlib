@@ -16,13 +16,14 @@ namespace rlib {
      * Multi-threaded object_pool. It will block current thread and wait if
      *     borrow_one() starves, until some other threads release their obj.
      */
-    template<typename obj_t, size_t max_size, typename... _bound_construct_args_t>
+    template<typename obj_t, typename... _bound_construct_args_t>
     class fixed_object_pool : rlib::nonmovable {
         using buffer_t = impl::traceable_list<obj_t, bool>;
         using this_type = fixed_object_pool<obj_t, max_size, _bound_construct_args_t ...>;
     public:
-        explicit fixed_object_pool(_bound_construct_args_t ... _args)
-                : _bound_args(std::forward<_bound_construct_args_t>(_args) ...) {}
+        explicit fixed_object_pool(size_t max_size, _bound_construct_args_t ... _args)
+                : max_size(max_size), _bound_args(std::forward<_bound_construct_args_t>(_args) ...) 
+        {}
 
         void fill_full() {
             for (size_t cter = 0; cter < max_size; ++cter) {
@@ -69,6 +70,7 @@ namespace rlib {
     private:
         std::tuple<_bound_construct_args_t ...> _bound_args;
 
+        size_t max_size;
         buffer_t buffer; // list<obj_t obj, bool is_free>
         std::list<obj_t *> free_list;
         std::mutex buffer_mutex;
