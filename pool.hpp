@@ -19,7 +19,7 @@ namespace rlib {
     template<typename obj_t, typename... _bound_construct_args_t>
     class fixed_object_pool : rlib::nonmovable {
         using buffer_t = impl::traceable_list<obj_t, bool>;
-        using this_type = fixed_object_pool<obj_t, max_size, _bound_construct_args_t ...>;
+        using this_type = fixed_object_pool<obj_t, _bound_construct_args_t ...>;
     public:
         explicit fixed_object_pool(size_t max_size, _bound_construct_args_t ... _args)
                 : max_size(max_size), _bound_args(std::forward<_bound_construct_args_t>(_args) ...) 
