@@ -11,6 +11,7 @@
 #define R_STDIO_HPP
 
 #include <rlib/require/cxx11> // Use fold expression if cxx17 is available.
+#include <rlib/sys/os.hpp> // Enable inline variable if cxx17 is available.
 #include <string>
 #include <iostream>
 #include <rlib/string.hpp> // format_string
@@ -78,7 +79,13 @@ namespace rlib {
     template <typename... Args>
     size_t printfln(const std::string &fmt, Args... args);
 
-    namespace impl {extern bool enable_endl_flush;}
+    namespace impl {
+#if RLIB_CXX_STD < 2017
+        extern bool enable_endl_flush;
+#else
+        inline bool enable_endl_flush = true;
+#endif
+    }
 
     inline bool sync_with_stdio(bool sync = true) noexcept {
         return std::ios::sync_with_stdio(sync);

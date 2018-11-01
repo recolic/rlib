@@ -27,7 +27,14 @@
 namespace rlib {
     // literals::_format, format_string, string::format
     namespace impl {
+#if RLIB_CXX_STD < 2017 || RLIB_COMPILER_ID == CC_ICC
+// Intel C++ compiler has a pending bug for `thread_local inline` variable.
         thread_local extern std::stringstream to_string_by_sstream_ss;        
+        thread_local extern std::stringstream _format_string_helper_ss;
+#else
+        thread_local inline std::stringstream to_string_by_sstream_ss;        
+        thread_local inline std::stringstream _format_string_helper_ss;
+#endif
         template <typename VarT>
         std::string to_string_by_sstream(VarT &thing) {
 #if RLIB_COMPILER_ID == CC_ICC // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
@@ -40,7 +47,6 @@ namespace rlib {
             return ss.str();
         }
 
-        thread_local extern std::stringstream _format_string_helper_ss;
         template<typename... Args>
         std::string _format_string_helper(const std::string &fmt, Args... args) {
 #if RLIB_COMPILER_ID == CC_ICC // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136

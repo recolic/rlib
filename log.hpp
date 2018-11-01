@@ -30,7 +30,13 @@ namespace rlib {
 
     // Allow extension.
     enum class log_level_t : int { FATAL = 1, ERROR, WARNING, INFO, VERBOSE, DEBUG };
-    namespace impl { extern int max_predefined_log_level; }
+    namespace impl {
+#if RLIB_CXX_STD < 2017
+        extern int max_predefined_log_level;
+#else
+        inline int max_predefined_log_level = (int)log_level_t::DEBUG;
+#endif
+    }
     /*
     How to update log_level_t:
         Extend `enum log_level_t ...`
