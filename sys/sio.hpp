@@ -200,6 +200,9 @@ namespace rlib {
             if(ret == -1) throw std::runtime_error("readall failed.");
             return ret;
         }
+        static void writen_ex(int fd, const std::string &data) {
+            writen_ex(fd, data.data(), data.size());
+        }
     };
 
     class sockIO 
@@ -292,11 +295,10 @@ namespace rlib {
             auto ret = recvn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
         }
-        static ssize_t sendn_ex(int fd, const void *vptr, size_t n, int flags)
+        static void sendn_ex(int fd, const void *vptr, size_t n, int flags)
         {
             auto ret = sendn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("sendn failed.");
-            return ret;
         }
         static ssize_t recvall_ex(int fd, void **pvptr, size_t initSize, int flags) //never return -1
         {
@@ -304,6 +306,10 @@ namespace rlib {
             if(ret == -1) throw std::runtime_error("recvall failed.");
             return ret;
         }
+        static void sendn_ex(int fd, const std::string &data) {
+            sendn_ex(fd, data.data(), data.size());
+        }
+ 
     };
 }
 #else
@@ -503,17 +509,19 @@ namespace rlib {
             auto ret = recvn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
         }
-        static ssize_t sendn_ex(SOCKET fd, const char *vptr, size_t n, int flags)
+        static void sendn_ex(SOCKET fd, const char *vptr, size_t n, int flags)
         {
             auto ret = sendn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
-						return ret;
         }
         static ssize_t recvall_ex(SOCKET fd, void **pvptr, size_t initSize, int flags) //never return -1
         {
             auto ret = recvall(fd, pvptr, initSize, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
             return ret;
+        }
+        static void sendn_ex(SOCKET fd, const std::string &data) {
+            sendn_ex(fd, data.data(), data.size());
         }
     };
 
@@ -536,13 +544,16 @@ namespace rlib {
         {
             return sockIO::recvn_ex(fd, (char *)vptr, n, 0);
         }
-        static ssize_t writen_ex(SOCKET fd, const void *vptr, size_t n)
+        static void writen_ex(SOCKET fd, const void *vptr, size_t n)
         {
             return sockIO::sendn_ex(fd, (const char *)vptr, n, 0);
         }
         static ssize_t readall_ex(SOCKET fd, void **pvptr, size_t initSize) //never return -1
         {
             return sockIO::recvall_ex(fd, pvptr, initSize, 0);
+        }
+        static void writen_ex(SOCKET fd, const std::string &data) {
+            writen_ex(fd, data.data(), data.size());
         }
     };
 }

@@ -145,6 +145,7 @@ namespace rlib {
     class string : public std::string {
     public:
         using std::string::string;
+        string() : std::string() {}
         string(const std::string &s) : std::string(s) {}
         string(std::string &&s) : std::string(std::forward<std::string>(s)) {}
 
