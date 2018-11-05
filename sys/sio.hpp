@@ -6,13 +6,14 @@
 #include <unistd.h>
 #include <string>
 #include <stdexcept>
+#include <rlib/sys/fd.hpp>
 
 #ifndef WIN32
 #include <sys/socket.h>
 //POSIX Version
 namespace rlib {
     namespace impl {
-        inline void MakeNonBlocking(int fd) {
+        inline void MakeNonBlocking(fd_t fd) {
             int flags, s;
 
             flags = fcntl (fd, F_GETFL, 0);
@@ -30,10 +31,10 @@ namespace rlib {
         }
     }
 
-    static inline fd quick_listen(const std::string &addr, uint16_t port) {
+    static inline fd_t quick_listen(const std::string &addr, uint16_t port) {
         addrinfo *psaddr;
         addrinfo hints{0};
-        fd listenfd;
+        fd_t listenfd;
 
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
@@ -65,10 +66,10 @@ namespace rlib {
         return listenfd;
     }
 
-    static inline fd quick_connect(const std::string &addr, uint16_t port) {
+    static inline fd_t quick_connect(const std::string &addr, uint16_t port) {
         addrinfo *paddr;
         addrinfo hints{0};
-        fd sockfd;
+        fd_t sockfd;
 
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
@@ -102,7 +103,7 @@ namespace rlib {
     class fdIO
     {
     public:
-        static ssize_t readn(int fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t readn(fd_t fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -124,7 +125,7 @@ namespace rlib {
             }
             return (n);         /* return success */
         }
-        static ssize_t writen(int fd, const void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t writen(fd_t fd, const void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -145,7 +146,7 @@ namespace rlib {
             }
             return (n);
         }
-        static ssize_t readall(int fd, void **pvptr, size_t initSize) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
+        static ssize_t readall(fd_t fd, void **pvptr, size_t initSize) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
         {
             size_t current = initSize ? initSize : 1024;
             void *vptr = *pvptr;
@@ -184,23 +185,28 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void readn_ex(int fd, void *vptr, size_t n) //never return error.
+        static void readn_ex(fd_t fd, void *vptr, size_t n) //never return error.
         {
             auto ret = readn(fd, vptr, n);
             if(ret == -1) throw std::runtime_error("readn failed.");
         }
-        static void writen_ex(int fd, const void *vptr, size_t n)
+        static void writen_ex(fd_t fd, const void *vptr, size_t n)
         {
             auto ret = writen(fd, vptr, n);
             if(ret == -1) throw std::runtime_error("writen failed.");
         }
-        static ssize_t readall_ex(int fd, void **pvptr, size_t initSize) //never return -1
+        static ssize_t readall_ex(fd_t fd, void **pvptr, size_t initSize) //never return -1
         {
             auto ret = readall(fd, pvptr, initSize);
             if(ret == -1) throw std::runtime_error("readall failed.");
             return ret;
         }
-        static void writen_ex(int fd, const std::string &data) {
+        static std::string quick_readn(fd_t fd, size_t n) {
+            std::string res(n);
+            readn_ex(fd, res.data(), n);
+            return res;
+        }
+        static void quick_writen(fd_t fd, const std::string &data) {
             writen_ex(fd, data.data(), data.size());
         }
     };
@@ -208,7 +214,7 @@ namespace rlib {
     class sockIO 
     {
     public:
-        static ssize_t recvn(int fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(fd_t fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -230,7 +236,7 @@ namespace rlib {
             }
             return (n);         /* return success */
         }
-        static ssize_t sendn(int fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(fd_t fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -251,7 +257,7 @@ namespace rlib {
             }
             return (n);
         }
-        static ssize_t recvall(int fd, void **pvptr, size_t initSize, int flags) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
+        static ssize_t recvall(fd_t fd, void **pvptr, size_t initSize, int flags) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
         {
             size_t current = initSize ? initSize : 1024;
             void *vptr = *pvptr;
@@ -290,24 +296,29 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void recvn_ex(int fd, void *vptr, size_t n, int flags) //return read bytes.
+        static void recvn_ex(fd_t fd, void *vptr, size_t n, int flags) //return read bytes.
         {
             auto ret = recvn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
         }
-        static void sendn_ex(int fd, const void *vptr, size_t n, int flags)
+        static void sendn_ex(fd_t fd, const void *vptr, size_t n, int flags)
         {
             auto ret = sendn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("sendn failed.");
         }
-        static ssize_t recvall_ex(int fd, void **pvptr, size_t initSize, int flags) //never return -1
+        static ssize_t recvall_ex(fd_t fd, void **pvptr, size_t initSize, int flags) //never return -1
         {
             auto ret = recvall(fd, pvptr, initSize, flags);
             if(ret == -1) throw std::runtime_error("recvall failed.");
             return ret;
         }
-        static void sendn_ex(int fd, const std::string &data) {
-            sendn_ex(fd, data.data(), data.size());
+        static std::string quick_recvn(fd_t fd, size_t n) {
+            std::string res(n);
+            recvn_ex(fd, res.data(), n, MSG_NOSIGNAL);
+            return res;
+        }
+        static void quick_sendn(fd_t fd, const std::string &data) {
+            sendn_ex(fd, data.data(), data.size(), MSG_NOSIGNAL);
         }
  
     };
@@ -319,10 +330,10 @@ namespace rlib {
 //WINsock version
 namespace rlib {
     template <bool doNotWSAStartup = false>
-    static inline fd quick_listen(const std::string &addr, uint16_t port) {
+    static inline sockfd_t quick_listen(const std::string &addr, uint16_t port) {
     {
         WSADATA wsaData;
-        SOCKET listenfd = INVALID_SOCKET;
+        sockfd_t listenfd = INVALID_SOCKET;
         if(!doNotWSAStartup) {
             int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
             if (iResult != 0) throw std::runtime_error("WSAStartup failed with error: {}\n"_format(iResult));
@@ -362,10 +373,10 @@ namespace rlib {
     }
 
     template <bool doNotWSAStartup = false>
-    static inline fd quick_connect(const std::string &addr, uint16_t port) {
+    static inline sockfd_t quick_connect(const std::string &addr, uint16_t port) {
     {
         WSADATA wsaData;
-        SOCKET listenfd = INVALID_SOCKET;
+        sockfd_t listenfd = INVALID_SOCKET;
         if(!doNotWSAStartup) {
             int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
             if (iResult != 0) throw std::runtime_error("WSAStartup failed with error: {}\n"_format(iResult));
@@ -413,7 +424,7 @@ namespace rlib {
             return i;
         }
     public:
-        static ssize_t recvn(SOCKET fd, char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(sockfd_t fd, char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -435,7 +446,7 @@ namespace rlib {
             }
             return (n);         /* return >= 0 */
         }
-        static ssize_t sendn(SOCKET fd, const char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(sockfd_t fd, const char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -456,7 +467,7 @@ namespace rlib {
             }
             return (n);
         }
-        static ssize_t recvall(SOCKET fd, void **pvptr, size_t initSize, int flags) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
+        static ssize_t recvall(sockfd_t fd, void **pvptr, size_t initSize, int flags) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
         {
             size_t current = initSize ? initSize : 1024;
             void *vptr = *pvptr;
@@ -504,58 +515,32 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
-        static void recvn_ex(SOCKET fd, char *vptr, size_t n, int flags) //never return error.
+        static void recvn_ex(sockfd_t fd, char *vptr, size_t n, int flags) //never return error.
         {
             auto ret = recvn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed.");
         }
-        static void sendn_ex(SOCKET fd, const char *vptr, size_t n, int flags)
+        static void sendn_ex(sockfd_t fd, const char *vptr, size_t n, int flags)
         {
             auto ret = sendn(fd, vptr, n, flags);
-            if(ret == -1) throw std::runtime_error("recvn failed.");
+            if(ret == -1) throw std::runtime_error("sendn failed.");
         }
-        static ssize_t recvall_ex(SOCKET fd, void **pvptr, size_t initSize, int flags) //never return -1
+        static ssize_t recvall_ex(sockfd_t fd, void **pvptr, size_t initSize, int flags) //never return -1
         {
             auto ret = recvall(fd, pvptr, initSize, flags);
-            if(ret == -1) throw std::runtime_error("recvn failed.");
+            if(ret == -1) throw std::runtime_error("recvall failed.");
             return ret;
         }
-        static void sendn_ex(SOCKET fd, const std::string &data) {
-            sendn_ex(fd, data.data(), data.size());
+        static std::string quick_recvn(sockfd_t fd, size_t n) {
+            std::string res(n);
+            recvn_ex(fd, res.data(), n, NULL);
+            return res;
+        }
+        static void quick_sendn(sockfd_t fd, const std::string &data) {
+            sendn_ex(fd, data.data(), data.size(), NULL);
         }
     };
 
-    class fdIO
-    {
-    public:
-        static ssize_t readn(SOCKET fd, void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
-        {
-            return sockIO::recvn(fd, (char *)vptr, n, 0);
-        }
-        static ssize_t writen(SOCKET fd, const void *vptr, size_t n) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
-        {
-            return sockIO::sendn(fd, (const char *)vptr, n, 0);
-        }
-        static ssize_t readall(SOCKET fd, void **pvptr, size_t initSize) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
-        {
-            return sockIO::recvall(fd, pvptr, initSize, 0);
-        }
-        static void readn_ex(SOCKET fd, void *vptr, size_t n) //return read bytes.
-        {
-            return sockIO::recvn_ex(fd, (char *)vptr, n, 0);
-        }
-        static void writen_ex(SOCKET fd, const void *vptr, size_t n)
-        {
-            return sockIO::sendn_ex(fd, (const char *)vptr, n, 0);
-        }
-        static ssize_t readall_ex(SOCKET fd, void **pvptr, size_t initSize) //never return -1
-        {
-            return sockIO::recvall_ex(fd, pvptr, initSize, 0);
-        }
-        static void writen_ex(SOCKET fd, const std::string &data) {
-            writen_ex(fd, data.data(), data.size());
-        }
-    };
 }
 
 #endif

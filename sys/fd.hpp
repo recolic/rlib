@@ -4,9 +4,11 @@
 #include <rlib/sys/os.hpp>
 #if RLIB_OS_ID == OS_WINDOWS
 #include <Windows.h>
-using fd = HANDLE;
+using fd_t = HANDLE;
+using sockfd_t = SOCKET;
 #else
-using fd = int;
+using fd_t = int;
+using sockfd_t = int;
 #endif
 
 #endif
