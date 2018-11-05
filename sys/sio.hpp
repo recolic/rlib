@@ -7,6 +7,14 @@
 #include <string>
 #include <stdexcept>
 #include <rlib/sys/fd.hpp>
+#include <rlib/sys/os.hpp>
+
+namespace rlib {
+    // Both POSIX and Win32
+    static inline sockfd_t quick_accept(sockfd_t sock) {
+        return accept(sock, NULL, NULL);
+    }
+}
 
 #ifndef WIN32
 #include <sys/socket.h>
