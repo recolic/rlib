@@ -28,7 +28,7 @@ namespace rlib {
     static inline sockfd_t quick_accept(sockfd_t sock) {
         auto res = accept(sock, NULL, NULL);
         if(res == -1)
-            throw std::runtime_error("accept failed. errno = {}", strerror(errno));
+            throw std::runtime_error("accept failed. errno = {}"_format(strerror(errno)));
         return res;
     }
 }
