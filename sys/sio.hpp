@@ -233,7 +233,7 @@ namespace rlib {
             auto size = readall_ex(fd, &ptr, NULL);
             return std::string((char *)ptr, size);
         }
-        static void quick_writen(fd_t fd, const std::string &data) {
+        static void quick_write(fd_t fd, const std::string &data) {
             writen_ex(fd, data.data(), data.size());
         }
     };
@@ -349,7 +349,7 @@ namespace rlib {
             auto size = recvall_ex(fd, &ptr, NULL, MSG_NOSIGNAL);
             return std::string((char *)ptr, size);
         }
-        static void quick_sendn(fd_t fd, const std::string &data) {
+        static void quick_send(fd_t fd, const std::string &data) {
             sendn_ex(fd, data.data(), data.size(), MSG_NOSIGNAL);
         }
  
@@ -570,7 +570,7 @@ namespace rlib {
             auto size = recvall_ex(fd, &ptr, NULL, NULL);
             return std::string((char *)ptr, size);
         }
-        static void quick_sendn(sockfd_t fd, const std::string &data) {
+        static void quick_send(sockfd_t fd, const std::string &data) {
             sendn_ex(fd, data.data(), data.size(), NULL);
         }
     };
