@@ -8,6 +8,20 @@
 #include <stdexcept>
 #include <rlib/sys/fd.hpp>
 #include <rlib/sys/os.hpp>
+#include <rlib/string.hpp>
+#include <rlib/scope_guard.hpp>
+
+#if RLIB_OS_ID == OS_WINDOWS
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <fcntl.h>
+#endif
+
 
 namespace rlib {
     // Both POSIX and Win32
@@ -16,10 +30,10 @@ namespace rlib {
     }
 }
 
-#ifndef WIN32
-#include <sys/socket.h>
+#if RLIB_OS_ID != OS_WINDOWS
 //POSIX Version
 namespace rlib {
+    using rlib::literals::operator "" _format;
     namespace impl {
         inline void MakeNonBlocking(fd_t fd) {
             int flags, s;
@@ -210,9 +224,14 @@ namespace rlib {
             return ret;
         }
         static std::string quick_readn(fd_t fd, size_t n) {
-            std::string res(n);
-            readn_ex(fd, res.data(), n);
+            std::string res(n, '0');
+            readn_ex(fd, (void *)res.data(), n);
             return res;
+        }
+        static std::string quick_readall(fd_t fd) {
+            void *ptr;
+            auto size = readall_ex(fd, &ptr, NULL);
+            return std::string((char *)ptr, size);
         }
         static void quick_writen(fd_t fd, const std::string &data) {
             writen_ex(fd, data.data(), data.size());
@@ -321,9 +340,14 @@ namespace rlib {
             return ret;
         }
         static std::string quick_recvn(fd_t fd, size_t n) {
-            std::string res(n);
-            recvn_ex(fd, res.data(), n, MSG_NOSIGNAL);
+            std::string res(n, '0');
+            recvn_ex(fd, (void *)res.data(), n, MSG_NOSIGNAL);
             return res;
+        }
+        static std::string quick_recvall(fd_t fd) {
+            void *ptr;
+            auto size = recvall_ex(fd, &ptr, NULL, MSG_NOSIGNAL);
+            return std::string((char *)ptr, size);
         }
         static void quick_sendn(fd_t fd, const std::string &data) {
             sendn_ex(fd, data.data(), data.size(), MSG_NOSIGNAL);
@@ -332,9 +356,6 @@ namespace rlib {
     };
 }
 #else
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
 //WINsock version
 namespace rlib {
     template <bool doNotWSAStartup = false>
@@ -540,9 +561,14 @@ namespace rlib {
             return ret;
         }
         static std::string quick_recvn(sockfd_t fd, size_t n) {
-            std::string res(n);
-            recvn_ex(fd, res.data(), n, NULL);
+            std::string res(n, '0');
+            recvn_ex(fd, (void *)res.data(), n, NULL);
             return res;
+        }
+        static std::string quick_recvall(fd_t fd) {
+            void *ptr;
+            auto size = recvall_ex(fd, &ptr, NULL, NULL);
+            return std::string((char *)ptr, size);
         }
         static void quick_sendn(sockfd_t fd, const std::string &data) {
             sendn_ex(fd, data.data(), data.size(), NULL);
