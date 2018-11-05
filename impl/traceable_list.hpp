@@ -20,6 +20,10 @@ namespace rlib {
                 node *next;
                 extra_info_t extra_info; // bool flag. specially designed for object_pool.
                 uint32_t magic = 0x19980427;
+                template <typename... TConstructArgs>
+                node(node *prev, node *next, const extra_info_t &extra_info, TConstructArgs... args) 
+                    : data(std::forward<TConstructArgs>(args) ...), prev(prev), next(next), extra_info(extra_info)
+                {}
             };
 
         public:
@@ -119,8 +123,9 @@ namespace rlib {
                 return iterator((node *) nullptr, tail);
             }
 
-            void push_one(const iterator &where, T &&data, const extra_info_t &extra_info) {
-                auto new_node = new node{std::forward<T>(data), nullptr, where.ptr, extra_info};
+            template <typename... ConstructArgs>
+            void emplace_one(const iterator &where, const extra_info_t &extra_info, ConstructArgs... constructArgs) {
+                auto new_node = new node(nullptr, where.ptr, extra_info, std::forward<ConstructArgs>(constructArgs) ...);
                 ++m_size;
                 if (!head) {
                     tail = head = new_node;
@@ -142,6 +147,10 @@ namespace rlib {
 
                 if (head == ptr)
                     head = new_node;
+            }
+
+            void push_one(const iterator &where, T &&data, const extra_info_t &extra_info) {
+                emplace_one(where, extra_info, std::forward<T>(data));
             }
 
             void push_one(const iterator &where, const T &data, const extra_info_t &extra_info) {

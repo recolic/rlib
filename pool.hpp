@@ -18,6 +18,8 @@ namespace rlib {
      */
     template<typename obj_t, typename... _bound_construct_args_t>
     class fixed_object_pool : rlib::nonmovable {
+    protected:
+        using element_t = obj_t;
         using buffer_t = impl::traceable_list<obj_t, bool>;
         using this_type = fixed_object_pool<obj_t, _bound_construct_args_t ...>;
     public:
@@ -67,11 +69,12 @@ namespace rlib {
             reconstruct_impl(which, std::make_index_sequence<sizeof...(_bound_construct_args_t)>());
         }
 
+    protected:
+        buffer_t buffer; // list<obj_t obj, bool is_free>
     private:
         std::tuple<_bound_construct_args_t ...> _bound_args;
 
         size_t max_size;
-        buffer_t buffer; // list<obj_t obj, bool is_free>
         std::list<obj_t *> free_list;
         std::mutex buffer_mutex;
         std::condition_variable borrow_cv;
@@ -102,7 +105,7 @@ namespace rlib {
         // fake emplace_back
         template<size_t ... index_seq>
         inline void new_obj_to_buffer_impl(std::index_sequence<index_seq ...>) {
-            buffer.push_back(std::move(obj_t(std::get<index_seq>(_bound_args) ...)), true);
+            buffer.emplace_one(buffer.end(), true, std::get<index_seq>(_bound_args) ...);
         }
         template<size_t ... index_seq>
         inline void reconstruct_impl(obj_t *which, std::index_sequence<index_seq ...>) {
