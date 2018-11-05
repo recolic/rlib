@@ -26,7 +26,10 @@
 namespace rlib {
     // Both POSIX and Win32
     static inline sockfd_t quick_accept(sockfd_t sock) {
-        return accept(sock, NULL, NULL);
+        auto res = accept(sock, NULL, NULL);
+        if(res == -1)
+            throw std::runtime_error("accept failed. errno = {}", strerror(errno));
+        return res;
     }
 }
 
