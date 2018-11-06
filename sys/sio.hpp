@@ -552,7 +552,7 @@ namespace rlib {
             return res;
         }
         static std::string quick_recvall(sockfd_t fd) {
-            void *ptr;
+            void *ptr = NULL;
             auto size = recvall_ex(fd, &ptr, NULL, MSG_NOSIGNAL);
             return std::string((char *)ptr, size);
         }
