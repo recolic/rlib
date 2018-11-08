@@ -3,13 +3,20 @@
 
 #include <rlib/impl/traceable_list.hpp>
 #include <rlib/class_decorator.hpp>
-#include <thread>
-#include <mutex>
 #include <utility>
 #include <tuple>
 #include <functional>
 #include <algorithm>
+
+#ifdef RLIB_SWITCH_USE_MINGW_THREAD_FIX
+#include <mingw.mutex.h>
+#include <mingw.thread.h>
+#include <mingw.condition_variable.h>
+#else
+#include <thread>
+#include <mutex>
 #include <condition_variable>
+#endif
 
 namespace rlib {
     /*
