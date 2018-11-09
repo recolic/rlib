@@ -12,8 +12,8 @@
 #include <rlib/scope_guard.hpp>
 
 #if RLIB_OS_ID == OS_WINDOWS
-#include <windows.h>
 #include <winsock2.h>
+#include <windows.h>
 #include <ws2tcpip.h>
 #else
 #include <sys/types.h>
@@ -25,16 +25,14 @@
 
 namespace rlib {
     // Both POSIX and Win32
+    using rlib::literals::operator "" _format;
     static inline sockfd_t quick_accept(sockfd_t sock) {
         auto res = accept(sock, NULL, NULL);
         if(res == -1)
             throw std::runtime_error("accept failed. errno = {}"_format(strerror(errno)));
         return res;
     }
-}
 
-namespace rlib {
-    using rlib::literals::operator "" _format;
 #if RLIB_OS_ID != OS_WINDOWS
     namespace impl {
         inline void MakeNonBlocking(fd_t fd) {
@@ -59,7 +57,6 @@ namespace rlib {
 #if RLIB_OS_ID == OS_WINDOWS
     template <bool doNotWSAStartup = false>
     static inline sockfd_t quick_listen(const std::string &addr, uint16_t port) {
-    {
         WSADATA wsaData;
         sockfd_t listenfd = INVALID_SOCKET;
         if(!doNotWSAStartup) {
@@ -102,7 +99,6 @@ namespace rlib {
 
     template <bool doNotWSAStartup = false>
     static inline sockfd_t quick_connect(const std::string &addr, uint16_t port) {
-    {
         WSADATA wsaData;
         sockfd_t listenfd = INVALID_SOCKET;
         if(!doNotWSAStartup) {
