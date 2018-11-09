@@ -25,6 +25,11 @@
 #endif
 #endif
 
+#ifdef ERROR
+#pragma message (": warning MSVC_Macro_pollution: You MUST NOT define the macro `ERROR`. I've undefined it here.")
+#undef ERROR
+#endif
+
 namespace rlib {
     using namespace rlib::literals;
 
