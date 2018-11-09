@@ -100,7 +100,7 @@ namespace rlib {
     template <bool doNotWSAStartup = false>
     static inline sockfd_t quick_connect(const std::string &addr, uint16_t port) {
         WSADATA wsaData;
-        sockfd_t listenfd = INVALID_SOCKET;
+        sockfd_t sockfd = INVALID_SOCKET;
         if(!doNotWSAStartup) {
             int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
             if (iResult != 0) throw std::runtime_error("WSAStartup failed with error: {}\n"_format(iResult));
@@ -115,7 +115,7 @@ namespace rlib {
         auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &paddr);
         if(_ != 0) {
             WSACleanup();
-            throw std::runtime_error("getaddrinfo failed. Check network connection to {}:{}; returnval={}, check `man getaddrinfo`'s return value."_format(serverIp.c_str(), serverPort, _));
+            throw std::runtime_error("getaddrinfo failed. Check network connection to {}:{}; returnval={}, check `man getaddrinfo`'s return value."_format(addr.c_str(), port, _));
         }
         rlib_defer([p=paddr]{WSACleanup();freeaddrinfo(p);});
     
@@ -341,7 +341,7 @@ namespace rlib {
             return i;
         }
     public:
-        static ssize_t recvn(sockfd_t fd, char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(sockfd_t fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -363,7 +363,7 @@ namespace rlib {
             }
             return (n);         /* return >= 0 */
         }
-        static ssize_t sendn(sockfd_t fd, const char *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(sockfd_t fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -549,7 +549,7 @@ namespace rlib {
         }
         static std::string quick_recvall(sockfd_t fd) {
             void *ptr = NULL;
-            auto size = recvall_ex(fd, &ptr, NULL, MSG_NOSIGNAL);
+            auto size = recvall_ex(fd, &ptr, 0, MSG_NOSIGNAL);
             return std::string((char *)ptr, size);
         }
         static void quick_send(sockfd_t fd, const std::string &data) {
@@ -570,7 +570,7 @@ namespace rlib {
             recvn_ex(fd, &head, sizeof(head), MSG_NOSIGNAL);
             if(head.magic != 0x19980427)
                 throw std::runtime_error("Invalid magic received.");
-            if(head.len > 1024*1024*1024*2)
+            if(head.len > 1024ull*1024*1024*2)
                 throw std::runtime_error("Message len is greater than 2G. Refuse to alloc space.");
             std::string dat(head.len, '\0');
             recvn_ex(fd, (void *)dat.data(), head.len, MSG_NOSIGNAL);
