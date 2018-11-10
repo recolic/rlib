@@ -12,3 +12,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
+
+if(MINGW)
+    add_definitions(-DRLIB_MINGW_DISABLE_INLINE_TLS)
+endif()

@@ -8,7 +8,7 @@ namespace rlib {
         int max_predefined_log_level = (int)log_level_t::DEBUG;
         NullStreamBuf null_streambuf;
 #endif
-#if RLIB_CXX_STD < 2017 || RLIB_COMPILER_ID == ICC
+#if RLIB_CXX_STD < 2017 || RLIB_COMPILER_ID == ICC || defined(RLIB_MINGW_DISABLE_INLINE_TLS)
         thread_local std::stringstream _format_string_helper_ss;
         thread_local std::stringstream to_string_by_sstream_ss;        
 #endif

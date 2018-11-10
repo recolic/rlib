@@ -6,10 +6,6 @@
 #include <unistd.h>
 #include <string>
 #include <stdexcept>
-#include <rlib/sys/fd.hpp>
-#include <rlib/sys/os.hpp>
-#include <rlib/string.hpp>
-#include <rlib/scope_guard.hpp>
 
 #if RLIB_OS_ID == OS_WINDOWS
 #include <winsock2.h>
@@ -21,6 +17,12 @@
 #include <netdb.h>
 #include <fcntl.h>
 #endif
+
+// Include winsock2.h before windows.h
+#include <rlib/sys/fd.hpp>
+#include <rlib/sys/os.hpp>
+#include <rlib/string.hpp>
+#include <rlib/scope_guard.hpp>
 
 
 namespace rlib {
@@ -521,7 +523,7 @@ namespace rlib {
 
 #ifndef MSG_NOSIGNAL
     private:
-        static constexpr int MSG_NOSIGNAL = NULL;
+        static constexpr int MSG_NOSIGNAL = 0;
 #endif
         // both POSIX and Win32
     public:
