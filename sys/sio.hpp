@@ -1,12 +1,6 @@
 #ifndef R_SIO_HPP
 #define R_SIO_HPP
 
-#include <cerrno>
-#include <cstdlib>
-#include <unistd.h>
-#include <string>
-#include <stdexcept>
-
 #if RLIB_OS_ID == OS_WINDOWS
 #include <winsock2.h>
 #include <windows.h>
@@ -19,6 +13,12 @@
 #endif
 
 // Include winsock2.h before windows.h
+#include <cerrno>
+#include <cstdlib>
+#include <unistd.h>
+#include <string>
+#include <stdexcept>
+
 #include <rlib/sys/fd.hpp>
 #include <rlib/sys/os.hpp>
 #include <rlib/string.hpp>

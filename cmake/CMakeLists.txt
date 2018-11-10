@@ -8,13 +8,12 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(rlib_CXX_FLAGS "-Wno-terminate")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-    # using Intel C++
+    add_definitions(-DRLIB_MINGW_DISABLE_TLS)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # using Visual Studio C++
 endif()
 
 if(MINGW)
-    add_definitions(-DRLIB_MINGW_DISABLE_INLINE_TLS)
+    add_definitions(-DRLIB_MINGW_DISABLE_TLS)
 endif()
-
 
