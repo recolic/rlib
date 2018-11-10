@@ -1,8 +1,5 @@
 # Use this file if you want to include rlib as a subdirectory
 
-add_library(r STATIC ../libr.cc)
-include_directories(..)
-
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # using clang
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -16,4 +13,7 @@ endif()
 if(MINGW)
     add_definitions(-DRLIB_MINGW_DISABLE_TLS)
 endif()
+
+add_library(r STATIC ../libr.cc)
+include_directories(..)
 
