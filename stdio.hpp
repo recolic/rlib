@@ -80,11 +80,11 @@ namespace rlib {
     size_t printfln(const std::string &fmt, Args... args);
 
     namespace impl {
-#if RLIB_CXX_STD < 2017
+//#if RLIB_CXX_STD < 2017
         extern bool enable_endl_flush;
-#else
-        inline bool enable_endl_flush = true;
-#endif
+//#else
+//        inline bool enable_endl_flush = true;
+//#endif
     }
 
     inline bool sync_with_stdio(bool sync = true) noexcept {

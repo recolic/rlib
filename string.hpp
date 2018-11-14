@@ -28,14 +28,14 @@ namespace rlib {
     // literals::_format, format_string, string::format
     namespace impl {
 #ifndef RLIB_MINGW_DISABLE_TLS
-#if RLIB_CXX_STD < 2017
+//#if RLIB_CXX_STD < 2017
 // Intel C++ compiler has a pending bug for `thread_local inline` variable.
         thread_local extern std::stringstream to_string_by_sstream_ss;        
         thread_local extern std::stringstream _format_string_helper_ss;
-#else
-        thread_local inline std::stringstream to_string_by_sstream_ss;        
-        thread_local inline std::stringstream _format_string_helper_ss;
-#endif
+//#else
+//        thread_local inline std::stringstream to_string_by_sstream_ss;        
+//        thread_local inline std::stringstream _format_string_helper_ss;
+//#endif
 #endif
         template <typename VarT>
         std::string to_string_by_sstream(VarT &thing) {
