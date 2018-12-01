@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 #endif
 
 // Include winsock2.h before windows.h
@@ -33,6 +34,36 @@ namespace rlib {
         if(res == -1)
             throw std::runtime_error("accept failed. errno = {}"_format(strerror(errno)));
         return res;
+    }
+    static inline std::pair<std::string, uint16_t> get_peer_name(sockfd_t sock) {
+        struct sockaddr_storage addr;
+        socklen_t addrlen = sizeof(addr);
+        auto res = getpeername(sock, (struct sockaddr *)&addr, &addrlen);
+        if(res == -1)
+            throw std::runtime_error("getpeername failed. errno = {}"_format(strerror(errno)));
+        std::string ipstr;
+        uint16_t port = 0;
+        if(addr.ss_family == AF_INET) {
+            struct sockaddr_in *s = (struct sockaddr_in *)&addr;
+            char str[INET_ADDRSTRLEN];
+            auto res = inet_ntop(AF_INET, &s->sin_addr, str, INET_ADDRSTRLEN);
+            if(res == NULL)
+                throw std::runtime_error("inet_ntop failed. errno = {}"_format(strerror(errno)));
+            port = ntohs(s->sin_port);
+            ipstr = str;
+        }
+        else {
+            struct sockaddr_in6 *s = (struct sockaddr_in6 *)&addr;
+            char str[INET6_ADDRSTRLEN];
+            auto res = inet_ntop(AF_INET6, &s->sin6_addr, str, INET6_ADDRSTRLEN);
+            if(res == NULL)
+                throw std::runtime_error("inet_ntop failed. errno = {}"_format(strerror(errno)));
+            port = ntohs(s->sin6_port);
+            ipstr = std::string() + '[' + str + ']';
+        }
+        return {ipstr, port};
+        
+
     }
 
 #if RLIB_OS_ID != OS_WINDOWS
