@@ -31,6 +31,8 @@ namespace rlib {
                 friend class traceable_list;
 
             public:
+                using pointer = T *;
+                using reference = T &;
                 explicit iterator(node *ptr) : ptr(ptr) {}
 
                 explicit iterator(T *data_pointer) : ptr(reinterpret_cast<node *>(data_pointer)) {

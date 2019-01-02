@@ -25,14 +25,31 @@ namespace rlib {
     public:
         opt_parser() = delete;
         opt_parser(size_t arglen, char **argv) {
+            if(argv[0] == nullptr)
+                throw std::runtime_error("Invalid argv passed to rlib::opt_parser. argv[0] is nullptr.");
+            arg0 = argv[0];
             for(size_t cter = 1; cter < arglen; ++cter)
                 args.push_back(std::string(argv[cter]));
         }
 
-        rlib::string getCommand() {
+        rlib::string getSubCommand() {
+            if(args.empty())
+                throw std::runtime_error("No sub-command available.");
             auto cmd = std::move(args[0]);
             args.erase(args.begin());
             return std::move(cmd);
+        }
+
+        rlib::string getSubCommand(const std::string &def) {
+            if(args.empty())
+                return def;
+            auto cmd = std::move(args[0]);
+            args.erase(args.begin());
+            return std::move(cmd);
+        }
+
+        rlib::string getSelf() {
+            return arg0;
         }
 
         rlib::string getValueArg(const std::string &argName, bool required = true, const std::string &def = std::string())
@@ -102,6 +119,7 @@ namespace rlib {
         }
     private:
         std::vector<std::string> args;
+        std::string arg0;
     };
 }
 

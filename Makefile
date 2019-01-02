@@ -28,8 +28,8 @@ install_cmake: install_library
 install: install_header install_library install_cmake
 
 uninstall:
-	rm -rf $(PREFIX)/include/rlib
-	rm $(PREFIX)/lib/libr.a
+	rm -rf $(PREFIX)/include/rlib $(PREFIX)/lib/cmake/rlib
+	rm -f $(PREFIX)/lib/libr.a
 
 clean:
 	rm *.o *.a
