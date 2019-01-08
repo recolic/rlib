@@ -1,6 +1,8 @@
 #ifndef R_SIO_HPP
 #define R_SIO_HPP
 
+#include <rlib/sys/os.hpp>
+
 #if RLIB_OS_ID == OS_WINDOWS
 #include <winsock2.h>
 #include <windows.h>
@@ -353,7 +355,7 @@ namespace rlib {
         }
         static std::string quick_readall(fd_t fd) {
             void *ptr;
-            auto size = readall_ex(fd, &ptr, NULL);
+            auto size = readall_ex(fd, &ptr, 0);
             return std::string((char *)ptr, size);
         }
         static void quick_write(fd_t fd, const std::string &data) {
@@ -599,6 +601,7 @@ namespace rlib {
             uint64_t len;
         };
 #pragma pack(pop)
+        static_assert(sizeof(packed_msg_head) == sizeof(uint32_t) + sizeof(uint64_t), "Compiler doesn't compile the struct `packed_msg_head` as packed.");
     public:
         static std::string recv_msg(sockfd_t fd) {
             packed_msg_head head;
@@ -606,7 +609,7 @@ namespace rlib {
             if(head.magic != 0x19980427)
                 throw std::runtime_error("Invalid magic received.");
             if(head.len > 1024ull*1024*1024*2)
-                throw std::runtime_error("Message len is greater than 2G. Refuse to alloc space.");
+                throw std::runtime_error("Message len is greater than 2GiB. Refuse to alloc space.");
             std::string dat(head.len, '\0');
             recvn_ex(fd, (void *)dat.data(), head.len, MSG_NOSIGNAL);
             return dat;
