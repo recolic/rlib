@@ -10,13 +10,16 @@ namespace rlib {
         public:
             int overflow(int c) { return c; }
         };
-        // stdc++ 17 removed
+#if RLIB_CXX_STD < 2017
         extern NullStreamBuf null_streambuf;
+#else
+        inline NullStreamBuf null_streambuf;
+#endif
     }
     
-//#if RLIB_CXX_STD < 2017
+#if RLIB_CXX_STD < 2017
     extern std::ostream null_stream;
-//#else
-//    inline std::ostream null_stream(&impl::null_streambuf);
-//#endif
+#else
+    inline std::ostream null_stream(&impl::null_streambuf);
+#endif
 }

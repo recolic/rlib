@@ -3,6 +3,8 @@
 #include <sstream>
 namespace rlib {
     namespace impl {
+// If libr.cc is built under C++17, and other header files are included in C++14 project,
+// Then something wrong will happen. So DO NOT ignore the following definitions. NEVER.
 //#if RLIB_CXX_STD < 2017
         bool enable_endl_flush = true;
         int max_predefined_log_level = (int)log_level_t::DEBUG;

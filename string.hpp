@@ -28,14 +28,14 @@ namespace rlib {
     // literals::_format, format_string, string::format
     namespace impl {
 #ifndef RLIB_MINGW_DISABLE_TLS
-//#if RLIB_CXX_STD < 2017
+#if RLIB_CXX_STD < 2017
 // Intel C++ compiler has a pending bug for `thread_local inline` variable.
         thread_local extern std::stringstream to_string_by_sstream_ss;        
         thread_local extern std::stringstream _format_string_helper_ss;
-//#else
-//        thread_local inline std::stringstream to_string_by_sstream_ss;        
-//        thread_local inline std::stringstream _format_string_helper_ss;
-//#endif
+#else
+        thread_local inline std::stringstream to_string_by_sstream_ss;        
+        thread_local inline std::stringstream _format_string_helper_ss;
+#endif
 #endif
         template <typename VarT>
         std::string to_string_by_sstream(VarT &thing) {
@@ -78,11 +78,23 @@ namespace rlib {
                             pos += 2;
                         }
                     }
-                    ss << cutted_tmp_str << argsArr[current_used_arg];
+                    if(current_used_arg >= sizeof...(args)) {
+                        // not enough arguments.
+                        throw std::out_of_range("format_string: not enough arguments for format string `" + fmt +
+                            "`. Expecting at least " + std::to_string(current_used_arg+1) + ", got " + 
+                            std::to_string(sizeof...(args)));
+                    }
+                    ss << cutted_tmp_str << argsArr.at(current_used_arg);
                     pos += 2;
                     prev_pos = pos;
                     ++current_used_arg;
                 }
+            }
+            if(current_used_arg != sizeof...(args)) {
+                // too many arguments.
+                throw std::out_of_range("format_string: too many arguments for format string `" + fmt +
+                    "`. Expecting " + std::to_string(current_used_arg) + ", got " + 
+                    std::to_string(sizeof...(args)));
             }
             ss << fmt.substr(prev_pos);
             return ss.str();
@@ -91,10 +103,10 @@ namespace rlib {
         inline std::string format_string(const std::string &fmt, Args... args) {
             return _format_string_helper(fmt, args...);
         }
-        template<>
-        inline std::string format_string<>(const std::string &fmt) {
-            return fmt;
-        }
+        //template<>
+        //inline std::string format_string<>(const std::string &fmt) {
+        //    return fmt;
+        //}
  
         /*
         template<class MetaFmtArr, typename... Args>
@@ -159,6 +171,9 @@ namespace rlib {
             if(empty()) return T();
             return T(*this);
         }
+        const char *as(as_helper<const char *>) const {
+            return this->c_str();
+        }
         std::string as(as_helper<std::string>) const {
             return std::move(*this);
         }
@@ -170,9 +185,10 @@ namespace rlib {
                 throw std::invalid_argument("Can not convert rlib::string to char: size() > 1.");
             return size() == 0 ? '\0' : *cbegin();
         }
-        unsigned char as(as_helper<unsigned char>) const {
-            return static_cast<unsigned char>(as<char>());
-        }
+        // unsigned-char conflicts with uint8_t. I'll regard it as uint8_t. ("8".as<unsigned char> == 8)
+        //unsigned char as(as_helper<unsigned char>) const {
+        //    return static_cast<unsigned char>(as<char>());
+        //}
         bool as(as_helper<bool>) const {
             if(*this == "true") {
                 return true;
@@ -212,10 +228,10 @@ namespace rlib {
 
         RLIB_IMPL_GEN_AS_ALIAS(unsigned int, unsigned long)
         RLIB_IMPL_GEN_AS_ALIAS(unsigned short, unsigned long)
-        //RLIB_IMPL_GEN_AS_ALIAS(uint8_t, unsigned long)
+        RLIB_IMPL_GEN_AS_ALIAS(uint8_t, unsigned long)
 
         RLIB_IMPL_GEN_AS_ALIAS(short, int)
-        //RLIB_IMPL_GEN_AS_ALIAS(int8_t, int)
+        RLIB_IMPL_GEN_AS_ALIAS(int8_t, int)
 
     public:
         template <typename T>

@@ -18,6 +18,16 @@
 
 MODULES=string meta trait stdio sio scope_guard
 
-def: 
+CXXFLAGS=-I.
+A=rlib/libr.a
+
+cxx14_all:
+
+
+string_14:
+	$(CXX) $(CXXFLAGS) -std=c++14 src/string.cc $(A) -o src/string_14
+
+cxx17_all:
+
 
 
