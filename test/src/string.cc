@@ -41,7 +41,16 @@ TEST_CASE("rlib::string others", "[string_op]") {
     REQUIRE("hello world"_rs .strip("ld") == "hello wor");
     REQUIRE(""_rs .strip("") == "");
 
+    REQUIRE("your mother suck fuck you"_rs.replace("you", "abc").strip("ac").split()[4] == "ab");
+    REQUIRE("fuck you"_rs.replace("", "") == "fuck you");
+    REQUIRE("123"_rs.replace("", "1") == "123");
+    REQUIRE("hello worlo"_rs.replace("lo", "") == "hel wor");
+
+    test_str = "hello world \n abc def some   random  ";
+    auto test_str2 = test_str;
+    REQUIRE(" "_rs.join(test_str.split(' ')) == test_str2);
 }
+
 
 
 
