@@ -9,7 +9,7 @@ phases:
     commands:
       - g++ --version
       - clang++ --version
-      - alias icpc=g++
+      - icpc --version
   build:
     commands:
       - make
