@@ -1,6 +1,11 @@
 #include <rlib/log.hpp> //log_level_t
 #include <rlib/stream.hpp>
 #include <sstream>
+
+#if (RLIB_CXX_STD >= 2017) && (RLIB_COMPILER_ID != CC_MSVC)
+#warning library should not be compiled under C++17. Or The library won't work for c++14 users.
+#endif
+
 namespace rlib {
     namespace impl {
 // If libr.cc is built under C++17, and other header files are included in C++14 project,

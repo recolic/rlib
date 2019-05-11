@@ -1,7 +1,7 @@
 CXX ?= g++
 CC ?= gcc
 AR ?= ar
-CXXFLAGS = -O3 -std=c++1z -fPIC
+CXXFLAGS = -O3 -std=c++14 -fPIC
 CFLAGS = 
 ARFLAGS = rcs
 
