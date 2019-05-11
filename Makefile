@@ -33,3 +33,9 @@ uninstall:
 
 clean:
 	rm *.o *.a
+
+.PHONY: test
+
+test:
+	cd test && ./test.sh
+

@@ -39,6 +39,12 @@
 #include "compiler_detector"
 // Define RLIB_COMPILER_ID and RLIB_COMPILER_VER
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#define RLIB_COMPILER_IS_MINGW 1
+#else
+#define RLIB_COMPILER_IS_MINGW 0
+#endif
+
 // shorthand for __cplusplus macro.
 #ifndef RLIB_CXX_STD
 #   if RLIB_COMPILER_ID == CC_MSVC

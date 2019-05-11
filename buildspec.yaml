@@ -1,0 +1,17 @@
+version: 0.1
+
+phases:
+  install:
+    run-as: root
+    commands:
+      - make install
+  pre_build:
+    commands:
+      - g++ --version
+      - clang++ --version
+      - alias icpc=g++
+  build:
+    commands:
+      - make
+      - make test
+

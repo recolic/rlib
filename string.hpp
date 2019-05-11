@@ -24,10 +24,18 @@
 #include <sstream>
 #include <type_traits>
 
+#if RLIB_COMPILER_ID == CC_ICC
+#define RLIB_IMPL_SSTREAM_DISABLE_TLS
+#endif
+
+#if RLIB_COMPILER_IS_MINGW
+#define RLIB_IMPL_SSTREAM_DISABLE_TLS
+#endif
+
 namespace rlib {
     // literals::_format, format_string, string::format
     namespace impl {
-#ifndef RLIB_MINGW_DISABLE_TLS
+#ifndef RLIB_IMPL_SSTREAM_DISABLE_TLS
 #if RLIB_CXX_STD < 2017
 // Intel C++ compiler has a pending bug for `thread_local inline` variable.
         thread_local extern std::stringstream to_string_by_sstream_ss;        
@@ -39,8 +47,9 @@ namespace rlib {
 #endif
         template <typename VarT>
         std::string to_string_by_sstream(VarT &thing) {
-#ifdef RLIB_MINGW_DISABLE_TLS // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
-                              // Also fix mingw bug. But much slower!
+#if defined(RLIB_IMPL_SSTREAM_DISABLE_TLS)
+            // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
+            // Also fix mingw bug. But much slower!
             std::stringstream ss;
 #else
             auto &ss = to_string_by_sstream_ss;
@@ -52,7 +61,8 @@ namespace rlib {
 
         template<typename... Args>
         std::string _format_string_helper(const std::string &fmt, Args... args) {
-#ifdef RLIB_MINGW_DISABLE_TLS // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
+#if defined(RLIB_IMPL_SSTREAM_DISABLE_TLS)
+            // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
             std::stringstream ss;
 #else
             auto &ss = _format_string_helper_ss; // cached stringstream is much quicker.
