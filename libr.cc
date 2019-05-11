@@ -3,7 +3,7 @@
 #include <sstream>
 
 #if (RLIB_CXX_STD >= 2017) && (RLIB_COMPILER_ID != CC_MSVC)
-#warning library should not be compiled under C++17. Or The library won't work for c++14 users.
+#warning library should not be compiled under C++17. Or The library wont work for c++14 users.
 #endif
 
 namespace rlib {
