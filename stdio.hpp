@@ -189,7 +189,7 @@ namespace rlib {
         return println(std::cout, std::forward<Args>(args) ...);
     }
     template <>
-    void println() {
+    inline void println() {
         return println(std::cout);
     }
     template <typename... Args>
