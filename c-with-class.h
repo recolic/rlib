@@ -14,9 +14,9 @@
 #define RCPP_PCALL(p_objectname,i_funcname, ...) p_objectname->i_funcname(p_objectname, ##__VA_ARGS__)
 
 #define RCPP_CLASS_DECL(class_name) struct class_name;
-#define RCPP_CLASS_METHOD_DECL_1(class_name, method_name, return_type, ...) typedef return_type (* class_name##method_name##_rcpp_t)(struct class_name *this, ##__VA_ARGS__); //VAARGS is `int arg1, float arg2, ...`
+#define RCPP_CLASS_METHOD_EXTERN_DECL(class_name, method_name, return_type, ...) typedef return_type (* class_name##method_name##_rcpp_t)(struct class_name *this, ##__VA_ARGS__); //VAARGS is `int arg1, float arg2, ...`
 #define RCPP_CLASS_BEGIN(class_name) struct class_name {
-#define RCPP_CLASS_METHOD_DECL_2(class_name, method_name) RCPP_CLASS_MEMBER_DECL(class_name##method_name##_rcpp_t, method_name)
+#define RCPP_CLASS_METHOD_DECL(class_name, method_name, ...) RCPP_CLASS_MEMBER_DECL(class_name##method_name##_rcpp_t, method_name)
 #define RCPP_CLASS_MEMBER_DECL(type, name) type name;
 #define RCPP_CLASS_END() };
 #define RCPP_CLASS_METHOD_IMPL(class_name, method_name, return_type, ...) return_type class_name##method_name##_rcpp_impl(struct class_name *this, ##__VA_ARGS__) //VAARGS is `int arg1, float arg2, ...`

@@ -15,6 +15,7 @@
 #include <string>
 #include <iostream>
 #include <rlib/string.hpp> // format_string
+#include <type_traits>
 
 #if RLIB_OS_ID == OS_WINDOWS
 #define RLIB_IMPL_ENDLINE "\r\n"
@@ -23,6 +24,23 @@
 #else
 #define RLIB_IMPL_ENDLINE "\n"
 #endif
+
+namespace rlib {
+    namespace impl {
+        template <typename T>
+        struct print_wrapper {
+            print_wrapper() = delete;
+            print_wrapper(const T &dat)
+                : wrapper(dat) {}
+
+            const T &wrapper;
+
+            friend std::ostream & operator<< (std::ostream &os, print_wrapper<T> p) {
+                return os << p.wrapper;
+            }
+        };
+    }
+}
 
 namespace rlib {
 // print to custom stream
@@ -55,16 +73,13 @@ namespace rlib {
         return std::move(line);
     }
 
-// print to stdout
-    template <typename PrintFinalT>
-    void print(PrintFinalT reqArg);
-    template <typename Required, typename... Optional>
-    void print(Required reqArgs, Optional... optiArgs);
-    template <typename... Optional>
-    void println(Optional... optiArgs);
+    // default for std::cout
+    template <typename... Args>
+    void println(Args... args);
     template <>
     void println();
-
+    template <typename... Args>
+    void print(Args... args);
     template <typename Iterable, typename Printable>
     void print_iter(Iterable arg, Printable spliter);
     template <typename Iterable, typename Printable>
@@ -73,11 +88,12 @@ namespace rlib {
     void print_iter(Iterable arg);
     template <typename Iterable>
     void println_iter(Iterable arg);
-
     template <typename... Args>
     size_t printf(const std::string &fmt, Args... args);
     template <typename... Args>
     size_t printfln(const std::string &fmt, Args... args);
+
+    // implementations below --------------------------------
 
     namespace impl {
 #if RLIB_CXX_STD < 2017
@@ -103,70 +119,7 @@ namespace rlib {
         return os;
     }
 
-    template <typename PrintFinalT>
-    void print(PrintFinalT reqArg)
-    {
-        std::cout << reqArg;
-    }
-    template <typename Required, typename... Optional>
-    void print(Required reqArgs, Optional... optiArgs)
-    {
-        std::cout << reqArgs << ' ';
-        print(optiArgs ...);
-    }
-    template <typename... Optional>
-    void println(Optional... optiArgs)
-    {
-        print(optiArgs ...);
-        println();
-    }
-    template <> 
-    inline void println()
-    {
-        std::cout << rlib::endl;
-    }
-
-    template <typename Iterable, typename Printable>
-    void print_iter(Iterable arg, Printable spliter)
-    {
-        for(const auto & i : arg)
-            std::cout << i << spliter;
-    }
-    template <typename Iterable, typename Printable>
-    void println_iter(Iterable arg, Printable spliter)
-    {
-        print_iter(arg, spliter);
-        std::cout << rlib::endl;
-    }
-    template <typename Iterable>
-    void print_iter(Iterable arg)
-    {
-        for(const auto & i : arg)
-            std::cout << i << ' ';
-    }
-    template <typename Iterable>
-    void println_iter(Iterable arg)
-    {
-        print_iter(arg);
-        std::cout << rlib::endl;
-    }
-
-    template <typename... Args>
-    size_t printf(const std::string &fmt, Args... args)
-    {
-        std::string to_print = impl::format_string(fmt, args...); 
-        std::cout << to_print;
-        return to_print.size();
-    }
-    template <typename... Args>
-    size_t printfln(const std::string &fmt, Args... args)
-    {
-        size_t len = rlib::printf(fmt, args...);
-        std::cout << rlib::endl;
-        return len + 1;
-    }
-
-// With custom os
+    // With custom os
     template <typename PrintFinalT>
     void print(std::ostream &os, PrintFinalT reqArg)
     {
@@ -182,7 +135,7 @@ namespace rlib {
     void println(std::ostream &os, Optional... optiArgs)
     {
         print(os, optiArgs ...);
-        println();
+        println(os);
     }
     template <> 
     inline void println(std::ostream &os)
@@ -200,34 +153,90 @@ namespace rlib {
     void println_iter(std::ostream &os, Iterable arg, Printable spliter)
     {
         print_iter(os, arg, spliter);
-        os << rlib::endl;
+        println(os);
     }
     template <typename Iterable>
     void print_iter(std::ostream &os, Iterable arg)
     {
-        for(const auto & i : arg)
-            os << i << ' ';
+        print_iter(os, arg, ' ');
     }
     template <typename Iterable>
     void println_iter(std::ostream &os, Iterable arg)
     {
-        print_iter(os, arg);
-        os << rlib::endl;
+        println_iter(os, arg, ' ');
     }
 
     template <typename... Args>
     size_t printf(std::ostream &os, const std::string &fmt, Args... args)
     {
-        std::string to_print = format_string(fmt, args...); 
-        os << to_print;
+        std::string to_print = impl::format_string(fmt, args...); 
+        print(os, to_print);
         return to_print.size();
     }
     template <typename... Args>
     size_t printfln(std::ostream &os, const std::string &fmt, Args... args)
     {
-        size_t len = rlib::printf(fmt, args...);
-        os << rlib::endl;
+        size_t len = printf(os, fmt, args...);
+        println(os);
         return len + 1;
+    }
+
+
+
+    // default for std::cout
+    template <typename... Args>
+    void println(Args... args) {
+        return println(std::cout, std::forward<Args>(args) ...);
+    }
+    template <>
+    void println() {
+        return println(std::cout);
+    }
+    template <typename... Args>
+    void print(Args... args) {
+        return print(std::cout, std::forward<Args>(args) ...);
+    }
+    template <typename Iterable, typename Printable>
+    void print_iter(Iterable arg, Printable spliter) {
+        return print_iter(std::cout, std::forward<Iterable>(arg), spliter);
+    }
+    template <typename Iterable, typename Printable>
+    void println_iter(Iterable arg, Printable spliter) {
+        return println_iter(std::cout, std::forward<Iterable>(arg), spliter);
+    }
+    template <typename Iterable>
+    void print_iter(Iterable arg) {
+        return print_iter(std::cout, std::forward<Iterable>(arg));
+    }
+    template <typename Iterable>
+    void println_iter(Iterable arg) {
+        return println_iter(std::cout, std::forward<Iterable>(arg));
+    }
+    template <typename... Args>
+    size_t printf(const std::string &fmt, Args... args) {
+        return printf(std::cout, fmt, std::forward<Args>(args) ...);
+    }
+    template <typename... Args>
+    size_t printfln(const std::string &fmt, Args... args) {
+        return printfln(std::cout, fmt, std::forward<Args>(args) ...);
+    }
+
+
+    // If the stream is stringstream or ostringstream,
+    //   it will fails to match print(ostream &, args...),
+    //   and match print(args ...). It leads to an error.
+    // Here's the fallback on such sucking substitution error.
+    template <typename StreamType, typename... Args>
+    void println(StreamType &os, Args... args) {
+        using ostream_or_data = typename std::conditional<std::is_base_of<std::ostream, StreamType>::value, 
+            std::ostream &, impl::print_wrapper<StreamType>>::type;
+        return println(static_cast<ostream_or_data>(os), std::forward<Args>(args) ...);
+    }
+    template <typename StreamType, typename... Args>
+    void print(StreamType &os, Args... args) {
+        using ostream_or_data = typename std::conditional<std::is_base_of<std::ostream, StreamType>::value, 
+            std::ostream &, impl::print_wrapper<StreamType>>::type;
+        return print(static_cast<ostream_or_data>(os), std::forward<Args>(args) ...);
     }
 }
 

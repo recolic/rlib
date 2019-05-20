@@ -16,10 +16,13 @@
 # 	os          rlib/sys/os.hpp
 # 	require     rlib/require/*.hpp
 
+# Test dependency:
+# string ---> common 
+
 MODULES=string meta trait stdio sio scope_guard
 
-EXTRA_FLAGS ?=
-CXXFLAGS=-I. $(EXTRA_FLAGS)
+XTRA_FLAGS ?=
+CXXFLAGS=-I. -I../.. $(XTRA_FLAGS)
 STD ?= 14
 FLAGS11=-std=c++11 rlib/libr.a
 FLAGS14=-std=c++14 rlib/libr.a
@@ -37,7 +40,11 @@ endif
 
 POSTFIX=$(STD)_$(CXX)
 
-all: string
+all: string common
+
+common:
+	$(CXX) $(CXXFLAGS) src/common.cc $(CXXFLAGS) -o src/common_$(POSTFIX).out
+	src/common_$(POSTFIX).out
 
 string:
 	$(CXX) $(CXXFLAGS) src/string.cc $(CXXFLAGS) -o src/string_$(POSTFIX).out

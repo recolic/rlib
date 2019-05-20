@@ -22,22 +22,16 @@ namespace rlib{
             template<typename C>
             static no test(Check<void (Fallback::*)(), &C::operator()>*);
     
-        public:
             static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(yes);
+        public:
+            static constexpr bool real_value = std::conditional<std::is_class<T>::value, impl::is_callable_helper<T>, std::is_function<T>>::type::value;
         };
     } //impl
 } //rlib
 
 namespace rlib {
     template<typename T>
-    struct is_callable {
-        using _impl = typename std::conditional<std::is_class<T>::value, impl::is_callable_helper<T>, std::is_function<T>>::type;
-        static constexpr bool value() noexcept {
-            return _impl::value;
-        }
-        constexpr operator bool() noexcept {
-            return is_callable<T>::value();
-        }
+    struct is_callable : public std::bool_constant<impl::is_callable_helper<T>::real_value> {
     };
 }
 

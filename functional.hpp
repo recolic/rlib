@@ -26,9 +26,10 @@ namespace rlib {
             using return_type = typename std::invoke_result<Func, Args ...>::type;
             auto operator ()(size_t count, Func f, Args ... args) {
                 std::list<return_type> ret;
+                if(count == 0) return ret;
                 for(size_t cter = 0; cter < count; ++cter)
                     ret.push_back(std::move(f(std::forward<Args>(args) ...)));
-                return std::move(ret);
+                return ret;
             }
         };
 
@@ -54,6 +55,9 @@ namespace rlib {
         using return_type3 = decltype(impl::repeated_func<Func, Args ...>()(count, f, args ...));
         static_assert(std::is_same<return_type, return_type2>::value);
         static_assert(std::is_same<return_type, return_type3>::value);
+
+        if(count == 0)
+            throw std::invalid_argument("Can not repeat for zero times.");
 
         return std::bind(impl::repeated_func<Func, Args ...>(), count, std::forward<Func>(f), std::forward<Args>(args) ...);
     }
