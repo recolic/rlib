@@ -13,17 +13,26 @@
 #error rlib/sys/unix_handy.hpp is not for Windows.
 #endif
 
+// Deprecated. Use sys/sio.hpp
+#if 1+1 == 4
 namespace rlib {
     namespace impl {
         using rlib::literals::operator""_format;
-        static inline fd unix_quick_listen(const std::string &addr, uint16_t port) {
+        static inline fd unix_quick_listen(const std::string &addr, uint16_t port, bool use_udp = false) {
             addrinfo *psaddr;
             addrinfo hints{0};
             fd listenfd;
 
             hints.ai_family = AF_UNSPEC;
-            hints.ai_socktype = SOCK_STREAM;
-            hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+            if(use_udp) {
+                hints.ai_socktype = SOCK_DGRAM;
+                hints.ai_protocol = IPPROTO_UDP;
+            }
+            else {
+                hints.ai_socktype = SOCK_STREAM;
+                hints.ai_protocol = IPPROTO_TCP;
+            }
+            hints.ai_flags = AI_PASSIVE;    /* For listen */
             auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &psaddr);
             if (_ != 0) throw std::runtime_error("Failed to getaddrinfo. returnval={}, check `man getaddrinfo`'s return value."_format(_));
 
@@ -51,13 +60,20 @@ namespace rlib {
             return listenfd;
         }
 
-        static inline fd unix_quick_connect(const std::string &addr, uint16_t port) {
+        static inline fd unix_quick_connect(const std::string &addr, uint16_t port, bool use_udp = false) {
             addrinfo *paddr;
             addrinfo hints{0};
             fd sockfd;
 
             hints.ai_family = AF_UNSPEC;
-            hints.ai_socktype = SOCK_STREAM;
+            if(use_udp) {
+                hints.ai_socktype = SOCK_DGRAM;
+                hints.ai_protocol = IPPROTO_UDP;
+            }
+            else {
+                hints.ai_socktype = SOCK_STREAM;
+                hints.ai_protocol = IPPROTO_TCP;
+            }
             auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &paddr);
             if (_ != 0)
                 throw std::runtime_error("getaddrinfo failed. Check network connection to {}:{}; returnval={}, check `man getaddrinfo`'s return value."_format(
@@ -88,6 +104,7 @@ namespace rlib {
     using impl::unix_quick_connect;
     using impl::unix_quick_listen;
 }
+#endif
 
 
 // Unfinished. I'm not sure if I must implement it.

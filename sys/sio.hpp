@@ -91,7 +91,7 @@ namespace rlib {
 
 #if RLIB_OS_ID == OS_WINDOWS
     template <bool doNotWSAStartup = false>
-    static inline sockfd_t quick_listen(const std::string &addr, uint16_t port) {
+    static inline sockfd_t quick_listen(const std::string &addr, uint16_t port, bool use_udp = false) {
         WSADATA wsaData;
         sockfd_t listenfd = INVALID_SOCKET;
         if(!doNotWSAStartup) {
@@ -102,9 +102,15 @@ namespace rlib {
         addrinfo *psaddr;
         addrinfo hints { 0 };
         hints.ai_family = AF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
+        if(use_udp) {
+            hints.ai_socktype = SOCK_DGRAM;
+            hints.ai_protocol = IPPROTO_UDP;
+        }
+        else {
+            hints.ai_socktype = SOCK_STREAM;
+            hints.ai_protocol = IPPROTO_TCP;
+        }
         hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
-        hints.ai_protocol = IPPROTO_TCP;
         auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &psaddr);
         if(_ != 0) {
             WSACleanup();
@@ -126,14 +132,17 @@ namespace rlib {
         }
         if(!success) throw std::runtime_error("Failed to bind to any of these addr.");
     
-        if(SOCKET_ERROR == ::listen(listenfd, 16)) throw std::runtime_error("listen failed. {}"_format(strerror(errno)));
+        if(!use_udp) {
+            // UDP don't need to listen.
+            if(SOCKET_ERROR == ::listen(listenfd, 16)) throw std::runtime_error("listen failed. {}"_format(strerror(errno)));
+        }
     
         freeaddrinfo(psaddr);
         return listenfd;
     }
 
     template <bool doNotWSAStartup = false>
-    static inline sockfd_t quick_connect(const std::string &addr, uint16_t port) {
+    static inline sockfd_t quick_connect(const std::string &addr, uint16_t port, bool use_udp = false) {
         WSADATA wsaData;
         sockfd_t sockfd = INVALID_SOCKET;
         if(!doNotWSAStartup) {
@@ -145,8 +154,15 @@ namespace rlib {
         addrinfo hints { 0 };
     
         hints.ai_family = AF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_protocol = IPPROTO_TCP;
+        if(use_udp) {
+            hints.ai_socktype = SOCK_DGRAM;
+            hints.ai_protocol = IPPROTO_UDP;
+        }
+        else {
+            hints.ai_socktype = SOCK_STREAM;
+            hints.ai_protocol = IPPROTO_TCP;
+        }
+
         auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &paddr);
         if(_ != 0) {
             WSACleanup();
@@ -175,13 +191,20 @@ namespace rlib {
 
 #else
     // POSIX version
-    static inline fd_t quick_listen(const std::string &addr, uint16_t port) {
+    static inline fd_t quick_listen(const std::string &addr, uint16_t port, bool use_udp = false) {
         addrinfo *psaddr;
         addrinfo hints{0};
         fd_t listenfd;
 
         hints.ai_family = AF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
+        if(use_udp) {
+            hints.ai_socktype = SOCK_DGRAM;
+            hints.ai_protocol = IPPROTO_UDP;
+        }
+        else {
+            hints.ai_socktype = SOCK_STREAM;
+            hints.ai_protocol = IPPROTO_TCP;
+        }
         hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
         auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &psaddr);
         if (_ != 0) throw std::runtime_error("Failed to getaddrinfo. returnval={}, check `man getaddrinfo`'s return value."_format(_));
@@ -204,19 +227,30 @@ namespace rlib {
         }
         if (!success) throw std::runtime_error("Failed to bind {}:{}."_format(addr, port));
 
-        if (-1 == ::listen(listenfd, 16)) throw std::runtime_error("listen failed. {}"_format(strerror(errno)));
+        if(!use_udp) {
+            // UDP don't need to listen.
+            if (-1 == ::listen(listenfd, 16)) throw std::runtime_error("listen failed. {}"_format(strerror(errno)));
+        }
 
         rlib_defer([psaddr] { freeaddrinfo(psaddr); });
         return listenfd;
     }
 
-    static inline fd_t quick_connect(const std::string &addr, uint16_t port) {
+    static inline fd_t quick_connect(const std::string &addr, uint16_t port, bool use_udp = false) {
         addrinfo *paddr;
         addrinfo hints{0};
         fd_t sockfd;
 
         hints.ai_family = AF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
+        if(use_udp) {
+            hints.ai_socktype = SOCK_DGRAM;
+            hints.ai_protocol = IPPROTO_UDP;
+        }
+        else {
+            hints.ai_socktype = SOCK_STREAM;
+            hints.ai_protocol = IPPROTO_TCP;
+        }
+ 
         auto _ = getaddrinfo(addr.c_str(), std::to_string(port).c_str(), &hints, &paddr);
         if (_ != 0)
             throw std::runtime_error("getaddrinfo failed. Check network connection to {}:{}; returnval={}, check `man getaddrinfo`'s return value."_format(
