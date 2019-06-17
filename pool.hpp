@@ -46,6 +46,10 @@ namespace rlib {
             (*used)--;
             return false;
         }
+
+        size_t objects_should_alloc(const size_t inuse_objects, const size_t avail_objects) {
+            return avail_objects < size ? size - avail_objects : 0;
+        }
     private:
         const size_t size;
         std::unique_ptr<std::atomic<size_t> > used;
@@ -116,7 +120,7 @@ namespace rlib {
                 typename buffer_t::iterator elem_iter(which);
                 elem_iter.get_extra_info() = true; // mark as free.
                 new_obj_ready = true;
-                --curr_size;
+                --inuse_objects;
             } // lock released.
             borrow_cv.notify_one();
         }
@@ -125,21 +129,31 @@ namespace rlib {
             reconstruct_impl(which, std::make_index_sequence<sizeof...(_bound_construct_args_t)>());
         }
 
+        size_t inuse_size() const {
+            return inuse_objects;
+        }
         size_t size() const {
-            return curr_size;
+            // total size. inuse + free.
+            return inuse_objects + free_list.size();
         }
 
     protected:
         buffer_t buffer; // list<obj_t obj, bool is_free>
     private:
+        std::list<obj_t *> free_list;
+        std::mutex buffer_mutex; // mutex for buffer and free_list
+
         std::tuple<_bound_construct_args_t ...> _bound_args;
 
-        size_t curr_size = 0;
+        size_t inuse_objects = 0;
         policy_t policy;
-        std::list<obj_t *> free_list;
-        std::mutex buffer_mutex;
-        std::condition_variable borrow_cv;
+        std::condition_variable borrow_cv; // use buffer_mutex on notifying alloc event. 
         volatile bool new_obj_ready = false;
+        void notify_new_object_allocated(size_t how_many) {
+            new_obj_ready = true;
+            for(auto cter = 0; cter < how_many; ++cter)
+                borrow_cv.notify_one();
+        }
 
         // try_borrow_one without lock.
         obj_t *do_try_borrow_one() {
@@ -157,7 +171,7 @@ namespace rlib {
                 typename buffer_t::iterator elem_iter(result);
                 elem_iter.get_extra_info() = false; // mark as busy.
                 new_obj_ready = false;
-                ++curr_size;
+                ++inuse_objects;
                 return result;
             }
             return nullptr;
@@ -176,6 +190,33 @@ namespace rlib {
 
         inline void new_obj_to_buffer() {
             new_obj_to_buffer_impl(std::make_index_sequence<sizeof...(_bound_construct_args_t)>());
+        }
+
+        std::mutex alloc_thread_notify_mutex;
+        std::condition_variable alloc_thread_notify_cv;
+        volatile bool alloc_thread_should_trigger = false;
+
+        void alloc_thread_func() {
+            // A new thread to alloc new objects basing on policy.
+            while(true) {
+                std::unique_lock<std::mutex> lk(alloc_thread_notify_mutex);
+                alloc_thread_notify_cv.wait(lk, [this]{return this->alloc_thread_should_trigger;});
+                // serial area.
+                lk.unlock();
+
+                auto should_alloc = policy.objects_should_alloc(inuse_size(), size());
+                {
+                    std::lock_guard<std::mutex> _l(buffer_mutex);
+                    for(auto cter = 0; cter < should_alloc; ++cter) {
+                        // Alloc a new object.
+                        new_obj_to_buffer();
+                        free_list.push_back(&*--buffer.end());
+                    }
+                }
+                if(should_alloc > 0) {
+
+                }
+            }
         }
     };
 }

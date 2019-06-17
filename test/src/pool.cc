@@ -94,3 +94,12 @@ TEST_CASE("infinite dynamic object pool") {
     REQUIRE(inf_pool.size() == 1+test_rounds);
 }
 
+TEST_CASE("fixed object pool parallel test") {
+    size_t pool_size = 8;
+    const auto arg1 = 666;
+    const auto arg2 = string("fuck you");
+    rlib::object_pool<rlib::object_pool_policy_fixed, pooled_obj_t, decltype(arg1), decltype(arg2)> 
+        fixed_pool(rlib::object_pool_policy_fixed(pool_size), arg1, arg2);
+ 
+}
+
