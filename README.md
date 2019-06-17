@@ -8,6 +8,7 @@ Here is recolic's private library...
 # TODO
 
 ```c++
+/*
 RETEST rlib::noncopyable
 rlib::stdio fd control is still a problem.
 
@@ -17,4 +18,5 @@ rlib::meta::array::to_tuple
 rlib::meta::string
 
 #DONE#rlib::logger
+*/
 ```

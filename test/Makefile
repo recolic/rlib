@@ -40,7 +40,7 @@ endif
 
 POSTFIX=$(STD)_$(CXX)
 
-all: string common
+all: string common pool
 
 common:
 	$(CXX) $(CXXFLAGS) src/common.cc $(CXXFLAGS) -o src/common_$(POSTFIX).out
@@ -49,6 +49,10 @@ common:
 string:
 	$(CXX) $(CXXFLAGS) src/string.cc $(CXXFLAGS) -o src/string_$(POSTFIX).out
 	src/string_$(POSTFIX).out
+
+pool:
+	$(CXX) $(CXXFLAGS) src/pool.cc $(CXXFLAGS) -o src/pool_$(POSTFIX).out
+	src/pool_$(POSTFIX).out
 
 clean:
 	rm -f src/*.out
