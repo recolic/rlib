@@ -22,7 +22,7 @@
 MODULES=string meta trait stdio sio scope_guard
 
 XTRA_FLAGS ?=
-CXXFLAGS=-I. -I../.. $(XTRA_FLAGS)
+CXXFLAGS=-I. -I../.. $(XTRA_FLAGS) -pthread
 STD ?= 14
 FLAGS11=-std=c++11 rlib/libr.a
 FLAGS14=-std=c++14 rlib/libr.a
@@ -40,19 +40,12 @@ endif
 
 POSTFIX=$(STD)_$(CXX)
 
-all: string common pool
+all: string.test common.test pool.test threading.test
 
-common:
-	$(CXX) $(CXXFLAGS) src/common.cc $(CXXFLAGS) -o src/common_$(POSTFIX).out
-	src/common_$(POSTFIX).out
-
-string:
-	$(CXX) $(CXXFLAGS) src/string.cc $(CXXFLAGS) -o src/string_$(POSTFIX).out
-	src/string_$(POSTFIX).out
-
-pool:
-	$(CXX) $(CXXFLAGS) src/pool.cc $(CXXFLAGS) -o src/pool_$(POSTFIX).out
-	src/pool_$(POSTFIX).out
+%.test: src/%.cc
+	@echo Testing $< ...
+	$(CXX) $< $(CXXFLAGS) -o src/$@_$(POSTFIX).out
+	src/$@_$(POSTFIX).out
 
 clean:
 	rm -f src/*.out

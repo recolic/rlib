@@ -59,13 +59,13 @@ TEST_CASE("fixed object pool") {
             objs.pop_front();
         }
     }
-    REQUIRE(fixed_pool.size() == 1);
+    REQUIRE(fixed_pool.size() == pool_size);
 }
 
 TEST_CASE("infinite dynamic object pool") {
     const auto arg1 = string("fuck you 2");
-    rlib::object_pool<rlib::object_pool_policy_dynamic_never_free, pooled_obj2_t, decltype(arg1)>
-        inf_pool(rlib::object_pool_policy_dynamic_never_free(), arg1);
+    rlib::object_pool<rlib::object_pool_policy_watermarks, pooled_obj2_t, decltype(arg1)>
+        inf_pool(rlib::object_pool_policy_watermarks(), arg1);
     
     auto res = inf_pool.try_borrow_one();
     REQUIRE(res != nullptr);
@@ -90,8 +90,6 @@ TEST_CASE("infinite dynamic object pool") {
         }
         // "Leak" one object.
     }
-
-    REQUIRE(inf_pool.size() == 1+test_rounds);
 }
 
 TEST_CASE("fixed object pool parallel test") {

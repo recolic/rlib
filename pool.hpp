@@ -22,48 +22,28 @@ using size_t = unsigned long;
 
 namespace rlib {
     struct object_pool_policy_fixed {
-        object_pool_policy_fixed(size_t size) : size(size), used(new std::atomic<size_t>(0)) {}
-        bool borrow_should_alloc(/*const size_t free_objects, const size_t existing_objects*/) { // TODO: add size argument?
-            // object_pool::borrow calls this funcion.
-            // If it returns true, object pool will alloc a new object.
-            // If it returns false, object pool will not alloc a new object.
-            // If it returns false, THIS FUNCTION MUST HAVE NO SIDE EFFECT!
-            // If there's no free object, object pool::borrow blocks.
-            while(true) {
-                auto used_old = used->load(std::memory_order_acquire);
-                if(used_old >= size) {
-                    return false;
-                }
-                auto used_new = used_old + 1;
-                if(used->compare_exchange_strong(used_old, used_new, std::memory_order_acq_rel))
-                    break; // success
-            }
-            return true;
-        }
-        bool release_should_free() {
-            if(used->load() == 0)
-                throw std::runtime_error("POLICY detected error: Release object of zero-sized object pool.");
-            (*used)--;
-            return false;
-        }
-
-        size_t objects_should_alloc(const size_t inuse_objects, const size_t avail_objects) {
+        object_pool_policy_fixed(size_t size) : size(size) {}
+        size_t objects_should_alloc(const size_t inuse_objects, const size_t avail_objects) const {
             return avail_objects < size ? size - avail_objects : 0;
         }
     private:
         const size_t size;
-        std::unique_ptr<std::atomic<size_t> > used;
     };
-    struct object_pool_policy_dynamic_never_free {
-        object_pool_policy_dynamic_never_free() : fixed(std::numeric_limits<size_t>::max()) {}
-        bool borrow_should_alloc() {
-            return fixed.borrow_should_alloc();
-        }
-        bool release_should_free() {
-            return fixed.release_should_free();
+    struct object_pool_policy_watermarks {
+        // If free/all < alloc_threshold_rate, then alloc more objects.
+        object_pool_policy_watermarks(float alloc_threshold_rate = 0.8, size_t min_objects = 8)
+            : _alloc_threshold_rate(1.0/alloc_threshold_rate), min_objects(min_objects)  {}
+        size_t objects_should_alloc(const size_t inuse_objects, const size_t avail_objects) const {
+            if(avail_objects < min_objects)
+                return min_objects - avail_objects;
+            size_t threshold = inuse_objects * _alloc_threshold_rate;
+            if(threshold > avail_objects)
+                return threshold - avail_objects;
+            return 0;
         }
     private:
-        object_pool_policy_fixed fixed;
+        const float _alloc_threshold_rate;
+        const size_t min_objects;
     };
     struct object_pool_policy_dynamic_smart {
 
@@ -146,7 +126,7 @@ namespace rlib {
         std::tuple<_bound_construct_args_t ...> _bound_args;
 
         size_t inuse_objects = 0;
-        policy_t policy;
+        const policy_t policy;
         std::condition_variable borrow_cv; // use buffer_mutex on notifying alloc event. 
         volatile bool new_obj_ready = false;
         void notify_new_object_allocated(size_t how_many) {
