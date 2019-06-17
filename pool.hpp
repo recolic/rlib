@@ -116,6 +116,7 @@ namespace rlib {
                 typename buffer_t::iterator elem_iter(which);
                 elem_iter.get_extra_info() = true; // mark as free.
                 new_obj_ready = true;
+                --curr_size;
             } // lock released.
             borrow_cv.notify_one();
         }

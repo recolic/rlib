@@ -18,11 +18,21 @@ struct pooled_obj_t {
     string arg2;
 };
 
+struct pooled_obj2_t {
+    pooled_obj2_t(string arg1)
+        : arg1(arg1) {}
+    
+    pooled_obj2_t(const pooled_obj2_t &another) = delete;
+    pooled_obj2_t() = delete;
+
+    string arg1;
+};
+
 TEST_CASE("fixed object pool") {
     size_t pool_size = 8;
     const auto arg1 = 666;
     const auto arg2 = string("fuck you");
-    rlib::object_pool<rlib::object_pool_policy_fixed, pooled_obj_t, int, string> 
+    rlib::object_pool<rlib::object_pool_policy_fixed, pooled_obj_t, decltype(arg1), decltype(arg2)> 
         fixed_pool(rlib::object_pool_policy_fixed(pool_size), arg1, arg2);
     
     auto res = fixed_pool.try_borrow_one();
@@ -49,5 +59,38 @@ TEST_CASE("fixed object pool") {
             objs.pop_front();
         }
     }
+    REQUIRE(fixed_pool.size() == 1);
+}
+
+TEST_CASE("infinite dynamic object pool") {
+    const auto arg1 = string("fuck you 2");
+    rlib::object_pool<rlib::object_pool_policy_dynamic_never_free, pooled_obj2_t, decltype(arg1)>
+        inf_pool(rlib::object_pool_policy_dynamic_never_free(), arg1);
+    
+    auto res = inf_pool.try_borrow_one();
+    REQUIRE(res != nullptr);
+    REQUIRE(res->arg1 == arg1);
+
+    size_t pool_size = 16;
+    size_t test_rounds = 512;
+
+    for(auto _ = 0; _ < test_rounds; ++_) {
+        std::list<decltype(res)> objs;
+        for(auto cter = 0; cter < pool_size; ++cter) {
+            auto ptr = inf_pool.try_borrow_one();
+            REQUIRE(ptr != nullptr);
+            REQUIRE(ptr->arg1 == arg1);
+            inf_pool.reconstruct_one(ptr);
+            REQUIRE(ptr->arg1 == arg1);
+            objs.push_back(ptr);
+        }
+        for(auto cter = 0; cter < pool_size - 1; ++cter) {
+            inf_pool.release_one(*objs.begin());
+            objs.pop_front();
+        }
+        // "Leak" one object.
+    }
+
+    REQUIRE(inf_pool.size() == 1+test_rounds);
 }
 
