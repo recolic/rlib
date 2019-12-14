@@ -24,6 +24,7 @@
 #include <sstream>
 #include <type_traits>
 
+// Intel C++ compiler has a pending bug for `thread_local inline` variable.
 #if RLIB_COMPILER_ID == CC_ICC
 #define RLIB_IMPL_SSTREAM_DISABLE_TLS
 #endif
@@ -36,14 +37,14 @@ namespace rlib {
     // literals::_format, format_string, string::format
     namespace impl {
 #ifndef RLIB_IMPL_SSTREAM_DISABLE_TLS
-#if RLIB_CXX_STD < 2017
-// Intel C++ compiler has a pending bug for `thread_local inline` variable.
-        thread_local extern std::stringstream to_string_by_sstream_ss;        
-        thread_local extern std::stringstream _format_string_helper_ss;
-#else
-        thread_local inline std::stringstream to_string_by_sstream_ss;        
-        thread_local inline std::stringstream _format_string_helper_ss;
-#endif
+        inline std::stringstream &to_string_by_sstream_ss() {
+            static thread_local std::stringstream instance;
+            return instance;
+        }
+        inline std::stringstream &_format_string_helper_ss() {
+            static thread_local std::stringstream instance;
+            return instance;
+        }
 #endif
         template <typename VarT>
         std::string to_string_by_sstream(VarT &thing) {
@@ -52,7 +53,7 @@ namespace rlib {
             // Also fix mingw bug. But much slower!
             std::stringstream ss;
 #else
-            auto &ss = to_string_by_sstream_ss;
+            auto &ss = to_string_by_sstream_ss();
             ss.str(std::string());
 #endif
             ss << thing;
@@ -65,7 +66,7 @@ namespace rlib {
             // Fix intel C++ bug https://software.intel.com/en-us/forums/intel-c-compiler/topic/784136
             std::stringstream ss;
 #else
-            auto &ss = _format_string_helper_ss; // cached stringstream is much quicker.
+            auto &ss = _format_string_helper_ss(); // cached stringstream is much quicker.
             ss.str(std::string());
 #endif
             size_t pos = 0, prev_pos = 0;

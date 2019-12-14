@@ -1,7 +1,6 @@
 # use this file if you want to install rlib
 
 set(rlib_INCLUDE_DIRS ${PREFIX}/include)
-set(rlib_LIBRARIES ${PREFIX}/lib/libr.a)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # using clang

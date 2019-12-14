@@ -24,8 +24,8 @@ MODULES=string meta trait stdio sio scope_guard
 XTRA_FLAGS ?=
 CXXFLAGS=-I. -I../.. $(XTRA_FLAGS)
 STD ?= 14
-FLAGS11=-std=c++11 rlib/libr.a
-FLAGS14=-std=c++14 rlib/libr.a
+FLAGS11=-std=c++11
+FLAGS14=-std=c++14
 FLAGS17=-std=c++17
 
 ifeq ($(STD),11)

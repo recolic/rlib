@@ -96,25 +96,24 @@ namespace rlib {
     // implementations below --------------------------------
 
     namespace impl {
-#if RLIB_CXX_STD < 2017
-        extern bool enable_endl_flush;
-#else
-        inline bool enable_endl_flush = true;
-#endif
+        inline bool &enable_endl_flush() {
+            static bool instance = true;
+            return instance;
+        }
     }
 
     inline bool sync_with_stdio(bool sync = true) noexcept {
         return std::ios::sync_with_stdio(sync);
     }
     inline bool enable_endl_flush(bool enable = true) noexcept {
-        return impl::enable_endl_flush = enable;
+        return impl::enable_endl_flush() = enable;
     }
 
 // Implements.
     template < class CharT, class Traits >
     inline std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
         os << RLIB_IMPL_ENDLINE;
-        if(impl::enable_endl_flush)
+        if(impl::enable_endl_flush())
             os.flush();
         return os;
     }

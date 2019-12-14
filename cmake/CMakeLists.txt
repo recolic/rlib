@@ -14,6 +14,5 @@ if(MSYS OR MINGW)
     add_definitions(-DRLIB_MINGW_DISABLE_TLS)
 endif()
 
-add_library(r STATIC ../libr.cc)
 include_directories(..)
 

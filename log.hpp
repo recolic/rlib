@@ -36,11 +36,10 @@ namespace rlib {
     // Allow extension.
     enum class log_level_t : int { FATAL = 1, ERROR, WARNING, INFO, VERBOSE, DEBUG };
     namespace impl {
-#if RLIB_CXX_STD < 2017
-        extern int max_predefined_log_level;
-#else
-        inline int max_predefined_log_level = (int)log_level_t::DEBUG;
-#endif
+        inline int &max_predefined_log_level() {
+            static int instance = (int)log_level_t::DEBUG;
+            return instance;
+        }
     }
     /*
     How to update log_level_t:
@@ -109,10 +108,10 @@ namespace rlib {
         }
         // Warning: this method is not thread-safe.
         log_level_t register_log_level(const std::string &name) {
-            if(impl::max_predefined_log_level == INT_MAX)
+            if(impl::max_predefined_log_level() == INT_MAX)
                 throw std::overflow_error("At most {}(INT_MAX) log_level is allowed."_format(INT_MAX));
-            ++ impl::max_predefined_log_level;
-            log_level_t new_level = (log_level_t)impl::max_predefined_log_level;
+            ++ impl::max_predefined_log_level();
+            log_level_t new_level = (log_level_t)impl::max_predefined_log_level();
             custom_log_level_names.push_back({new_level, name});
             return new_level;
         }
