@@ -410,7 +410,7 @@ namespace rlib {
             return i;
         }
     public:
-        static ssize_t recvn(sockfd_t fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(sockfd_t fd, void *vptr, size_t n, int flags = 0) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -432,7 +432,7 @@ namespace rlib {
             }
             return (n);         /* return >= 0 */
         }
-        static ssize_t sendn(sockfd_t fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(sockfd_t fd, const void *vptr, size_t n, int flags = 0) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -453,7 +453,7 @@ namespace rlib {
             }
             return (n);
         }
-        static ssize_t recvall(sockfd_t fd, void **pvptr, size_t initSize, int flags) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
+        static ssize_t recvall(sockfd_t fd, void **pvptr, size_t initSize, int flags = 0) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
         {
             size_t current = initSize ? initSize : 1024;
             void *vptr = *pvptr;
@@ -504,7 +504,7 @@ namespace rlib {
 #else 
     // POSIX sockIO
     public:
-        static ssize_t recvn(sockfd_t fd, void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t recvn(sockfd_t fd, void *vptr, size_t n, int flags = 0) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t  nleft;
             ssize_t nread;
@@ -526,7 +526,7 @@ namespace rlib {
             }
             return (n);         /* return success */
         }
-        static ssize_t sendn(sockfd_t fd, const void *vptr, size_t n, int flags) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
+        static ssize_t sendn(sockfd_t fd, const void *vptr, size_t n, int flags = 0) noexcept //Return -1 on error, read bytes on success, blocks until nbytes done.
         {
             size_t nleft;
             ssize_t nwritten;
@@ -547,7 +547,7 @@ namespace rlib {
             }
             return (n);
         }
-        static ssize_t recvall(sockfd_t fd, void **pvptr, size_t initSize, int flags) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
+        static ssize_t recvall(sockfd_t fd, void **pvptr, size_t initSize, int flags = 0) noexcept //Return -1 on error, read bytes on success. pvptr must be a malloc/calloced buffer, I'll malloc one if *pvptr is NULL.
         {
             size_t current = initSize ? initSize : 1024;
             void *vptr = *pvptr;
@@ -594,17 +594,17 @@ namespace rlib {
 #endif
         // both POSIX and Win32
     public:
-        static void recvn_ex(sockfd_t fd, void *vptr, size_t n, int flags) //return read bytes.
+        static void recvn_ex(sockfd_t fd, void *vptr, size_t n, int flags = 0) //return read bytes.
         {
             auto ret = recvn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("recvn failed. {}"_format(strerror(errno)));
         }
-        static void sendn_ex(sockfd_t fd, const void *vptr, size_t n, int flags)
+        static void sendn_ex(sockfd_t fd, const void *vptr, size_t n, int flags = 0)
         {
             auto ret = sendn(fd, vptr, n, flags);
             if(ret == -1) throw std::runtime_error("sendn failed. {}"_format(strerror(errno)));
         }
-        static ssize_t recvall_ex(sockfd_t fd, void **pvptr, size_t initSize, int flags) //never return -1
+        static ssize_t recvall_ex(sockfd_t fd, void **pvptr, size_t initSize, int flags = 0) //never return -1
         {
             auto ret = recvall(fd, pvptr, initSize, flags);
             if(ret == -1) throw std::runtime_error("recvall failed. {}"_format(strerror(errno)));
