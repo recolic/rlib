@@ -117,6 +117,12 @@ namespace rlib {
         {
             return args.empty();
         }
+
+        // Note that, args data will be erased, once got fetched.
+        const std::vector<std::string> &data() const
+        {
+            return args;
+        }
     private:
         std::vector<std::string> args;
         std::string arg0;
