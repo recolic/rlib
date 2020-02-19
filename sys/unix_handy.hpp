@@ -2,6 +2,7 @@
 #define RLIB_UNIX_HANDY_HPP_
 
 #include <unistd.h>
+
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
@@ -12,6 +13,22 @@
 #if RLIB_OS_ID == OS_WINDOWS
 #error rlib/sys/unix_handy.hpp is not for Windows.
 #endif
+
+namespace rlib {
+    // args DOES NOT contain the "$0".
+    inline void execs(std::string path, std::vector<std::string> args) {
+        const size_t max_args = 1022;
+        if(args.size() > max_args)
+            throw std::out_of_range("too many arguments");
+        char* arr[max_args + 2];
+        arr[0] = (char *)path.c_str();
+        for(auto cter = 0; cter < args.size(); ++cter)
+            arr[cter+1] = (char *)args[cter].c_str();
+        arr[args.size() + 1] = 0;
+    
+        ::execv(path.c_str(), arr);
+    }
+}
 
 // Deprecated. Use sys/sio.hpp
 #if 1+1 == 4

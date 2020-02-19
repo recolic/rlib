@@ -30,10 +30,9 @@
 #include <utility>
 #include <valarray>
 
-#ifndef RLIB_3RD_ENABLE_PRETTYPRINT
 namespace rlib {
     namespace _3rdparty {
-#endif
+// 3rd party code begin
 namespace pretty_print
 {
     namespace detail
@@ -451,11 +450,11 @@ namespace std
         return stream << pretty_print::print_container_helper<T, TChar, TCharTraits>(container);
     }
 }
-#ifndef RLIB_3RD_ENABLE_PRETTYPRINT
+// 3rd party code end.
     }
 } // end namespace rlib::3rdparty
-#endif // RLIB_3RD_ENABLE_PRETTYPRINT 
-
-
+namespace rlib {
+    namespace prettyprint = ::rlib::_3rdparty::std;
+}
 
 #endif  // H_PRETTY_PRINT

@@ -1,9 +1,9 @@
 #include "prettyprint.hpp"
 #include <rlib/stdio.hpp>
 #include <list>
-using namespace rlib;
+using namespace rlib::prettyprint;
 
 int main() {
-    std::list ls {1,3,2};
-    _3rdparty::std::operator<<(std::cout, ls);
+    std::list<int> ls {1,3,2};
+    std::cout << ls;
 }
