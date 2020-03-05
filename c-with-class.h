@@ -1,3 +1,4 @@
+// This header is compatible for ONLY C, requires C99 (double slash comment).
 #ifndef RLIB_CWITHCLASS_H_
 #define RLIB_CWITHCLASS_H_
 

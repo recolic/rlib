@@ -1,3 +1,4 @@
+// This header is compatible for both C and C++, requires C99 (double slash comment).
 #ifndef R_OS_HPP
 #define R_OS_HPP
 
@@ -26,7 +27,7 @@
 #endif
 #endif
 
-#define RLIB_OS_ID_MAGIC 980427
+#define RLIB_OS_ID_MAGIC 990823
 #define OS_WINDOWS (RLIB_OS_ID_MAGIC + 1) 
 #define OS_LINUX   (RLIB_OS_ID_MAGIC + 2) 
 #define OS_MACOS   (RLIB_OS_ID_MAGIC + 3) 
@@ -47,19 +48,19 @@
 
 // shorthand for __cplusplus macro.
 #ifndef RLIB_CXX_STD
-#   if RLIB_COMPILER_ID == CC_MSVC
-#       if defined(__cplusplus)
-#       if __cplusplus == 199711L
-#           pragma message (": warning MSVC_Wrong__cplusplus: Your MSVC is possibly set __cplusplus to wrong value. Please upgrade to VS2017 15.7 Preview 3 and recompile with /Zc:__cplusplus. Or I'll assume you support C++17 and set RLIB_CXX_STD to 2017. (refer to https://blogs.msdn.microsoft.com/vcblog/2018/04/09/msvc-now-correctly-reports-__cplusplus/)")
-#           define RLIB_CXX_STD 2017
+#   if defined(__cplusplus)
+#       if RLIB_COMPILER_ID == CC_MSVC
+#           if __cplusplus == 199711L
+#               pragma message (": warning MSVC_Wrong__cplusplus: Your MSVC is possibly set __cplusplus to wrong value. Please upgrade to VS2017 15.7 Preview 3 and recompile with /Zc:__cplusplus. Or I'll assume you support C++17 and set RLIB_CXX_STD to 2017. (refer to https://blogs.msdn.microsoft.com/vcblog/2018/04/09/msvc-now-correctly-reports-__cplusplus/)")
+#               define RLIB_CXX_STD 2017
+#           else
+#               define RLIB_CXX_STD (__cplusplus / 100L)
+#           endif
 #       else
 #           define RLIB_CXX_STD (__cplusplus / 100L)
 #       endif
-#       endif
 #   else
-#       if defined(__cplusplus)
-#       define RLIB_CXX_STD (__cplusplus / 100L)
-#       endif
+#       define RLIB_CXX_STD 0
 #   endif
 #endif
 
