@@ -62,6 +62,10 @@ struct rlib_test_printable {
         return stream;
     }
 };
+struct rlib_test_iterable : public std::vector<float> {
+    using std::vector<float>::vector;
+};
+
 TEST_CASE("stdio.hpp") {
     std::stringstream test_ss;
     rlib::print(test_ss, '>');
@@ -72,6 +76,13 @@ TEST_CASE("stdio.hpp") {
     rlib::printfln(test_ss, "hello, {}.", "godaddy");
     REQUIRE(rlib::scanln(test_ss) == ">a b 123 0.25 2");
     REQUIRE(rlib::scanln(test_ss) == "1hello, godaddy.");
+
+    rlib_test_iterable v{1.2, 6.666, 12, -11.11};
+    std::string answer = "1.21.2 6.666 12 -11.11 6.6661.2 6.666 12 -11.11 121.2 6.666 12 -11.11 -11.111.2 6.666 12 -11.11 ";
+    std::stringstream ss1, ss2;
+    rlib::println(ss1, rlib::printable_iter(v, rlib::printable_iter(v)));
+    rlib::print(ss2, rlib::printable_iter(v, rlib::printable_iter(v)));
+    rlib::println(ss1.str() == answer + '\n', ss2.str() == answer);
 }
 
 
