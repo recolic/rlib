@@ -49,6 +49,18 @@ TEST_CASE("rlib::string others", "[string_op]") {
     test_str = "hello world \n abc def some   random  ";
     auto test_str2 = test_str;
     REQUIRE(" "_rs.join(test_str.split(' ')) == test_str2);
+
+    const rlib::string test_str3 = "|123||";
+    REQUIRE(test_str3.starts_with("") == true);
+    REQUIRE(test_str3.starts_with("|") == true);
+    REQUIRE(test_str3.starts_with("|123||") == true);
+    REQUIRE(test_str3.starts_with("1123||") == false);
+    REQUIRE(test_str3.starts_with("|123|||") == false);
+    REQUIRE(test_str3.ends_with("") == true);
+    REQUIRE(test_str3.ends_with("|") == true);
+    REQUIRE(test_str3.ends_with("23||") == true);
+    REQUIRE(test_str3.ends_with("1123||") == false);
+    REQUIRE(test_str3.ends_with("123|||") == false);
 }
 
 
