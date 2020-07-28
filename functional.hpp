@@ -9,6 +9,7 @@
 #include <list>
 #include <functional>
 #include <chrono>
+#include <stdexcept>
 
 namespace rlib {
     namespace impl {
