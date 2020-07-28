@@ -78,9 +78,7 @@ namespace rlib {
                 return *pos;
             }
         }
-
-        // rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required = true, const std::string &def = std::string()) // MSVC doesn't allow this overload.
-        rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required, const std::string &def)
+        rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required = true, const std::string &def = std::string())
         {
             using rlib::literals::operator "" _format;
             std::string valueL = getValueArg(longName, false);
@@ -95,16 +93,13 @@ namespace rlib {
             }
             return std::move(value);
         }
-        rlib::string getValueArg(const std::string &longName, const std::string &shortName, bool required) {
-            return getValueArg(longName, shortName, required, std::string());
-        }
-        rlib::string getValueArg(const std::string &longName, const std::string &shortName) {
-            return getValueArg(longName, shortName, true, std::string());
-        }
 
         rlib::string getValueArg(const std::string &longName, const char *shortName)
         { //getValueArg("--long", "-l") may be converted to getValueArg("--long", true).
-            return getValueArg(longName, shortName, true);
+            return getValueArg(longName, std::string(shortName));
+        }
+        rlib::string getValueArg(const std::string& argName, bool required, const char * def) {
+            return getValueArg(argName, required, std::string(def));
         }
 
         bool getBoolArg(const std::string &argName)
