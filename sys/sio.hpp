@@ -7,12 +7,16 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <ws2tcpip.h>
+namespace rlib {
+    using ssize_t = int;
+}
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #endif
 
 // Include winsock2.h before windows.h
@@ -501,6 +505,11 @@ namespace rlib {
                 currvptr = (char *)vptr + current / 2;
             }
         }
+        static void close_ex(sockfd_t fd) {
+            if (closesocket(fd) == SOCKET_ERROR) {
+                throw std::runtime_error("closeSocket failed. error code: " + std::to_string(WSAGetLastError()));
+            }
+        }
 #else 
     // POSIX sockIO
     public:
@@ -584,6 +593,11 @@ namespace rlib {
                     return -1;
                 }
                 currvptr = (char *)vptr + current / 2;
+            }
+        }
+        static void close_ex(sockfd_t fd) {
+            if (close(fd) == -1) {
+                throw std::runtime_error("close failed. error code: " + std::to_string(errno));
             }
         }
 #endif
