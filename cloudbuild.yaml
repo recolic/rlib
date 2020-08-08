@@ -1,0 +1,11 @@
+steps:
+- name: 'docker.io/recolic/cxx-toolkit'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      g++ --version
+      clang++ --version
+      make &&
+      make test
+
