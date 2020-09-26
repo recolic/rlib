@@ -30,6 +30,11 @@
 #undef ERROR
 #endif
 
+#ifdef DEBUG
+#pragma message (": warning Macro_pollution: You MUST NOT define the macro `DEBUG`. I've undefined it here.")
+#undef DEBUG
+#endif
+
 namespace rlib {
     using namespace rlib::literals;
 
