@@ -5,6 +5,12 @@
 
 Here is recolic's private library...
 
+## Installation
+
+```
+sudo make install
+```
+
 # TODO
 
 ```c++
