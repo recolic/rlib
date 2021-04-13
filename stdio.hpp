@@ -67,6 +67,12 @@ namespace rlib {
     template <typename... Args>
     size_t printfln(std::ostream &os, const std::string &fmt, Args... args);
 
+    template <typename TargetType = std::string>
+    inline TargetType scan(std::istream &is = std::cin) {
+        TargetType target;
+        is >> target;
+        return target;
+    }
     inline rlib::string scanln(std::istream &is = std::cin, char delimiter = '\n') noexcept {
         std::string line;
         std::getline(is, line, delimiter);
