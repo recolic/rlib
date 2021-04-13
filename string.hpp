@@ -9,7 +9,7 @@
 #ifndef R_STRING_HPP
 #define R_STRING_HPP
 
-#include <rlib/require/cxx14>
+#include <rlib/require/cxx11>
 #include <rlib/class_decorator.hpp>
 #include <rlib/sys/os.hpp>
 

@@ -1,7 +1,7 @@
 # Compile and run tests for rlib
 # CopyRight (C) 2017-2018 Recolic Keghart <root@recolic.net>
 #
-# Tests may fail on both compile-time(traits and meta-lib) and run-time(return non-zero).
+# Tests may fail on both compile-time(traits and meta-lib) and run-time(return non-zero) error.
 # Use `make <module>` to build and run a module, 
 # 	and `make` to build and run all modules.
 # 
@@ -40,7 +40,7 @@ endif
 
 POSTFIX=$(STD)_$(CXX)
 
-all: string common
+all: string common header-include-all
 
 common:
 	$(CXX) $(CXXFLAGS) src/common.cc $(CXXFLAGS) -o src/common_$(POSTFIX).out
@@ -49,6 +49,10 @@ common:
 string:
 	$(CXX) $(CXXFLAGS) src/string.cc $(CXXFLAGS) -o src/string_$(POSTFIX).out
 	src/string_$(POSTFIX).out
+
+header-include-all:
+	$(CXX) $(CXXFLAGS) src/header-include-all.cc $(CXXFLAGS) -o src/header-include-all_$(POSTFIX).out
+	src/header-include-all_$(POSTFIX).out
 
 clean:
 	rm -f src/*.out

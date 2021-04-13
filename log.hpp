@@ -9,6 +9,7 @@
 #include <rlib/stdio.hpp>
 #include <rlib/sys/time.hpp>
 #include <rlib/class_decorator.hpp>
+#include <rlib/require/cxx14>
 
 // currently disable this error-prone shit.
 #define RLIB_IMPL_ENABLE_LOGGER_FROM_FD 0

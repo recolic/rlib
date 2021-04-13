@@ -10,7 +10,7 @@
 void test_f(int);
 class test_c {
 public:
-    auto operator()(int a) {
+    int operator()(int a) {
         return a;
     }
 };

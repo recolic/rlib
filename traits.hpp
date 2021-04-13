@@ -1,6 +1,7 @@
 #ifndef RLIB_TRAITS_HPP
 #define RLIB_TRAITS_HPP
 
+#include <rlib/require/cxx11>
 #include <type_traits>
 
 namespace rlib{
@@ -31,7 +32,7 @@ namespace rlib{
 
 namespace rlib {
     template<typename T>
-    struct is_callable : public std::bool_constant<impl::is_callable_helper<T>::real_value> {
+    struct is_callable : public std::integral_constant<bool, impl::is_callable_helper<T>::real_value> {
     };
 }
 

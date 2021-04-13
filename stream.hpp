@@ -18,7 +18,7 @@ namespace rlib {
     }
     
     inline std::ostream &null_stream() {
-        static std::ostream instance(impl::null_streambuf());
+        static std::ostream instance(&impl::null_streambuf());
         return instance;
     }
 }
