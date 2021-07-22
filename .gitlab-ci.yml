@@ -1,0 +1,13 @@
+image: docker.io/recolic/cxx-toolkit
+
+before_script:
+  - g++ --version
+  - clang++ --version
+
+build:
+  script:
+    - make
+    - make test
+
+
+
