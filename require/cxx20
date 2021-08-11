@@ -1,0 +1,12 @@
+#ifndef R_CXX20_REQUIRED
+#define R_CXX20_REQUIRED
+
+#include <rlib/sys/os.hpp>
+
+#if RLIB_CXX_STD <= 2017
+#error This file requires compiler and library support \
+for the ISO C++ 2020 standard. This support must be enabled \
+with the -std=c++20 or -std=c++2a compiler options.
+#endif
+
+#endif

@@ -82,7 +82,12 @@ TEST_CASE("stdio.hpp") {
     std::stringstream ss1, ss2;
     rlib::println(ss1, rlib::printable_iter(v, rlib::printable_iter(v)));
     rlib::print(ss2, rlib::printable_iter(v, rlib::printable_iter(v)));
-    rlib::println(ss1.str() == answer + '\n', ss2.str() == answer);
+    rlib::println(ss1.str() == answer + RLIB_IMPL_ENDLINE, ss2.str() == answer);
+
+    const rlib_test_iterable vc{1.2, 6.666, 12, -11.11};
+    std::stringstream ssvc;
+    rlib::println(ssvc, rlib::printable_iter(vc, rlib::printable_iter(vc)));
+    REQUIRE(ssvc.str() == answer + RLIB_IMPL_ENDLINE);
 }
 
 

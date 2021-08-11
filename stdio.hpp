@@ -102,19 +102,22 @@ namespace rlib {
         template <typename Iterable, typename Printable>
         struct _printable_iterable : private std::pair<Iterable, Printable> {
             using std::pair<Iterable, Printable>::pair;
-            const Iterable &arg() const {return std::pair<Iterable, Printable>::first;}
-            const Printable &spliter() const {return std::pair<Iterable, Printable>::second;}
+            using _printable_iterable_tag = void;
+            Iterable &arg() & {return std::pair<Iterable, Printable>::first;}
+            Printable &spliter() & {return std::pair<Iterable, Printable>::second;}
+            Iterable &&arg() && {return std::pair<Iterable, Printable>::first;}
+            Printable &&spliter() && {return std::pair<Iterable, Printable>::second;}
+            const Iterable &arg() const & {return std::pair<Iterable, Printable>::first;}
+            const Printable &spliter() const & {return std::pair<Iterable, Printable>::second;}
         };
+        template <typename FirstT, typename SecondT> using FirstOf = FirstT;
     }
 
-    // 2 more interfaces...
-    template <typename Iterable, typename Printable>
-    const impl::_printable_iterable<Iterable, Printable> printable_iter(Iterable arg, Printable spliter) {
-        return impl::_printable_iterable<Iterable, Printable>(arg, spliter);
-    }
-    template <typename Iterable>
-    const impl::_printable_iterable<Iterable, char> printable_iter(Iterable arg) {
-        return impl::_printable_iterable<Iterable, char>(arg, ' ');
+    // more interfaces...
+    template <typename Iterable, typename Printable = char>
+    auto printable_iter(Iterable &&arg, Printable spliter = ' ') -> impl::_printable_iterable<typename std::decay<Iterable>::type, Printable> {
+        // TODO: avoid the extra copy while passing lvalue reference on constructing return value obj. 
+        return impl::_printable_iterable<typename std::decay<Iterable>::type, Printable>(std::forward<Iterable>(arg), spliter);
     }
 
     inline bool sync_with_stdio(bool sync = true) noexcept {
@@ -124,8 +127,8 @@ namespace rlib {
         return impl::enable_endl_flush() = enable;
     }
 
-// Implements.
-    template < class CharT, class Traits >
+    // Implements below ---------------------
+    template <typename CharT, typename Traits>
     inline std::basic_ostream<CharT, Traits>& endl(std::basic_ostream<CharT, Traits>& os) {
         os << RLIB_IMPL_ENDLINE;
         if(impl::enable_endl_flush())
@@ -215,12 +218,22 @@ namespace rlib {
     }
 } // end namespace rlib
 
-template <typename Iterable, typename Printable>
-std::ostream& operator<< (std::ostream& stream, const rlib::impl::_printable_iterable<Iterable, Printable> &p) {
-    for(auto val : p.arg()) {
-        stream << val << p.spliter();
-    }
-    return stream;
+// auto-deduct const/nonconst left/right value ref. 
+// For C++20 std::view, it doesn't have a `begin()` method for const lvalue ref. So we have to support 
+//   passing rvalue from rlib::printable_iter() to rlib::impl::_printable_iterable to operator<< 
+// Instead of writing 3 overloads here, let us deduce automatically. 
+template <typename PrintableIterableT>
+rlib::impl::FirstOf<std::ostream&, typename std::decay<PrintableIterableT>::type::_printable_iterable_tag> operator<< (std::ostream& stream, PrintableIterableT &&p) {
+     for(auto val : p.arg())
+         stream << val << p.spliter();
+     return stream;
 }
+// // Old version, for backup
+// template <typename Iterable, typename Printable>
+// std::ostream& operator<< (std::ostream& stream, rlib::impl::_printable_iterable<Iterable, Printable> &&p) {
+//     for(auto val : p.arg())
+//         stream << val << p.spliter();
+//     return stream;
+// }
 
 #endif
