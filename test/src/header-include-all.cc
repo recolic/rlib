@@ -26,6 +26,6 @@
 #include <rlib/stdio.hpp>
 #include <rlib/stream.hpp>
 #include <rlib/terminal.hpp>
-#include <rlib/traits.hpp>
+#include <rlib/meta.hpp>
 
 int main() { return 0; }

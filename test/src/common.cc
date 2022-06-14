@@ -17,7 +17,7 @@ public:
 
 #if RLIB_CXX_STD >= 2017
 #include <rlib/functional.hpp>
-#include <rlib/traits.hpp>
+#include <rlib/meta.hpp>
 TEST_CASE("functional") {
     std::stringstream test_ss;
     auto test_func = [&](int i) {

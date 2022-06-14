@@ -1,9 +1,41 @@
-#ifndef RLIB_MEelement_typeA_HPP_
-#define RLIB_MEelement_typeA_HPP_
+#ifndef RLIB_META_HPP_
+#define RLIB_META_HPP_
 
 #include <rlib/sys/os.hpp>
 #include <cstddef> // size_t
 #include <tuple>
+
+#include <type_traits>
+
+namespace rlib {
+    namespace impl {
+        template<typename T>
+        struct is_callable_helper {
+        private:
+            typedef char(&yes)[1];
+            typedef char(&no)[2];
+
+            struct Fallback { void operator()(); };
+            struct Derived : T, Fallback { };
+
+            template<typename U, U> struct Check;
+
+            template<typename>
+            static yes test(...);
+
+            template<typename C>
+            static no test(Check<void (Fallback::*)(), &C::operator()>*);
+
+            static constexpr bool value = sizeof(test<Derived>(0)) == sizeof(yes);
+        public:
+            static constexpr bool real_value = std::conditional<std::is_class<T>::value, impl::is_callable_helper<T>, std::is_function<T>>::type::value;
+        };
+    }
+    template<typename T>
+    struct is_callable : public std::integral_constant<bool, impl::is_callable_helper<T>::real_value> {
+    };
+} // end namespace rlib
+
 
 namespace rlib {
     #if RLIB_CXX_STD >= 2017
