@@ -33,7 +33,7 @@ namespace rlib {
 
 
 namespace rlib {
-    // Both POSIX and Win32
+    // Both POSIX and Win32. Note what MinGW32 does not have POSIX support, so network operations will not compile on them. 
     using rlib::literals::operator "" _format;
     static inline sockfd_t quick_accept(sockfd_t sock) {
         auto res = accept(sock, NULL, NULL);
@@ -219,10 +219,14 @@ namespace rlib {
             if (listenfd == -1)
                 continue;
             int reuse = 1;
+#ifdef SO_REUSEADDR
             if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse, sizeof(int)) < 0)
                 throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
+#endif
+#ifdef SO_REUSEPORT
             if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEPORT, (const char *) &reuse, sizeof(int)) < 0)
                 throw std::runtime_error("setsockopt(SO_REUSEPORT) failed");
+#endif
             if (bind(listenfd, rp->ai_addr, rp->ai_addrlen) == 0) {
                 success = true;
                 break;
@@ -267,10 +271,14 @@ namespace rlib {
             if (sockfd == -1)
                 continue;
             int reuse = 1;
+#ifdef SO_REUSEADDR
             if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse, sizeof(int)) < 0)
                 throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
+#endif
+#ifdef SO_REUSEPORT
             if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (const char *) &reuse, sizeof(int)) < 0)
                 throw std::runtime_error("setsockopt(SO_REUSEPORT) failed");
+#endif
             if (connect(sockfd, rp->ai_addr, rp->ai_addrlen) == 0) {
                 success = true;
                 break; /* Success */
