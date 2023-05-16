@@ -8,7 +8,7 @@ fi
 
 for cxx in $compilers
 do
-    for std in 14 17
+    for std in 14 17 20 23
     do
         echo "Testing $cxx c++$std..."
         make CXX="$cxx" STD="$std"

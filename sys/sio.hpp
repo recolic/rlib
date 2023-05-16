@@ -17,6 +17,7 @@ namespace rlib {
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <poll.h>
 #endif
 
 // Include winsock2.h before windows.h
@@ -24,6 +25,7 @@ namespace rlib {
 #include <cstdlib>
 #include <unistd.h>
 #include <string>
+#include <list>
 #include <stdexcept>
 
 #include <rlib/sys/fd.hpp>
@@ -31,6 +33,9 @@ namespace rlib {
 #include <rlib/string.hpp>
 #include <rlib/scope_guard.hpp>
 
+#if RLIB_CXX_STD >= 2020
+#include <ranges>
+#endif
 
 namespace rlib {
     // Both POSIX and Win32. Note what MinGW32 does not have POSIX support, so network operations will not compile on them. 
@@ -68,8 +73,6 @@ namespace rlib {
             ipstr = std::string() + '[' + str + ']';
         }
         return {ipstr, port};
-        
-
     }
 
 #if RLIB_OS_ID != OS_WINDOWS
@@ -90,6 +93,36 @@ namespace rlib {
                 exit(-1);
             }
         }
+    }
+#endif
+
+#if RLIB_OS_ID != OS_WINDOWS
+    /*
+     * poll() multiple sockets, and return when one of them has event.
+     */
+    template <typename Iterable>
+#if RLIB_CXX_STD >= 2020
+        requires std::ranges::range<Iterable> && std::is_convertible_v<std::ranges::range_value_t<Iterable>, fd_t>
+#endif
+    static inline auto quick_poll(const Iterable &fds, short events, int timeout = -1) {
+        std::vector<pollfd> pollfds;
+        for (const auto &fd : fds) {
+            pollfds.push_back(pollfd {
+                    .fd = fd,
+                    .events = events,
+                    .revents = 0
+                    });
+        }
+        int nfds = poll(pollfds.data(), pollfds.size(), timeout);
+        if (nfds == -1) {
+            throw std::runtime_error("poll failed. errno = {}"_format(strerror(errno)));
+        }
+        std::list<pollfd> results;
+        for (auto && pfd : pollfds) {
+            if (pfd.revents != 0)
+                results.emplace_back(pfd);
+        }
+        return results;
     }
 #endif
 
