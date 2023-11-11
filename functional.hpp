@@ -116,9 +116,7 @@ namespace rlib {
         }
 
         this_type &flat_map(std::function<buffer_type<value_type>(const value_type &)>) {
-
         }
-
     };
 }
 #endif

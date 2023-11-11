@@ -22,21 +22,8 @@
 MODULES=string meta trait stdio sio scope_guard
 
 XTRA_FLAGS ?=
-CXXFLAGS=-I. -I../.. $(XTRA_FLAGS)
 STD ?= 14
-FLAGS11=-std=c++11
-FLAGS14=-std=c++14
-FLAGS17=-std=c++17
-
-ifeq ($(STD),11)
-	CXXFLAGS := $(CXXFLAGS) $(FLAGS11)
-endif
-ifeq ($(STD),14)
-	CXXFLAGS := $(CXXFLAGS) $(FLAGS14)
-endif
-ifeq ($(STD),17)
-	CXXFLAGS := $(CXXFLAGS) $(FLAGS17)
-endif
+CXXFLAGS=-I. -I../.. $(XTRA_FLAGS) -std=c++$(STD)
 
 POSTFIX=$(STD)_$(CXX)
 

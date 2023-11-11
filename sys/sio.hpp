@@ -709,11 +709,7 @@ namespace rlib {
             sendn_ex(fd, &head, sizeof(head), MSG_NOSIGNAL);
             sendn_ex(fd, dat.data(), head.len, MSG_NOSIGNAL);
         }
-
     };
-
-
 } // namespace rlib
-
 
 #endif
