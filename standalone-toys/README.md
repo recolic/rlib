@@ -9,5 +9,4 @@ They **are not** part of rlib, and they are intended for situations while not pr
 |Header|Note|
 |------|----|
 |rdebug.h|Minimal C helper to print debug output|
-|c-with-class.h|Old fashioned trick used in some C homeworks|
 |rlib.min.hpp|Minimal io/string helper for solving OJ questions, or writing POC program|
