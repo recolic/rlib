@@ -2,17 +2,17 @@
 #define RLIB_UNIX_HANDY_HPP_
 
 #include <unistd.h>
-
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <rlib/scope_guard.hpp>
-#include <rlib/string.hpp>
+#include <string>
+#include <stdexcept>
+#include <vector>
 
 #include <rlib/sys/os.hpp>
 #if RLIB_OS_ID == OS_WINDOWS
 #error rlib/sys/unix_handy.hpp is not for Windows.
 #endif
+
+// For shell_run
+#include <sstream>
 
 namespace rlib {
     // args DOES NOT contain the "$0".
@@ -28,10 +28,46 @@ namespace rlib {
     
         ::execv(path.c_str(), arr);
     }
+
+    struct shell_result {
+        int status;
+        std::string stdout_;
+    };
+    
+    // Execute command with shell and capture stdout.
+    // Note: stderr would be discarded. Use `2>&1` if needed.
+    shell_result shell_run(const std::string& command) {
+        char buffer[128];
+    
+        FILE *pipe = popen(command.c_str(), "r");
+        if (!pipe) {
+            return {-errno, ""};
+        }
+    
+        shell_result res;
+
+        while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            res.stdout_ += buffer;
+        }
+    
+        res.status = pclose(pipe);
+        res.status = WIFEXITED(res.status) ? WEXITSTATUS(res.status) : -errno;
+    
+        return res;
+    }
+
+    auto get_shell_name() {
+        return shell_run("echo -n $0").stdout_;
+    }
 }
 
 // Deprecated. Use sys/sio.hpp
 #if 1+1 == 4
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <rlib/scope_guard.hpp>
+#include <rlib/string.hpp>
 namespace rlib {
     namespace impl {
         using rlib::literals::operator""_format;

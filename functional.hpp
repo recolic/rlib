@@ -9,6 +9,7 @@
 #include <list>
 #include <functional>
 #include <chrono>
+#include <future>
 #include <stdexcept>
 
 namespace rlib {
@@ -44,7 +45,18 @@ namespace rlib {
         auto begin = std::chrono::high_resolution_clock::now();
         f(std::forward<Args>(args) ...);
         auto end = std::chrono::high_resolution_clock::now();
-        return ::std::chrono::duration<double>(end - begin).count(); 
+        return std::chrono::duration<double>(end - begin).count(); 
+    }
+    template <typename Func, typename... Args>
+    static inline auto timeout(int timeout_seconds, Func&& func, Args&&... args) {
+        using ReturnType = decltype(func(args...));
+        auto future = std::async(std::launch::async, std::forward<Func>(func), std::forward<Args>(args)...);
+    
+        if (future.wait_for(std::chrono::seconds(timeout_seconds)) == std::future_status::timeout) {
+            return ReturnType {};
+        }
+    
+        return future.get();
     }
 
     template <class Func, typename... Args>
