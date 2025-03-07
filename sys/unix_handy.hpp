@@ -33,7 +33,7 @@ namespace rlib {
     
     // Execute command with shell and capture stdout.
     // Note: stderr would be discarded. Use `2>&1` if needed.
-    shell_result shell_run(const std::string& command) {
+    inline shell_result shell_run(const std::string& command) {
         char buffer[128];
     
         FILE *pipe = popen(command.c_str(), "r");
@@ -53,7 +53,7 @@ namespace rlib {
         return res;
     }
 
-    auto get_shell_name() {
+    inline auto get_shell_name() {
         return shell_run("echo -n $0").stdout_;
     }
 }
