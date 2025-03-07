@@ -11,9 +11,6 @@
 #error rlib/sys/unix_handy.hpp is not for Windows.
 #endif
 
-// For shell_run
-#include <sstream>
-
 namespace rlib {
     // args DOES NOT contain the "$0".
     inline void execs(std::string path, std::vector<std::string> args) {
