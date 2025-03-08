@@ -27,7 +27,7 @@ namespace rlib {
     }
 
     struct shell_result {
-        int status;
+        int status = -1;
         std::string stdout_;
     };
     
