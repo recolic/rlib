@@ -6,9 +6,7 @@ Usage: Put this in /usr/bin/stdio.h
 #endif
 
 DO NOT modify this file directly. Please commit any change to ~/sh/rdebug.h
-version: 1.0.3
-
-changelog: 1.0.3: add print_time for c
+version: 1.0.4
 */
 
 
@@ -17,7 +15,8 @@ changelog: 1.0.3: add print_time for c
 #include <execinfo.h>
 #include <stdio.h>
 #include <stddef.h>
-#define RDEBUG(fmt, ...) fprintf(stderr, "RDEBUG: %s:%d(%s), " #fmt "\n" , __FILE__, __LINE__, __func__ __VA_OPT__(,) __VA_ARGS__ );
+#include <time.h>
+#define RDEBUG(fmt, ...) fprintf(stderr, "RDEBUG: %lu %s:%d(%s), " #fmt "\n" , time(0)%10000, __FILE__, __LINE__, __func__ __VA_OPT__(,) __VA_ARGS__ );
 
 #ifdef __cplusplus
 #include <ostream>
